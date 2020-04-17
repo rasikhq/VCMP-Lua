@@ -22,7 +22,7 @@ void RegisterVCMPCallbacks() {
 				fn();
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onServerInit");
+			OutputError(e.what());
 		}
 		return (uint8_t) 1;
 	};
@@ -37,9 +37,10 @@ void RegisterVCMPCallbacks() {
 				fn();
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onServerShutdown");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnServerFrame = [](float elapsedTime) -> void {
 #ifdef DEBUG_ENABLED
 		//std::cout << "OnServerFrame" << std::endl;
@@ -50,7 +51,7 @@ void RegisterVCMPCallbacks() {
 				fn(elapsedTime);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onServerFrame");
+			OutputError(e.what());
 		}
 	};
 	
@@ -64,7 +65,7 @@ void RegisterVCMPCallbacks() {
 				fn(commandIdentifier, message);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPluginCommand");
+			OutputError(e.what());
 		}
 		return (uint8_t) 1;
 	};
@@ -79,7 +80,7 @@ void RegisterVCMPCallbacks() {
 				fn(playerName, nameBufferSize, userPassword, ipAddress);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onConnectionReceive");
+			OutputError(e.what());
 		}
 		return (uint8_t) 1;
 	};
@@ -95,12 +96,12 @@ void RegisterVCMPCallbacks() {
 #endif
 		Player* player = Player::Register(playerId);
 		try {
-			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerJoin");
+			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerConnect");
 			if (fn.isFunction())
 				fn(*player);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerConnect");
+			OutputError(e.what());
 		}
 	};
 	
@@ -115,7 +116,7 @@ void RegisterVCMPCallbacks() {
 				fn(*player);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerDisconnect");
+			OutputError(e.what());
 		}
 	};
 	g_Calls->OnPlayerModuleList = [](int32_t playerId, const char* list) {
@@ -137,7 +138,7 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerRequestClass");
+			OutputError(e.what());
 		}
 		return ret;
 	};
@@ -157,7 +158,7 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerRequestSpawn");
+			OutputError(e.what());
 		}
 		return ret;
 	};
@@ -173,9 +174,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerSpawn");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerDeath = [](int32_t playerId, int32_t killerId, int32_t reason, vcmpBodyPart bodyPart) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerDeath" << std::endl;
@@ -197,7 +199,7 @@ void RegisterVCMPCallbacks() {
 				}
 			}
 			catch (luabridge::LuaException e) {
-				OutputErrorCallbackCall("onPlayerWasted");
+				OutputError(e.what());
 			}
 		}
 
@@ -209,9 +211,10 @@ void RegisterVCMPCallbacks() {
 				fn(*killer, *player, reason, bodyPart);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerKill");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerUpdate = [](int32_t playerId, vcmpPlayerUpdate updateType) {
 #ifdef DEBUG_ENABLED
 		//std::cout << "OnPlayerUpdate" << std::endl;
@@ -223,7 +226,7 @@ void RegisterVCMPCallbacks() {
 				fn(*player);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerUpdate");
+			OutputError(e.what());
 		}
 	};
 
@@ -243,10 +246,11 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerRequestEnterVehicle");
+			OutputError(e.what());
 		}
 		return ret;
 	};
+
 	g_Calls->OnPlayerEnterVehicle = [](int32_t playerId, int32_t vehicleId, int32_t slotIndex) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerEnterVehicle" << std::endl;
@@ -259,9 +263,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, *vehicle, slotIndex);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerEnterVehicle");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerExitVehicle = [](int32_t playerId, int32_t vehicleId) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerExitVehicle" << std::endl;
@@ -274,7 +279,7 @@ void RegisterVCMPCallbacks() {
 				fn(*player, *vehicle);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerExitVehicle");
+			OutputError(e.what());
 		}
 	};
 
@@ -289,9 +294,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, oldName, newName);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerNameChange");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerStateChange = [](int32_t playerId, vcmpPlayerState oldState, vcmpPlayerState newState) {
 #ifdef DEBUG_ENABLED
 		//std::cout << "OnPlayerStateChange" << std::endl;
@@ -303,9 +309,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, oldState, newState);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerStateChange");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerActionChange = [](int32_t playerId, int32_t oldAction, int32_t newAction) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerActionChange" << std::endl;
@@ -317,9 +324,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, oldAction, newAction);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerActionChange");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerOnFireChange = [](int32_t playerId, uint8_t isOnFire) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerOnFireChange" << std::endl;
@@ -331,9 +339,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, isOnFire);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerFireChange");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerCrouchChange = [](int32_t playerId, uint8_t isCrouching) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerCrouchChange" << std::endl;
@@ -345,9 +354,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, isCrouching);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerCrouchChange");
-	}
+			OutputError(e.what());
+		}
 	};
+
 	g_Calls->OnPlayerGameKeysChange = [](int32_t playerId, uint32_t oldKeys, uint32_t newKeys) {
 #ifdef DEBUG_ENABLED
 		//std::cout << "OnPlayerGameKeysChange" << std::endl;
@@ -359,9 +369,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, oldKeys, newKeys);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerGameKeysChange");
-	}
+			OutputError(e.what());
+		}
 	};
+
 	g_Calls->OnPlayerBeginTyping = [](int32_t playerId) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerBeginTyping" << std::endl;
@@ -373,9 +384,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerBeginTyping");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerEndTyping = [](int32_t playerId) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerEndTyping" << std::endl;
@@ -387,9 +399,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerFinishTyping");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerAwayChange = [](int32_t playerId, uint8_t isAway) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerAwayChange" << std::endl;
@@ -401,7 +414,7 @@ void RegisterVCMPCallbacks() {
 				fn(*player, isAway);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerAwayChange");
+			OutputError(e.what());
 		}
 	};
 
@@ -420,10 +433,11 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerMessage");
+			OutputError(e.what());
 		}
 		return ret;
 	};
+
 	g_Calls->OnPlayerCommand = [](int32_t playerId, const char* message) -> uint8_t {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerCommand" << std::endl;
@@ -439,10 +453,11 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerCommand");
+			OutputError(e.what());
 	}
 		return ret;
 	};
+
 	g_Calls->OnPlayerPrivateMessage = [](int32_t playerId, int32_t targetPlayerId, const char* message) -> uint8_t {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerPrivateMessage" << std::endl;
@@ -459,7 +474,7 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerPrivateMessage");
+			OutputError(e.what());
 		}
 		return ret;
 	};
@@ -475,9 +490,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, bindId);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerKeyDown");
-	}
+			OutputError(e.what());
+		}
 	};
+
 	g_Calls->OnPlayerKeyBindUp = [](int32_t playerId, int32_t bindId) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerKeyBindUp" << std::endl;
@@ -489,9 +505,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, bindId);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerKeyUp");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerSpectate = [](int32_t playerId, int32_t targetPlayerId) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerSpectate" << std::endl;
@@ -504,9 +521,10 @@ void RegisterVCMPCallbacks() {
 				fn(*player, *targetPlayer);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerSpectate");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerCrashReport = [](int32_t playerId, const char* report) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerCrashReport" << std::endl;
@@ -518,10 +536,9 @@ void RegisterVCMPCallbacks() {
 				fn(*player, report);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onPlayerCrashReport");
+			OutputError(e.what());
 		}
 	};
-	
 	
 	g_Calls->OnVehicleUpdate = [](int32_t vehicleId, vcmpVehicleUpdate updateType) {
 #ifdef DEBUG_ENABLED
@@ -534,9 +551,10 @@ void RegisterVCMPCallbacks() {
 				fn(*vehicle);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onVehicleUpdate");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnVehicleExplode = [](int32_t vehicleId) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnVehicleExplode" << std::endl;
@@ -548,9 +566,10 @@ void RegisterVCMPCallbacks() {
 				fn(*vehicle);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onVehicleExplode");
+			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnVehicleRespawn = [](int32_t vehicleId) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnVehicleRespawn" << std::endl;
@@ -562,7 +581,7 @@ void RegisterVCMPCallbacks() {
 				fn(*vehicle);
 		}
 		catch (luabridge::LuaException e) {
-			OutputErrorCallbackCall("onVehicleRespawn");
+			OutputError(e.what());
 		}
 	};
 

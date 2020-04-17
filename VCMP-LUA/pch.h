@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 
 #include <vcmp.h>
 #include <SimpleIni.h>

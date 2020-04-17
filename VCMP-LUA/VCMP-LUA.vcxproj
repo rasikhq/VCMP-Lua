@@ -99,6 +99,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).dll" "D:\Work\VCMP Development\plugins"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -113,6 +116,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).dll" "D:\Work\VCMP Development\plugins"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -131,6 +137,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).dll" "D:\Work\VCMP Development\plugins"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -150,6 +159,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetDir)$(ProjectName).dll" "D:\Work\VCMP Development\plugins"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
@@ -168,6 +180,7 @@
       </PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="vcmpWrap\Classes\Player.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Server.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Vehicle.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +200,7 @@
     <ClInclude Include="lua\include\luaconf.h" />
     <ClInclude Include="lua\include\lualib.h" />
     <ClInclude Include="vcmpWrap\Classes\Player.h" />
+    <ClInclude Include="vcmpWrap\Classes\Server.h" />
     <ClInclude Include="vcmpWrap\Classes\Vehicle.h" />
     <ClInclude Include="vcmpWrap\globaTables.h" />
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h" />
