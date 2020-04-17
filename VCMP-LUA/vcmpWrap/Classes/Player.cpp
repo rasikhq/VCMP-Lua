@@ -1,6 +1,7 @@
 #include "Player.h"
 
 extern PluginFuncs* g_Funcs;
+extern lua_State* Lua;
 
 std::vector<Player> Player::s_Players;
 
@@ -26,11 +27,25 @@ void Player::Unregister(Player* player) {
 	}
 }
 
+const char* Player::getStaticType() { return "Player"; }
+
+Player Player::findByID(int32_t id) {
+	luabridge::LuaRef player(Lua);
+	Player* playerPtr = Get(id);
+	if (playerPtr != nullptr) {
+		player = *playerPtr;
+		return player;
+	}
+	return player;
+}
+
 Player::Player(int32_t id)
 	: m_ID(id) {
 
 	g_Funcs->GetPlayerName(id, m_Name, sizeof(m_Name));
 }
+
+const char* Player::getType() { return "Player"; }
 
 int32_t Player::getID() {
 	return m_ID;
@@ -186,13 +201,21 @@ void Player::setName(const std::string& name) {
 	strcpy(m_Name, name.c_str());
 }
 
+void Player::msg(const std::string& msg) {
+	g_Funcs->SendClientMessage(m_ID, 0xFFFFFFFF, msg.c_str());
+}
+
 void Player::init(lua_State* L) {
 	luabridge::getGlobalNamespace(L)
 		.beginClass<Player>("Player")
+		
+		/*** Class properties (including common)***/
+		.addStaticProperty("type", Player::getStaticType)
+		.addFunction("type", &Player::getType)
+		.addStaticFunction("findByID", Player::findByID)
 
+		/*** Class object methods ***/
 		.addFunction("getID", &Player::getID)
-		.addFunction("isOnline", &Player::isOnline)
-
 		.addFunction("getIP", &Player::getIP)
 		.addFunction("getUID", &Player::getUID)
 		.addFunction("getUID2", &Player::getUID2)
@@ -200,11 +223,15 @@ void Player::init(lua_State* L) {
 		.addFunction("getState", &Player::getState)
 		.addFunction("getUniqueWorld", &Player::getUniqueWorld)
 		.addFunction("getClass", &Player::getClass)
+		.addFunction("isOnline", &Player::isOnline)
 		.addFunction("isSpawned", &Player::isSpawned)
 		.addFunction("isTyping", &Player::isTyping)
 		.addFunction("getPing", &Player::getPing)
 		.addFunction("getFPS", &Player::getFPS)
 
+		.addFunction("msg", &Player::msg)
+
+		/*** Class object properties ***/
 		.addProperty("admin", &Player::getAdmin, &Player::setAdmin)
 		.addProperty("world", &Player::getWorld, &Player::setWorld)
 		.addProperty("secondaryWorld", &Player::getSecWorld, &Player::setSecWorld)

@@ -447,14 +447,30 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerCommand");
 			if (fn.isFunction()) {
-				luabridge::LuaRef result = fn(*player, message);
+				luabridge::LuaRef result(Lua);
+				std::string data(message);
+				std::vector<std::string> args = std::split(data, ' ');
+				if (args.size() <= 0) { // No command at all? Pass nil
+					result = fn(*player, luabridge::LuaRef(Lua), luabridge::LuaRef(Lua));
+				}
+				else {
+					std::string command = args.at(0);
+					args.erase(args.begin());
+					luabridge::LuaRef argsTable = luabridge::LuaRef(Lua, luabridge::newTable(Lua));
+					if (args.size() > 0) // If there's arguments, generate a table
+						for (const auto& strArg : args)
+							argsTable.append(strArg);
+					else
+						argsTable = luabridge::LuaRef(Lua); // Empty command? Pass nil to args
+					result = fn(*player, command, argsTable);
+				}
 				if (result.isNumber())
 					ret = result.cast<uint8_t>();
 			}
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
-	}
+		}
 		return ret;
 	};
 

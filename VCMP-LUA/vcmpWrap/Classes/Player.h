@@ -10,20 +10,24 @@ public:
 	static Player* Get(int32_t id);
 	static void Unregister(Player* player);
 
+	/*** @Lua static ***/
+	static const char* getStaticType();
+	static Player findByID(int32_t);
+
 	Player(int32_t id);
 
-	int32_t getID();
+	const char* getType();
 
-	bool isOnline();
-	
 	std::string getIP();
 	std::string getUID();
 	std::string getUID2();
+	int32_t getID();
 	int32_t getKey();
 	int32_t getState();
 	int32_t getUniqueWorld();
 	int32_t getClass();
 	int32_t getPing();
+	bool isOnline();
 	bool isSpawned();
 	bool isTyping();
 	float getFPS();
@@ -53,6 +57,8 @@ public:
 	void setHP(float);
 	void setArmour(float);
 	void setName(const std::string&);
+
+	void msg(const std::string&);
 
 private:
 	int32_t m_ID;

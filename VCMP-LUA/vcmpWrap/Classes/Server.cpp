@@ -31,18 +31,6 @@ optionUMType Server::s_OptionCode = {
 
 static ServerSettings s_Settings;
 
-void Server::Init(lua_State* L) {
-	luabridge::getGlobalNamespace(L)
-		.beginNamespace("Server")
-
-		.addFunction("getOption", Server::getOption)
-		.addFunction("setOption", Server::setOption)
-
-		.addFunction("getSettings", Server::getSettings)
-
-		.endNamespace();
-}
-
 bool Server::getOption(const std::string& option) {
 	if (s_OptionCode.find(option) != s_OptionCode.end()) {
 		return g_Funcs->GetServerOption(s_OptionCode[option]);
@@ -70,4 +58,16 @@ luabridge::LuaRef Server::getSettings() {
 	settings["serverName"] = std::string(s_Settings.serverName);
 
 	return settings;
+}
+
+void Server::Init(lua_State* L) {
+	luabridge::getGlobalNamespace(L)
+		.beginNamespace("Server")
+
+		.addFunction("getOption", Server::getOption)
+		.addFunction("setOption", Server::setOption)
+
+		.addFunction("getSettings", Server::getSettings)
+
+		.endNamespace();
 }

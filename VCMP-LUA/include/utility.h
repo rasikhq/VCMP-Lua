@@ -1,5 +1,5 @@
 #pragma once
-#include "../pch.h"
+#include "pch.h"
 
 static inline void OutputErrorImpl(const char* msg, va_list args)
 {
@@ -31,4 +31,25 @@ static inline void OutputError(const char* msg, ...) {
 
 static inline void OutputErrorCallbackCall(const char* callbackName) {
     OutputError(std::string("[ERROR] Failed to call: " + std::string(callbackName)).c_str());
+}
+
+static inline void raw_split(const std::string& s, char delim, std::vector<std::string>& elems)
+{
+    std::stringstream ss(s);
+    std::string item;
+    while (getline(ss, item, delim)) {
+        if (!item.empty())
+            elems.push_back(item);
+    }
+}
+
+namespace std {
+
+    static inline std::vector<std::string> split(const std::string& s, char delim)
+    {
+        std::vector<std::string> elems;
+        raw_split(s, delim, elems);
+        return elems;
+    }
+
 }
