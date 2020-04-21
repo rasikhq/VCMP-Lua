@@ -1,5 +1,6 @@
 #pragma once
 #include "utility.h"
+#include "TimerManager.h"
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
 
@@ -45,6 +46,7 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		//std::cout << "OnServerFrame" << std::endl;
 #endif
+		TimerManager::onFrame(elapsedTime);
 		try {
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onServerFrame");
 			if (fn.isFunction())

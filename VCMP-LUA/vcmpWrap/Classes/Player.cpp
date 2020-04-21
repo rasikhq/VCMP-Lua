@@ -208,8 +208,8 @@ void Player::msg(const std::string& msg) {
 void Player::init(lua_State* L) {
 	luabridge::getGlobalNamespace(L)
 		.beginClass<Player>("Player")
-		
-		/*** Class properties (including common)***/
+
+		/*** Class properties (including common) ***/
 		.addStaticProperty("type", Player::getStaticType)
 		.addFunction("type", &Player::getType)
 		.addStaticFunction("findByID", Player::findByID)
@@ -232,6 +232,8 @@ void Player::init(lua_State* L) {
 		.addFunction("msg", &Player::msg)
 
 		/*** Class object properties ***/
+		.addData("id", &Player::m_ID)
+
 		.addProperty("admin", &Player::getAdmin, &Player::setAdmin)
 		.addProperty("world", &Player::getWorld, &Player::setWorld)
 		.addProperty("secondaryWorld", &Player::getSecWorld, &Player::setSecWorld)
