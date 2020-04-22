@@ -100,7 +100,7 @@ void RegisterVCMPCallbacks() {
 		try {
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerConnect");
 			if (fn.isFunction())
-				fn(*player);
+				fn(player);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -115,7 +115,7 @@ void RegisterVCMPCallbacks() {
 		try {
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerDisconnect");
 			if (fn.isFunction())
-				fn(*player);
+				fn(player);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -134,7 +134,7 @@ void RegisterVCMPCallbacks() {
 		try {
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerRequestClass");
 			if (fn.isFunction()) {
-				luabridge::LuaRef result = fn(*player);
+				luabridge::LuaRef result = fn(player);
 				if (result.isNumber())
 					ret = result.cast<uint8_t>();
 			}
@@ -154,7 +154,7 @@ void RegisterVCMPCallbacks() {
 		try {
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerRequestSpawn");
 			if (fn.isFunction()) {
-				luabridge::LuaRef result = fn(*player);
+				luabridge::LuaRef result = fn(player);
 				if (result.isNumber())
 					ret = result.cast<uint8_t>();
 			}
@@ -173,7 +173,7 @@ void RegisterVCMPCallbacks() {
 		try {
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerSpawn");
 			if (fn.isFunction())
-				fn(*player);
+				fn(player);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -196,7 +196,7 @@ void RegisterVCMPCallbacks() {
 					else if (reason == 39 || reason == 40 || reason == 44)
 						reason = 44; // fell
 
-					fn(*player, reason);
+					fn(player, reason);
 					return;
 				}
 			}
@@ -210,7 +210,7 @@ void RegisterVCMPCallbacks() {
 			Player* killer = Player::Get(killerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerKill");
 			if (fn.isFunction())
-				fn(*killer, *player, reason, bodyPart);
+				fn(killer, player, reason, bodyPart);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -225,7 +225,7 @@ void RegisterVCMPCallbacks() {
 		try {
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerUpdate");
 			if (fn.isFunction())
-				fn(*player);
+				fn(player);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -242,7 +242,7 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerRequestEnterVehicle");
 			if (fn.isFunction()) {
-				luabridge::LuaRef result = fn(*player, *vehicle, vehicleId, slotIndex);
+				luabridge::LuaRef result = fn(player, vehicle, vehicleId, slotIndex);
 				if (result.isNumber())
 					ret = result.cast<uint8_t>();
 			}
@@ -262,7 +262,7 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerEnterVehicle");
 			if (fn.isFunction())
-				fn(*player, *vehicle, slotIndex);
+				fn(player, vehicle, slotIndex);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -278,7 +278,7 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerExitVehicle");
 			if (fn.isFunction())
-				fn(*player, *vehicle);
+				fn(player, vehicle);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -293,7 +293,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerNameChange");
 			if (fn.isFunction())
-				fn(*player, oldName, newName);
+				fn(player, oldName, newName);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -308,7 +308,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerStateChange");
 			if (fn.isFunction())
-				fn(*player, oldState, newState);
+				fn(player, oldState, newState);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -323,7 +323,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerActionChange");
 			if (fn.isFunction())
-				fn(*player, oldAction, newAction);
+				fn(player, oldAction, newAction);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -338,7 +338,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerFireChange");
 			if (fn.isFunction())
-				fn(*player, isOnFire);
+				fn(player, isOnFire);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -353,7 +353,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerCrouchChange");
 			if (fn.isFunction())
-				fn(*player, isCrouching);
+				fn(player, isCrouching);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -368,7 +368,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerGameKeysChange");
 			if (fn.isFunction())
-				fn(*player, oldKeys, newKeys);
+				fn(player, oldKeys, newKeys);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -383,7 +383,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerBeginTyping");
 			if (fn.isFunction())
-				fn(*player);
+				fn(player);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -398,7 +398,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerFinishTyping");
 			if (fn.isFunction())
-				fn(*player);
+				fn(player);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -413,7 +413,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerAwayChange");
 			if (fn.isFunction())
-				fn(*player, isAway);
+				fn(player, isAway);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -429,7 +429,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerMessage");
 			if (fn.isFunction()) {
-				luabridge::LuaRef result = fn(*player, message);
+				luabridge::LuaRef result = fn(player, message);
 				if (result.isNumber())
 					ret = result.cast<uint8_t>();
 			}
@@ -453,7 +453,7 @@ void RegisterVCMPCallbacks() {
 				std::string data(message);
 				std::vector<std::string> args = std::split(data, ' ');
 				if (args.size() <= 0) { // No command at all? Pass nil
-					result = fn(*player, luabridge::LuaRef(Lua), luabridge::LuaRef(Lua));
+					result = fn(player, luabridge::LuaRef(Lua), luabridge::LuaRef(Lua));
 				}
 				else {
 					std::string command = args.at(0);
@@ -464,7 +464,7 @@ void RegisterVCMPCallbacks() {
 							argsTable.append(strArg);
 					else
 						argsTable = luabridge::LuaRef(Lua); // Empty command? Pass nil to args
-					result = fn(*player, command, argsTable);
+					result = fn(player, command, argsTable);
 				}
 				if (result.isNumber())
 					ret = result.cast<uint8_t>();
@@ -486,7 +486,7 @@ void RegisterVCMPCallbacks() {
 			Player* targetPlayer = Player::Get(targetPlayerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerPM");
 			if (fn.isFunction()) {
-				luabridge::LuaRef result = fn(*player, *targetPlayer, message);
+				luabridge::LuaRef result = fn(player, targetPlayer, message);
 				if (result.isNumber())
 					ret = result.cast<uint8_t>();
 			}
@@ -505,7 +505,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerKeyDown");
 			if (fn.isFunction())
-				fn(*player, bindId);
+				fn(player, bindId);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -520,7 +520,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerKeyUp");
 			if (fn.isFunction())
-				fn(*player, bindId);
+				fn(player, bindId);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -536,7 +536,7 @@ void RegisterVCMPCallbacks() {
 			Player* targetPlayer = Player::Get(targetPlayerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerSpectate");
 			if (fn.isFunction())
-				fn(*player, *targetPlayer);
+				fn(player, targetPlayer);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -551,7 +551,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onPlayerCrashReport");
 			if (fn.isFunction())
-				fn(*player, report);
+				fn(player, report);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -566,7 +566,7 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onVehicleUpdate");
 			if (fn.isFunction())
-				fn(*vehicle);
+				fn(vehicle);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -581,7 +581,7 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onVehicleExplode");
 			if (fn.isFunction())
-				fn(*vehicle);
+				fn(vehicle);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
@@ -596,7 +596,7 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			luabridge::LuaRef fn = luabridge::getGlobal(Lua, "onVehicleRespawn");
 			if (fn.isFunction())
-				fn(*vehicle);
+				fn(vehicle);
 		}
 		catch (luabridge::LuaException e) {
 			OutputError(e.what());
