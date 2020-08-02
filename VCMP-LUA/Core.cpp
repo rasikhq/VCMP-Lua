@@ -55,7 +55,14 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 		return false;
 	}
 
-	Lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table, sol::lib::io, sol::lib::os);
+	Lua.open_libraries(
+		sol::lib::base, 
+		sol::lib::math, 
+		sol::lib::string, 
+		sol::lib::table,
+		sol::lib::io, 
+		sol::lib::os
+	);
 	Lua.set_exception_handler(&my_exception_handler);
 
 	RegisterClasses(&Lua);

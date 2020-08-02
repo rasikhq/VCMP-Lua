@@ -195,7 +195,33 @@ void Player::msg(const std::string& msg) {
 	g_Funcs->SendClientMessage(m_ID, 0xFFFFFFFF, msg.c_str());
 }
 
-void Player::init(sol::state* L) {
+/*** COMMON PROPERTIES ***/
+sol::as_table_t<std::vector<float>> Player::getPosition() const
+{
+	float x, y, z;
+	g_Funcs->GetPlayerPosition(m_ID, &x, &y, &z);
+	std::vector<float> position = { x, y, z };
+	return sol::as_table(position);
+}
+
+void Player::setPosition(sol::table position)
+{
+	g_Funcs->SetPlayerPosition(m_ID, position[1], position[2], position[3]);
+}
+
+float Player::getRotation() const
+{
+	return g_Funcs->GetPlayerHeading(m_ID);
+}
+
+void Player::setRotation(float angle)
+{
+	g_Funcs->SetPlayerHeading(m_ID, angle);
+}
+
+/******/
+
+void Player::Init(sol::state* L) {
 	sol::usertype<Player> userdata = L->new_usertype<Player>("Player");
 
 	userdata["type"] = &Player::getStaticType;
@@ -234,4 +260,8 @@ void Player::init(sol::state* L) {
 	userdata["health"] = sol::property(&Player::getHP, &Player::setHP);
 	userdata["armour"] = sol::property(&Player::getArmour, &Player::setArmour);
 	userdata["name"] = sol::property(&Player::getName, &Player::setName);
+
+	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	userdata["position"] = sol::property(&Player::getPosition, &Player::setPosition);
+	userdata["angle"] = sol::property(&Player::getRotation, &Player::setRotation);
 }

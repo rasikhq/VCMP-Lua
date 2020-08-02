@@ -46,7 +46,7 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		//std::cout << "OnServerFrame" << std::endl;
 #endif
-		TimerManager::onFrame(elapsedTime);
+		TimerManager::OnFrame(elapsedTime);
 		try {
 			sol::unsafe_function fn = Lua["onServerFrame"];
 			if (fn.valid())
@@ -440,41 +440,41 @@ void RegisterVCMPCallbacks() {
 //		return ret;
 //	};
 //
-//	g_Calls->OnPlayerCommand = [](int32_t playerId, const char* message) -> uint8_t {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnPlayerCommand" << std::endl;
-//#endif
-//		uint8_t ret = 1;
-//		try {
-//			Player* player = Player::Get(playerId);
-//			sol::unsafe_function fn = Lua["onPlayerCommand"];
-//			if (fn.valid()) {
-//				luabridge::LuaRef result(Lua);
-//				std::string data(message);
-//				std::vector<std::string> args = std::split(data, ' ');
-//				if (args.size() <= 0) { // No command at all? Pass nil
-//					result = fn(player, luabridge::LuaRef(Lua), luabridge::LuaRef(Lua));
-//				}
-//				else {
-//					std::string command = args.at(0);
-//					args.erase(args.begin());
-//					luabridge::LuaRef argsTable = luabridge::LuaRef(Lua, luabridge::newTable(Lua));
-//					if (args.size() > 0) // If there's arguments, generate a table
-//						for (const auto& strArg : args)
-//							argsTable.append(strArg);
-//					else
-//						argsTable = luabridge::LuaRef(Lua); // Empty command? Pass nil to args
-//					result = fn(player, command, argsTable);
-//				}
-//				if (result.isNumber())
-//					ret = result.cast<uint8_t>();
-//			}
-//		}
-//		catch (sol::error e) {
-//			OutputError(e.what());
-//		}
-//		return ret;
-//	};
+	g_Calls->OnPlayerCommand = [](int32_t playerId, const char* message) -> uint8_t {
+#ifdef DEBUG_ENABLED
+		std::cout << "OnPlayerCommand" << std::endl;
+#endif
+		uint8_t ret = 1;
+		try {
+			Player* player = Player::Get(playerId);
+			sol::unsafe_function fn = Lua["onPlayerCommand"];
+			if (fn.valid()) {
+				sol::unsafe_function_result result;
+				std::string data(message);
+				std::vector<std::string> args = std::split(data, ' ');
+				if (args.size() <= 0) { // No command at all? Pass nil
+					result = fn(player, sol::lua_nil, sol::lua_nil);
+				}
+				else {
+					std::string command = args.at(0);
+					args.erase(args.begin());
+					if (args.size() > 0)
+						result = fn(player, command, sol::as_table_t<std::vector<std::string>>(args));
+					else
+						result = fn(player, command, sol::lua_nil);
+				}
+				if (result.valid())
+					if (result.get_type() == sol::type::number)
+						ret = result.get<int32_t>();
+					else
+						ret = 1;
+			}
+		}
+		catch (sol::error e) {
+			OutputError(e.what());
+		}
+		return ret;
+	};
 //
 //	g_Calls->OnPlayerPrivateMessage = [](int32_t playerId, int32_t targetPlayerId, const char* message) -> uint8_t {
 //#ifdef DEBUG_ENABLED

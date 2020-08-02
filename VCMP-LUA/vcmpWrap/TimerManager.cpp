@@ -4,11 +4,11 @@
 extern sol::state Lua;
 std::vector<vcmpTimer*> TimerManager::m_vcmpTimers;
 
-void TimerManager::onFrame(float elapsedTime) {
+void TimerManager::OnFrame(float elapsedTime) {
 	for (auto i = 0; i < m_vcmpTimers.size(); i++) {
 		vcmpTimer* timer = m_vcmpTimers[i];
-		if (timer->GetLastTick() == 0) {
-			timer->SetLastTick(GetCurrentSysTime());
+		if (timer->getLastTick() == 0) {
+			timer->setLastTick(GetCurrentSysTime());
 			continue;
 		}
 		else if (!timer->bIsValid) {
@@ -18,18 +18,18 @@ void TimerManager::onFrame(float elapsedTime) {
 		}
 
 		int64_t currentTick = GetCurrentSysTime();
-		int64_t lastTick = timer->GetLastTick();
+		int64_t lastTick = timer->getLastTick();
 
-		int32_t repeat = timer->GetRepeat();
+		int32_t repeat = timer->getRepeat();
 
 		// Calculate the elapsed time
 		const auto delta = int64_t((currentTick - lastTick) / 1000L);
 
-		if (delta > timer->GetInterval() && repeat != 0) {
+		if (delta > timer->getInterval() && repeat != 0) {
 			try {
-				sol::protected_function& fn = timer->GetCallback();
+				sol::protected_function& fn = timer->getCallback();
 				if (fn.valid()) {
-					sol::table args = timer->GetArgs();
+					sol::table args = timer->getArgs();
 					sol::protected_function_result result = fn(args);
 					if (!result.valid()) {
 						sol::error e = result;
@@ -44,10 +44,10 @@ void TimerManager::onFrame(float elapsedTime) {
 			catch (sol::error e) {
 				OutputError(e.what());
 			}
-			timer->SetLastTick(currentTick);
+			timer->setLastTick(currentTick);
 			if (repeat > 0) {
 				repeat--;
-				timer->SetRepeat(repeat);
+				timer->setRepeat(repeat);
 
 				if (repeat == 0) {
 					timer->bIsValid = false;
@@ -57,7 +57,7 @@ void TimerManager::onFrame(float elapsedTime) {
 	}
 }
 
-vcmpTimer* TimerManager::CreateTimer(sol::protected_function callback, unsigned int interval, int32_t repeat, sol::table args) {
+vcmpTimer* TimerManager::createTimer(sol::protected_function callback, unsigned int interval, int32_t repeat, sol::table args) {
 	if (!callback.valid()) {
 		OutputError("Expected function at argument 1");
 	}
@@ -65,7 +65,7 @@ vcmpTimer* TimerManager::CreateTimer(sol::protected_function callback, unsigned 
 	return m_vcmpTimers.back();
 }
 
-void TimerManager::DestroyTimer(vcmpTimer* reference) {
+void TimerManager::destroyTimer(vcmpTimer* reference) {
 	for (auto it = m_vcmpTimers.begin(); it != m_vcmpTimers.end(); it++) {
 		if ((*it) == reference) {
 			reference->bIsValid = false;
@@ -79,6 +79,6 @@ void TimerManager::Init(sol::state* Lua) {
 
 	sol::usertype<TimerManager> userdata = Lua->new_usertype<TimerManager>("Timer");
 
-	userdata["create"] = &TimerManager::CreateTimer;
-	userdata["destroy"] = &TimerManager::DestroyTimer;
+	userdata["create"] = &TimerManager::createTimer;
+	userdata["destroy"] = &TimerManager::destroyTimer;
 }

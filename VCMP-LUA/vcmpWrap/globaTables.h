@@ -5,8 +5,10 @@
 #include "Classes/Vehicle.h"
 
 void RegisterClasses(sol::state* Lua) {
+	sol::state& state = *Lua;
+
 	TimerManager::Init(Lua);
 	Server::Init(Lua);
-	Player::init(Lua);
-	//Vehicle::init(Lua);*/
+	Player::Init(Lua);
+	Vehicle::Init(Lua);
 }

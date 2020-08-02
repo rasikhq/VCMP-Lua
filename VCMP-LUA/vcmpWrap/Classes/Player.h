@@ -5,7 +5,7 @@ class Player {
 public:
 	static std::vector<Player> s_Players;
 
-	static void init(sol::state*);
+	static void Init(sol::state*);
 	static Player* Register(int32_t id);
 	static Player* Get(int32_t id);
 	static void Unregister(Player* player);
@@ -56,6 +56,14 @@ public:
 	void setHP(float);
 	void setArmour(float);
 	void setName(const std::string&);
+
+	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	sol::as_table_t<std::vector<float>> getPosition() const;
+	void setPosition(sol::table);
+	
+	float getRotation() const;
+	void setRotation(float);
+	/******/
 
 	void msg(const std::string&);
 
