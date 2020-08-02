@@ -1,7 +1,7 @@
 #include "Server.h"
 
 extern PluginFuncs* g_Funcs;
-extern lua_State* Lua;
+extern sol::state Lua;
 
 optionUMType Server::s_OptionCode = {
 	{"DeathMessages",       vcmpServerOption::vcmpServerOptionDeathMessages},
@@ -46,12 +46,12 @@ bool Server::setOption(const std::string& option, bool toggle) {
 	return false;
 }
 
-luabridge::LuaRef Server::getSettings() {
+sol::object Server::getSettings() {
 	if (g_Funcs->GetServerSettings(&s_Settings) != vcmpErrorNone) {
 		std::cout << "[ERROR] Failed to retrieve server settings from plugin!" << std::endl;
-		return luabridge::LuaRef(Lua);
+		return sol::nil;
 	}
-	luabridge::LuaRef settings(Lua, luabridge::newTable(Lua));
+	sol::table settings = Lua.create_table();
 
 	settings["maxPlayers"] = s_Settings.maxPlayers;;
 	settings["port"] = s_Settings.port;
@@ -60,14 +60,8 @@ luabridge::LuaRef Server::getSettings() {
 	return settings;
 }
 
-void Server::Init(lua_State* L) {
-	luabridge::getGlobalNamespace(L)
-		.beginNamespace("Server")
-
-		.addFunction("getOption", Server::getOption)
-		.addFunction("setOption", Server::setOption)
-
-		.addFunction("getSettings", Server::getSettings)
-
-		.endNamespace();
+void Server::Init(sol::state* L) {
+	sol::state& state = *L;
+	L->set("Server", L->create_table_with("getSettings", &Server::getSettings));
+	state["Server"]["option"] = sol::property(&Server::getOption, &Server::setOption);
 }

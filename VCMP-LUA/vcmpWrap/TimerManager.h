@@ -3,10 +3,10 @@
 
 class TimerManager {
 public:
-	static void Init(lua_State* Lua);
+	static void Init(sol::state* Lua);
 	static void onFrame(float elapsedTime);
 
-	static vcmpTimer* CreateTimer(luaObject callback, unsigned int interval, int32_t repeat, luaObject args);
+	static vcmpTimer* CreateTimer(sol::protected_function callback, unsigned int interval, int32_t repeat, sol::table args);
 	static void DestroyTimer(vcmpTimer* reference);
 private:
 	static std::vector<vcmpTimer*> m_vcmpTimers;

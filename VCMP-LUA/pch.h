@@ -17,7 +17,8 @@ extern "C" {
 #include "lua/include/lauxlib.h"
 }
 
-#include <LuaBridge/LuaBridge.h>
+#define SOL_ALL_SAFETIES_ON 1
+#include <sol/sol.hpp>
 
 #ifdef WIN32
 #include <Windows.h>

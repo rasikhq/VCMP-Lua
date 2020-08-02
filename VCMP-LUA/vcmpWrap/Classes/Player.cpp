@@ -1,7 +1,7 @@
 #include "Player.h"
 
 extern PluginFuncs* g_Funcs;
-extern lua_State* Lua;
+extern sol::state Lua;
 
 std::vector<Player> Player::s_Players;
 
@@ -28,16 +28,6 @@ void Player::Unregister(Player* player) {
 }
 
 const char* Player::getStaticType() { return "Player"; }
-
-Player Player::findByID(int32_t id) {
-	luabridge::LuaRef player(Lua);
-	Player* playerPtr = Get(id);
-	if (playerPtr != nullptr) {
-		player = *playerPtr;
-		return player;
-	}
-	return player;
-}
 
 Player::Player(int32_t id)
 	: m_ID(id) {
@@ -205,47 +195,43 @@ void Player::msg(const std::string& msg) {
 	g_Funcs->SendClientMessage(m_ID, 0xFFFFFFFF, msg.c_str());
 }
 
-void Player::init(lua_State* L) {
-	luabridge::getGlobalNamespace(L)
-		.beginClass<Player>("Player")
+void Player::init(sol::state* L) {
+	sol::usertype<Player> userdata = L->new_usertype<Player>("Player");
 
-		/*** Class properties (including common) ***/
-		.addStaticProperty("type", Player::getStaticType)
-		.addFunction("type", &Player::getType)
-		.addStaticFunction("findByID", Player::findByID)
+	userdata["type"] = &Player::getStaticType;
+	userdata["findByID"] = &Player::Get;
 
-		/*** Class object methods ***/
-		.addFunction("getID", &Player::getID)
-		.addFunction("getIP", &Player::getIP)
-		.addFunction("getUID", &Player::getUID)
-		.addFunction("getUID2", &Player::getUID2)
-		.addFunction("getKey", &Player::getKey)
-		.addFunction("getState", &Player::getState)
-		.addFunction("getUniqueWorld", &Player::getUniqueWorld)
-		.addFunction("getClass", &Player::getClass)
-		.addFunction("isOnline", &Player::isOnline)
-		.addFunction("isSpawned", &Player::isSpawned)
-		.addFunction("isTyping", &Player::isTyping)
-		.addFunction("getPing", &Player::getPing)
-		.addFunction("getFPS", &Player::getFPS)
+	/*** READ-ONLY ***/
+	userdata.set("getType", &Player::getType);
+	userdata.set("getID", &Player::getID);
+	userdata.set("getIP", &Player::getIP);
+	userdata.set("getIP", &Player::getIP);
+	userdata.set("getUID", &Player::getUID);
+	userdata.set("getUID2", &Player::getUID2);
+	userdata.set("getKey", &Player::getKey);
+	userdata.set("getState", &Player::getState);
+	userdata.set("getUniqueWorld", &Player::getUniqueWorld);
+	userdata.set("getClass", &Player::getClass);
+	userdata.set("isOnline", &Player::isOnline);
+	userdata.set("isSpawned", &Player::isSpawned);
+	userdata.set("isTyping", &Player::isTyping);
+	userdata.set("getPing", &Player::getPing);
+	userdata.set("getFPS", &Player::getFPS);
 
-		.addFunction("msg", &Player::msg)
+	/*** METHODS ***/
+	userdata["msg"] = &Player::msg;
 
-		/*** Class object properties ***/
-		.addData("id", &Player::m_ID)
-
-		.addProperty("admin", &Player::getAdmin, &Player::setAdmin)
-		.addProperty("world", &Player::getWorld, &Player::setWorld)
-		.addProperty("secondaryWorld", &Player::getSecWorld, &Player::setSecWorld)
-		.addProperty("team", &Player::getTeam, &Player::setTeam)
-		.addProperty("skin", &Player::getSkin, &Player::setSkin)
-		.addProperty("color", &Player::getColor, &Player::setColor)
-		.addProperty("cash", &Player::getCash, &Player::setCash)
-		.addProperty("score", &Player::getScore, &Player::setScore)
-		.addProperty("wantedLevel", &Player::getWantedLevel, &Player::setWantedLevel)
-		.addProperty("health", &Player::getHP, &Player::setHP)
-		.addProperty("armour", &Player::getArmour, &Player::setArmour)
-		.addProperty("name", &Player::getName, &Player::setName)
-
-		.endClass();
+	/*** PROPERTIES ***/
+	userdata["admin"] = sol::property(&Player::getAdmin, &Player::setAdmin);
+	userdata["world"] = sol::property(&Player::getWorld, &Player::setWorld);
+	userdata["secondaryWorld"] = sol::property(&Player::getSecWorld, &Player::setSecWorld);
+	userdata["team"] = sol::property(&Player::getTeam, &Player::setTeam);
+	userdata["skin"] = sol::property(&Player::getSkin, &Player::setSkin);
+	userdata["color"] = sol::property(&Player::getColor, &Player::setColor);
+	userdata["cash"] = sol::property(&Player::getCash, &Player::setCash);
+	userdata["score"] = sol::property(&Player::getScore, &Player::setScore);
+	userdata["wantedLevel"] = sol::property(&Player::getWantedLevel, &Player::setWantedLevel);
+	userdata["health"] = sol::property(&Player::getHP, &Player::setHP);
+	userdata["armour"] = sol::property(&Player::getArmour, &Player::setArmour);
+	userdata["name"] = sol::property(&Player::getName, &Player::setName);
 }

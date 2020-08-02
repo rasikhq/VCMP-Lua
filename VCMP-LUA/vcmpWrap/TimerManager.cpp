@@ -1,7 +1,7 @@
 #include "TimerManager.h"
 #include "utility.h"
 
-extern lua_State* Lua;
+extern sol::state Lua;
 std::vector<vcmpTimer*> TimerManager::m_vcmpTimers;
 
 void TimerManager::onFrame(float elapsedTime) {
@@ -27,17 +27,21 @@ void TimerManager::onFrame(float elapsedTime) {
 
 		if (delta > timer->GetInterval() && repeat != 0) {
 			try {
-				luabridge::LuaRef fn = timer->GetCallback();
-				if (fn.isFunction()) {
-					luabridge::LuaRef args = timer->GetArgs();
-					fn(args);
+				sol::protected_function& fn = timer->GetCallback();
+				if (fn.valid()) {
+					sol::table args = timer->GetArgs();
+					sol::protected_function_result result = fn(args);
+					if (!result.valid()) {
+						sol::error e = result;
+						OutputError("Timer handler failed: %s", e.what());
+					}
 				}
 				else {
 					timer->bIsValid = false;
 					continue;
 				}
 			}
-			catch (luabridge::LuaException e) {
+			catch (sol::error e) {
 				OutputError(e.what());
 			}
 			timer->SetLastTick(currentTick);
@@ -53,10 +57,9 @@ void TimerManager::onFrame(float elapsedTime) {
 	}
 }
 
-vcmpTimer* TimerManager::CreateTimer(luaObject callback, unsigned int interval, int32_t repeat, luaObject args) {
-	if (!callback.isFunction()) {
+vcmpTimer* TimerManager::CreateTimer(sol::protected_function callback, unsigned int interval, int32_t repeat, sol::table args) {
+	if (!callback.valid()) {
 		OutputError("Expected function at argument 1");
-		return luabridge::LuaRef(Lua);
 	}
 	m_vcmpTimers.push_back(new vcmpTimer(callback, interval, repeat, args));
 	return m_vcmpTimers.back();
@@ -71,16 +74,11 @@ void TimerManager::DestroyTimer(vcmpTimer* reference) {
 	}
 }
 
-void TimerManager::Init(lua_State* Lua) {
+void TimerManager::Init(sol::state* Lua) {
 	m_vcmpTimers.reserve(256);
 
-	vcmpTimer::Init(Lua);
+	sol::usertype<TimerManager> userdata = Lua->new_usertype<TimerManager>("Timer");
 
-	luabridge::getGlobalNamespace(Lua)
-		.beginClass<TimerManager>("Timer")
-
-		.addStaticFunction("create", TimerManager::CreateTimer)
-		.addStaticFunction("destroy", TimerManager::DestroyTimer)
-
-		.endClass();
+	userdata["create"] = &TimerManager::CreateTimer;
+	userdata["destroy"] = &TimerManager::DestroyTimer;
 }

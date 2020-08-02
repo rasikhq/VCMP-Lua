@@ -4,9 +4,9 @@
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
 
-void RegisterClasses(lua_State* Lua) {
+void RegisterClasses(sol::state* Lua) {
 	TimerManager::Init(Lua);
 	Server::Init(Lua);
 	Player::init(Lua);
-	Vehicle::init(Lua);
+	//Vehicle::init(Lua);*/
 }

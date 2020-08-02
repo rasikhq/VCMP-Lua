@@ -5,14 +5,13 @@ class Player {
 public:
 	static std::vector<Player> s_Players;
 
-	static void init(lua_State*);
+	static void init(sol::state*);
 	static Player* Register(int32_t id);
 	static Player* Get(int32_t id);
 	static void Unregister(Player* player);
 
 	/*** @Lua static ***/
 	static const char* getStaticType();
-	static Player findByID(int32_t);
 
 	Player(int32_t id);
 
