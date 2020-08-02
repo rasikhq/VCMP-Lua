@@ -27,15 +27,11 @@ void Player::Unregister(Player* player) {
 	}
 }
 
-const char* Player::getStaticType() { return "Player"; }
-
 Player::Player(int32_t id)
 	: m_ID(id) {
 
 	g_Funcs->GetPlayerName(id, m_Name, sizeof(m_Name));
 }
-
-const char* Player::getType() { return "Player"; }
 
 int32_t Player::getID() {
 	return m_ID;

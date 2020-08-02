@@ -50,6 +50,38 @@ int32_t Vehicle::getModel() {
 	return g_Funcs->GetVehicleModel(m_ID);
 }
 
+/*** COMMON PROPERTIES ***/
+sol::as_table_t<std::vector<float>> Vehicle::getPosition() const
+{
+	float x, y, z;
+	g_Funcs->GetVehiclePosition(m_ID, &x, &y, &z);
+	std::vector<float> position = { x, y, z };
+	return sol::as_table(position);
+}
+
+void Vehicle::setPosition(sol::table position)
+{
+	g_Funcs->SetPlayerPosition(m_ID, position[1], position[2], position[3]);
+}
+
+sol::as_table_t<std::vector<float>> Vehicle::getRotation() const
+{
+	float x, y, z;
+	g_Funcs->GetVehicleRotationEuler(m_ID, &x, &y, &z);
+	std::vector<float> rotation = { x, y, z };
+	return sol::as_table(rotation);
+}
+
+void Vehicle::setRotation(sol::table rotation)
+{
+	float x = rotation.get_or(1, 0.0f);
+	float y = rotation.get_or(2, 0.0f);
+	float z = rotation.get_or(3, 0.0f);
+	g_Funcs->SetVehicleRotationEuler(m_ID, x, y, z);
+}
+
+/******/
+
 void Vehicle::Init(sol::state* L) {
 	sol::usertype<Vehicle> userdata = L->new_usertype<Vehicle>("Vehicle",
 		sol::constructors<
@@ -69,4 +101,10 @@ void Vehicle::Init(sol::state* L) {
 
 	/*** METHODS ***/
 	userdata["destroy"] = &Vehicle::destroy;
+
+	/*** PROPERTIES ***/
+
+	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	userdata["position"] = sol::property(&Vehicle::getPosition, &Vehicle::setPosition);
+	userdata["angle"] = sol::property(&Vehicle::getRotation, &Vehicle::setRotation);
 }

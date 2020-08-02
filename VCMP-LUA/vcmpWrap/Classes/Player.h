@@ -11,12 +11,12 @@ public:
 	static void Unregister(Player* player);
 
 	/*** @Lua static ***/
-	static const char* getStaticType();
+	static inline const char* getStaticType() { return "Player"; }
 
+	/*** CONSTRUCTORS ***/
 	Player(int32_t id);
 
-	const char* getType();
-
+	/*** READ-ONLY ***/
 	std::string getIP();
 	std::string getUID();
 	std::string getUID2();
@@ -31,6 +31,10 @@ public:
 	bool isTyping();
 	float getFPS();
 
+	/*** METHODS ***/
+	void msg(const std::string&);
+
+	/*** PROPERTIES ***/
 	bool getAdmin() const;
 	int32_t getWorld() const;
 	int32_t getSecWorld() const;
@@ -58,14 +62,14 @@ public:
 	void setName(const std::string&);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	inline const char* getType() { return Player::getStaticType(); }
+
 	sol::as_table_t<std::vector<float>> getPosition() const;
 	void setPosition(sol::table);
 	
 	float getRotation() const;
 	void setRotation(float);
 	/******/
-
-	void msg(const std::string&);
 
 private:
 	int32_t m_ID;

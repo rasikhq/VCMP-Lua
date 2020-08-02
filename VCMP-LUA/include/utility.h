@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include <math.h>
 
 static inline void OutputErrorImpl(const char* msg, va_list args)
 {
