@@ -227,7 +227,6 @@ void Player::Init(sol::state* L) {
 	userdata.set("getType", &Player::getType);
 	userdata.set("getID", &Player::getID);
 	userdata.set("getIP", &Player::getIP);
-	userdata.set("getIP", &Player::getIP);
 	userdata.set("getUID", &Player::getUID);
 	userdata.set("getUID2", &Player::getUID2);
 	userdata.set("getKey", &Player::getKey);

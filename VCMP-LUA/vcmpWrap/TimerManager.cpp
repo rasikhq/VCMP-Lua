@@ -4,6 +4,9 @@
 extern sol::state Lua;
 std::vector<vcmpTimer*> TimerManager::m_vcmpTimers;
 
+#define DEBUG_TIMERMANAGER 1
+#undef DEBUG_TIMERMANAGER
+
 void TimerManager::OnFrame(float elapsedTime) {
 	for (auto i = 0; i < m_vcmpTimers.size(); i++) {
 		vcmpTimer* timer = m_vcmpTimers[i];
@@ -27,10 +30,13 @@ void TimerManager::OnFrame(float elapsedTime) {
 
 		if (delta > timer->getInterval() && repeat != 0) {
 			try {
-				sol::protected_function& fn = timer->getCallback();
+				const sol::function& fn = timer->getCallback();
 				if (fn.valid()) {
-					sol::table args = timer->getArgs();
-					sol::protected_function_result result = fn(args);
+					const std::vector<sol::object>& args = timer->getArgs();
+#ifdef DEBUG_TIMERMANAGER
+					
+#endif
+					sol::function_result result = fn(sol::as_args(args));
 					if (!result.valid()) {
 						sol::error e = result;
 						OutputError("Timer handler failed: %s", e.what());
@@ -57,11 +63,20 @@ void TimerManager::OnFrame(float elapsedTime) {
 	}
 }
 
-vcmpTimer* TimerManager::createTimer(sol::protected_function callback, unsigned int interval, int32_t repeat, sol::table args) {
+vcmpTimer* TimerManager::createTimer(sol::function callback, unsigned int interval, int32_t repeat, sol::variadic_args args) {
 	if (!callback.valid()) {
 		OutputError("Expected function at argument 1");
+		return nullptr;
 	}
-	m_vcmpTimers.push_back(new vcmpTimer(callback, interval, repeat, args));
+	else if (interval < 50) {
+		OutputError("Interval cannot be less tahn 50ms!");
+		return nullptr;
+	}
+	std::vector<sol::object> largs(args.begin(), args.end());
+#ifdef DEBUG_TIMERMANAGER
+	std::cout << "createTimer :: Received VA of size: " << args.size() << std::endl;
+#endif
+	m_vcmpTimers.push_back(new vcmpTimer(callback, interval, repeat, largs));
 	return m_vcmpTimers.back();
 }
 
