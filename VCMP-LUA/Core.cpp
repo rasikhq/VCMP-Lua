@@ -61,7 +61,8 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 		sol::lib::string, 
 		sol::lib::table,
 		sol::lib::io, 
-		sol::lib::os
+		sol::lib::os,
+		sol::lib::debug
 	);
 	Lua.set_exception_handler(&my_exception_handler);
 
