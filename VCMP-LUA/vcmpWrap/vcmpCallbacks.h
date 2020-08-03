@@ -142,9 +142,11 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "onPlayerConnect" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerConnect");
+		if (handlers.size() == 0) return;
+
 		Player* player = Player::Register(playerId);
 		try {
-			auto handlers = EventManager::GetHandlers("onPlayerConnect");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
@@ -166,9 +168,11 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerDisconnect" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerDisconnect");
+		if (handlers.size() == 0) return;
+
 		Player* player = Player::Get(playerId);
 		try {
-			auto handlers = EventManager::GetHandlers("onPlayerDisconnect");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
@@ -194,10 +198,11 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerRequestClass" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerRequestClass");
+		if (handlers.size() == 0) return 1;
 		Player* player = Player::Get(playerId);
 		uint8_t ret = 1;
 		try {
-			auto handlers = EventManager::GetHandlers("onPlayerRequestClass");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
@@ -221,10 +226,11 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerRequestSpawn" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerRequestSpawn");
+		if (handlers.size() == 0) return 1;
 		Player* player = Player::Get(playerId);
 		uint8_t ret = 1;
 		try {
-			auto handlers = EventManager::GetHandlers("onPlayerRequestSpawn");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
@@ -248,9 +254,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerSpawn" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerSpawn");
+		if (handlers.size() == 0) return;
 		Player* player = Player::Get(playerId);
 		try {
-			auto handlers = EventManager::GetHandlers("onPlayerSpawn");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
@@ -273,38 +280,41 @@ void RegisterVCMPCallbacks() {
 		std::cout << "OnPlayerDeath" << std::endl;
 #endif
 		if (!g_Funcs->IsPlayerConnected(killerId)) {
-			try {
-				Player* player = Player::Get(playerId);
-				auto handlers = EventManager::GetHandlers("onPlayerWasted");
-				for (auto fn : handlers) {
-					if (reason == 43 || reason == 50)
-						reason = 43; // drowned
-					else if (reason == 39 && bodyPart == 7)
-						reason = 39; // car crash
-					else if (reason == 39 || reason == 40 || reason == 44)
-						reason = 44; // fell
+			auto handlers = EventManager::GetHandlers("onPlayerWasted");
+			if (handlers.size() > 0) {
+				try {
+					Player* player = Player::Get(playerId);
+					for (auto fn : handlers) {
+						if (reason == 43 || reason == 50)
+							reason = 43; // drowned
+						else if (reason == 39 && bodyPart == 7)
+							reason = 39; // car crash
+						else if (reason == 39 || reason == 40 || reason == 44)
+							reason = 44; // fell
 
-					sol::function_result r = fn(player, reason);
-					if (!r.valid()) {
-						sol::error e = r;
-						OutputError("Event callback error: %s", e.what());
+						sol::function_result r = fn(player, reason);
+						if (!r.valid()) {
+							sol::error e = r;
+							OutputError("Event callback error: %s", e.what());
+						}
+						if (EventManager::m_bWasEventCancelled) {
+							EventManager::cancelEvent();
+							break;
+						}
+						return;
 					}
-					if (EventManager::m_bWasEventCancelled) {
-						EventManager::cancelEvent();
-						break;
-					}
-					return;
 				}
-			}
-			catch (sol::error e) {
-				OutputError(e.what());
+				catch (sol::error e) {
+					OutputError(e.what());
+				}
 			}
 		}
 
+		auto handlers = EventManager::GetHandlers("onPlayerKill");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
 			Player* killer = Player::Get(killerId);
-			auto handlers = EventManager::GetHandlers("onPlayerKill");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(killer, player, reason, bodyPart);
 				if (!r.valid()) {
@@ -326,9 +336,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		//std::cout << "OnPlayerUpdate" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerUpdate");
+		if (handlers.size() == 0) return;
 		Player* player = Player::Get(playerId);
 		try {
-			auto handlers = EventManager::GetHandlers("onPlayerUpdate");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
@@ -350,11 +361,12 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerRequestEnterVehicle" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerRequestEnterVehicle");
+		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
 		try {
 			Player* player = Player::Get(playerId);
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
-			auto handlers = EventManager::GetHandlers("onPlayerRequestEnterVehicle");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, vehicle, vehicleId, slotIndex);
 				if (!r.valid()) {
@@ -378,10 +390,11 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerEnterVehicle" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerEnterVehicle");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
-			auto handlers = EventManager::GetHandlers("onPlayerEnterVehicle");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, vehicle, slotIndex);
 				if (!r.valid()) {
@@ -403,10 +416,11 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerExitVehicle" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerExitVehicle");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
-			auto handlers = EventManager::GetHandlers("onPlayerExitVehicle");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, vehicle);
 				if (!r.valid()) {
@@ -428,9 +442,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerNameChange" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerNameChange");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerNameChange");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, oldName, newName);
 				if (!r.valid()) {
@@ -452,9 +467,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		//std::cout << "OnPlayerStateChange" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerStateChange");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerStateChange");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, oldState, newState);
 				if (!r.valid()) {
@@ -476,9 +492,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerActionChange" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerActionChange");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerActionChange");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, oldAction, newAction);
 				if (!r.valid()) {
@@ -500,9 +517,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerOnFireChange" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerFireChange");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerFireChange");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, isOnFire);
 				if (!r.valid()) {
@@ -524,9 +542,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerCrouchChange" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerCrouchChange");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerCrouchChange");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, isCrouching);
 				if (!r.valid()) {
@@ -548,9 +567,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		//std::cout << "OnPlayerGameKeysChange" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerGameKeysChange");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerGameKeysChange");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, oldKeys, newKeys);
 				if (!r.valid()) {
@@ -572,9 +592,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerBeginTyping" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerBeginTyping");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerBeginTyping");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
@@ -596,9 +617,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerEndTyping" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerFinishTyping");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerFinishTyping");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
@@ -620,9 +642,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerAwayChange" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerAwayChange");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerAwayChange");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, isAway);
 				if (!r.valid()) {
@@ -644,10 +667,11 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerMessage" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerMessage");
+		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerMessage");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, message);
 				if (!r.valid()) {
@@ -671,12 +695,13 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerCommand" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerCommand");
+		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerCommand");
-				std::string data(message);
-				std::vector<std::string> args = std::split(data, ' ');
+			std::string data(message);
+			std::vector<std::string> args = std::split(data, ' ');
 			for (auto fn : handlers) {
 				if (args.size() <= 0) { // No command at all? Pass nil
 					sol::function_result r = fn(player, sol::lua_nil, sol::lua_nil);
@@ -730,11 +755,12 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerPrivateMessage" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerPM");
+		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
 		try {
 			Player* player = Player::Get(playerId);
 			Player* targetPlayer = Player::Get(targetPlayerId);
-			auto handlers = EventManager::GetHandlers("onPlayerPM");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, targetPlayer, message);
 				if (!r.valid()) {
@@ -758,9 +784,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerKeyBindDown" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerKeyDown");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerKeyDown");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, bindId);
 				if (!r.valid()) {
@@ -782,9 +809,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerKeyBindUp" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerKeyUp");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerKeyUp");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, bindId);
 				if (!r.valid()) {
@@ -806,10 +834,11 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerSpectate" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerSpectate");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
 			Player* targetPlayer = Player::Get(targetPlayerId);
-			auto handlers = EventManager::GetHandlers("onPlayerSpectate");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, targetPlayer);
 				if (!r.valid()) {
@@ -831,9 +860,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnPlayerCrashReport" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onPlayerCrashReport");
+		if (handlers.size() == 0) return;
 		try {
 			Player* player = Player::Get(playerId);
-			auto handlers = EventManager::GetHandlers("onPlayerCrashReport");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, report);
 				if (!r.valid()) {
@@ -856,9 +886,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnVehicleUpdate" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onVehicleUpdate");
+		if (handlers.size() == 0) return;
 		try {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
-			auto handlers = EventManager::GetHandlers("onVehicleUpdate");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(vehicle);
 				if (!r.valid()) {
@@ -880,9 +911,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnVehicleExplode" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onVehicleExplode");
+		if (handlers.size() == 0) return;
 		try {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
-			auto handlers = EventManager::GetHandlers("onVehicleExplode");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(vehicle);
 				if (!r.valid()) {
@@ -904,9 +936,10 @@ void RegisterVCMPCallbacks() {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnVehicleRespawn" << std::endl;
 #endif
+		auto handlers = EventManager::GetHandlers("onVehicleRespawn");
+		if (handlers.size() == 0) return;
 		try {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
-			auto handlers = EventManager::GetHandlers("onVehicleRespawn");
 			for (auto fn : handlers) {
 				sol::function_result r = fn(vehicle);
 				if (!r.valid()) {
