@@ -2,6 +2,9 @@
 #include "pch.h"
 #include <math.h>
 
+#define STRINGIFY2(c) #c
+#define STRINGIFY(x) STRINGIFY2(x)
+
 static inline void OutputErrorImpl(const char* msg, va_list args)
 {
 #if defined(WIN32) || defined(_WIN32)
