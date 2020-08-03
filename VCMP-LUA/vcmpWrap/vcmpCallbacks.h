@@ -13,7 +13,7 @@ extern PluginCallbacks* g_Calls;
 extern sol::state Lua;
 
 void RegisterVCMPCallbacks() {
-	/*** Server ***/
+	/*** SERVER ***/
 	g_Calls->OnServerInitialise = [] () -> uint8_t {
 #ifdef DEBUG_ENABLED
 		std::cout << "onServerinitialise" << std::endl;
@@ -21,7 +21,11 @@ void RegisterVCMPCallbacks() {
 		try {
 			auto handlers = EventManager::GetHandlers("onServerInit");
 			for (auto fn : handlers) {
-				fn();
+				sol::function_result r = fn();
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -41,7 +45,11 @@ void RegisterVCMPCallbacks() {
 		try {
 			auto handlers = EventManager::GetHandlers("onServerShutdown");
 			for (auto fn : handlers) {
-				fn();
+				sol::function_result r = fn();
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -61,7 +69,11 @@ void RegisterVCMPCallbacks() {
 		try {
 			auto handlers = EventManager::GetHandlers("onServerFrame");
 			for (auto fn : handlers) {
-				fn(elapsedTime);
+				sol::function_result r = fn(elapsedTime);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -79,10 +91,12 @@ void RegisterVCMPCallbacks() {
 #endif
 		try {
 			auto handlers = EventManager::GetHandlers("onPluginCommand");
-			for (auto fn : handlers)
-				fn(commandIdentifier, message);
 			for (auto fn : handlers) {
-				fn();
+				sol::function_result r = fn(commandIdentifier, message);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -101,10 +115,12 @@ void RegisterVCMPCallbacks() {
 #endif
 		try {
 			auto handlers = EventManager::GetHandlers("onPlayerConnection");
-			for (auto fn : handlers)
-				fn(playerName, nameBufferSize, userPassword, ipAddress);
 			for (auto fn : handlers) {
-				fn();
+				sol::function_result r = fn(playerName, nameBufferSize, userPassword, ipAddress);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -117,7 +133,7 @@ void RegisterVCMPCallbacks() {
 		return (uint8_t) 1;
 	};
 
-	/*** Player ***/
+	/*** PLAYER ***/
 	g_Calls->OnClientScriptData = [](int32_t playerId, const uint8_t* data, size_t size) {
 		
 	};
@@ -129,10 +145,12 @@ void RegisterVCMPCallbacks() {
 		Player* player = Player::Register(playerId);
 		try {
 			auto handlers = EventManager::GetHandlers("onPlayerConnect");
-			for (auto fn : handlers)
-				fn(player);
 			for (auto fn : handlers) {
-				fn();
+				sol::function_result r = fn(player);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -151,10 +169,12 @@ void RegisterVCMPCallbacks() {
 		Player* player = Player::Get(playerId);
 		try {
 			auto handlers = EventManager::GetHandlers("onPlayerDisconnect");
-			for (auto fn : handlers)
-				fn(player);
 			for (auto fn : handlers) {
-				fn();
+				sol::function_result r = fn(player);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -165,6 +185,7 @@ void RegisterVCMPCallbacks() {
 			OutputError(e.what());
 		}
 	};
+
 	g_Calls->OnPlayerModuleList = [](int32_t playerId, const char* list) {
 		
 	};
@@ -178,7 +199,11 @@ void RegisterVCMPCallbacks() {
 		try {
 			auto handlers = EventManager::GetHandlers("onPlayerRequestClass");
 			for (auto fn : handlers) {
-				fn(player);
+				sol::function_result r = fn(player);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					ret = 0;
@@ -201,7 +226,11 @@ void RegisterVCMPCallbacks() {
 		try {
 			auto handlers = EventManager::GetHandlers("onPlayerRequestSpawn");
 			for (auto fn : handlers) {
-				fn(player);
+				sol::function_result r = fn(player);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					ret = 0;
@@ -223,7 +252,11 @@ void RegisterVCMPCallbacks() {
 		try {
 			auto handlers = EventManager::GetHandlers("onPlayerSpawn");
 			for (auto fn : handlers) {
-				fn(player);
+				sol::function_result r = fn(player);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -251,7 +284,11 @@ void RegisterVCMPCallbacks() {
 					else if (reason == 39 || reason == 40 || reason == 44)
 						reason = 44; // fell
 
-					fn(player, reason);
+					sol::function_result r = fn(player, reason);
+					if (!r.valid()) {
+						sol::error e = r;
+						OutputError("Event callback error: %s", e.what());
+					}
 					if (EventManager::m_bWasEventCancelled) {
 						EventManager::cancelEvent();
 						break;
@@ -269,7 +306,11 @@ void RegisterVCMPCallbacks() {
 			Player* killer = Player::Get(killerId);
 			auto handlers = EventManager::GetHandlers("onPlayerKill");
 			for (auto fn : handlers) {
-				fn(killer, player, reason, bodyPart);
+				sol::function_result r = fn(killer, player, reason, bodyPart);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -289,7 +330,11 @@ void RegisterVCMPCallbacks() {
 		try {
 			auto handlers = EventManager::GetHandlers("onPlayerUpdate");
 			for (auto fn : handlers) {
-				fn(player);
+				sol::function_result r = fn(player);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -311,7 +356,11 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			auto handlers = EventManager::GetHandlers("onPlayerRequestEnterVehicle");
 			for (auto fn : handlers) {
-				fn(player, vehicle, vehicleId, slotIndex);
+				sol::function_result r = fn(player, vehicle, vehicleId, slotIndex);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					ret = 0;
@@ -334,7 +383,11 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			auto handlers = EventManager::GetHandlers("onPlayerEnterVehicle");
 			for (auto fn : handlers) {
-				fn(player, vehicle, slotIndex);
+				sol::function_result r = fn(player, vehicle, slotIndex);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -355,7 +408,11 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			auto handlers = EventManager::GetHandlers("onPlayerExitVehicle");
 			for (auto fn : handlers) {
-				fn(player, vehicle);
+				sol::function_result r = fn(player, vehicle);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -375,7 +432,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerNameChange");
 			for (auto fn : handlers) {
-				fn(player, oldName, newName);
+				sol::function_result r = fn(player, oldName, newName);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -395,7 +456,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerStateChange");
 			for (auto fn : handlers) {
-				fn(player, oldState, newState);
+				sol::function_result r = fn(player, oldState, newState);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -415,7 +480,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerActionChange");
 			for (auto fn : handlers) {
-				fn(player, oldAction, newAction);
+				sol::function_result r = fn(player, oldAction, newAction);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -435,7 +504,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerFireChange");
 			for (auto fn : handlers) {
-				fn(player, isOnFire);
+				sol::function_result r = fn(player, isOnFire);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -455,7 +528,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerCrouchChange");
 			for (auto fn : handlers) {
-				fn(player, isCrouching);
+				sol::function_result r = fn(player, isCrouching);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -475,7 +552,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerGameKeysChange");
 			for (auto fn : handlers) {
-				fn(player, oldKeys, newKeys);
+				sol::function_result r = fn(player, oldKeys, newKeys);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -495,7 +576,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerBeginTyping");
 			for (auto fn : handlers) {
-				fn(player);
+				sol::function_result r = fn(player);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -515,7 +600,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerFinishTyping");
 			for (auto fn : handlers) {
-				fn(player);
+				sol::function_result r = fn(player);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -535,7 +624,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerAwayChange");
 			for (auto fn : handlers) {
-				fn(player, isAway);
+				sol::function_result r = fn(player, isAway);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -556,7 +649,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerMessage");
 			for (auto fn : handlers) {
-				fn(player, message);
+				sol::function_result r = fn(player, message);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					ret = 0;
@@ -582,7 +679,11 @@ void RegisterVCMPCallbacks() {
 				std::vector<std::string> args = std::split(data, ' ');
 			for (auto fn : handlers) {
 				if (args.size() <= 0) { // No command at all? Pass nil
-					fn(player, sol::lua_nil, sol::lua_nil);
+					sol::function_result r = fn(player, sol::lua_nil, sol::lua_nil);
+					if (!r.valid()) {
+						sol::error e = r;
+						OutputError("Event callback error: %s", e.what());
+					}
 					if (EventManager::m_bWasEventCancelled) {
 						EventManager::cancelEvent();
 						ret = 0;
@@ -593,7 +694,11 @@ void RegisterVCMPCallbacks() {
 					std::string command = args.at(0);
 					args.erase(args.begin());
 					if (args.size() > 0) {
-						fn(player, command, sol::as_table_t<std::vector<std::string>>(args));
+						sol::function_result r = fn(player, command, sol::as_table_t<std::vector<std::string>>(args));
+						if (!r.valid()) {
+							sol::error e = r;
+							OutputError("Event callback error: %s", e.what());
+						}
 						if (EventManager::m_bWasEventCancelled) {
 							EventManager::cancelEvent();
 							ret = 0;
@@ -601,7 +706,11 @@ void RegisterVCMPCallbacks() {
 						}
 					}
 					else {
-						fn(player, command, sol::lua_nil);
+						sol::function_result r = fn(player, command, sol::lua_nil);
+						if (!r.valid()) {
+							sol::error e = r;
+							OutputError("Event callback error: %s", e.what());
+						}
 						if (EventManager::m_bWasEventCancelled) {
 							EventManager::cancelEvent();
 							ret = 0;
@@ -627,7 +736,11 @@ void RegisterVCMPCallbacks() {
 			Player* targetPlayer = Player::Get(targetPlayerId);
 			auto handlers = EventManager::GetHandlers("onPlayerPM");
 			for (auto fn : handlers) {
-				fn(player, targetPlayer, message);
+				sol::function_result r = fn(player, targetPlayer, message);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					ret = 0;
@@ -649,7 +762,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerKeyDown");
 			for (auto fn : handlers) {
-				fn(player, bindId);
+				sol::function_result r = fn(player, bindId);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -669,7 +786,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerKeyUp");
 			for (auto fn : handlers) {
-				fn(player, bindId);
+				sol::function_result r = fn(player, bindId);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -690,7 +811,11 @@ void RegisterVCMPCallbacks() {
 			Player* targetPlayer = Player::Get(targetPlayerId);
 			auto handlers = EventManager::GetHandlers("onPlayerSpectate");
 			for (auto fn : handlers) {
-				fn(player, targetPlayer);
+				sol::function_result r = fn(player, targetPlayer);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -710,7 +835,11 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			auto handlers = EventManager::GetHandlers("onPlayerCrashReport");
 			for (auto fn : handlers) {
-				fn(player, report);
+				sol::function_result r = fn(player, report);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -722,6 +851,7 @@ void RegisterVCMPCallbacks() {
 		}
 	};
 	
+	/*** VEHICLE ***/
 	g_Calls->OnVehicleUpdate = [](int32_t vehicleId, vcmpVehicleUpdate updateType) {
 #ifdef DEBUG_ENABLED
 		std::cout << "OnVehicleUpdate" << std::endl;
@@ -730,7 +860,11 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			auto handlers = EventManager::GetHandlers("onVehicleUpdate");
 			for (auto fn : handlers) {
-				fn(vehicle);
+				sol::function_result r = fn(vehicle);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -750,7 +884,11 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			auto handlers = EventManager::GetHandlers("onVehicleExplode");
 			for (auto fn : handlers) {
-				fn(vehicle);
+				sol::function_result r = fn(vehicle);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -770,7 +908,11 @@ void RegisterVCMPCallbacks() {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			auto handlers = EventManager::GetHandlers("onVehicleRespawn");
 			for (auto fn : handlers) {
-				fn(vehicle);
+				sol::function_result r = fn(vehicle);
+				if (!r.valid()) {
+					sol::error e = r;
+					OutputError("Event callback error: %s", e.what());
+				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
 					break;
@@ -782,16 +924,7 @@ void RegisterVCMPCallbacks() {
 		}
 	};
 
-
-
-
-
-
-
-
-
-
-//	/*** Object ***/
+	/*** OBJECT ***/
 //	g_Calls->OnObjectShot = [](int32_t objectId, int32_t playerId, int32_t weaponId) {
 //#ifdef DEBUG_ENABLED
 //		std::cout << "OnObjectShot" << std::endl;
@@ -818,7 +951,7 @@ void RegisterVCMPCallbacks() {
 //		else { lua_pop(LUA, -1); }
 //	};
 //
-//	/*** Pickup ***/
+	/*** PICKUP ***/
 //
 //	g_Calls->OnPickupPickAttempt = [](int32_t pickupId, int32_t playerId) -> uint8_t {
 //#ifdef DEBUG_ENABLED
@@ -860,7 +993,7 @@ void RegisterVCMPCallbacks() {
 //		else { lua_pop(LUA, -1); }
 //	};
 //
-//	/*** Checkpoint ***/
+	/*** CHECKPOINT ***/
 //
 //	g_Calls->OnCheckpointEntered = [](int32_t checkPointId, int32_t playerId) {
 //#ifdef DEBUG_ENABLED
@@ -887,7 +1020,7 @@ void RegisterVCMPCallbacks() {
 //		else { lua_pop(LUA, -1); }
 //	};
 //
-//	/*** Misc ***/
+	/*** MISC ***/
 //
 //	g_Calls->OnEntityPoolChange = [](vcmpEntityPool entityType, int32_t entityId, uint8_t isDeleted) {
 //#ifdef DEBUG_ENABLED
