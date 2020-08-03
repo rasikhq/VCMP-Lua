@@ -1,5 +1,6 @@
 #pragma once
-#include "TimerManager.h"
+#include "Timer/TimerManager.h"
+#include "EventManager/EventManager.h"
 #include "Classes/Server.h"
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
@@ -7,6 +8,7 @@
 void RegisterClasses(sol::state* Lua) {
 	sol::state& state = *Lua;
 
+	EventManager::Init(Lua);
 	TimerManager::Init(Lua);
 	Server::Init(Lua);
 	Player::Init(Lua);

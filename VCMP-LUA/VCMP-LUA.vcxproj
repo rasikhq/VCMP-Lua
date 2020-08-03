@@ -197,8 +197,9 @@
     <ClCompile Include="vcmpWrap\Classes\Player.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Server.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Vehicle.cpp" />
-    <ClCompile Include="vcmpWrap\TimerManager.cpp" />
-    <ClCompile Include="vcmpWrap\vcmpTimer.cpp" />
+    <ClCompile Include="vcmpWrap\EventManager\EventManager.cpp" />
+    <ClCompile Include="vcmpWrap\Timer\TimerManager.cpp" />
+    <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\nod.h" />
@@ -219,11 +220,12 @@
     <ClInclude Include="vcmpWrap\Classes\Player.h" />
     <ClInclude Include="vcmpWrap\Classes\Server.h" />
     <ClInclude Include="vcmpWrap\Classes\Vehicle.h" />
+    <ClInclude Include="vcmpWrap\EventManager\EventManager.h" />
     <ClInclude Include="vcmpWrap\globaTables.h" />
-    <ClInclude Include="vcmpWrap\TimerManager.h" />
+    <ClInclude Include="vcmpWrap\Timer\TimerManager.h" />
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="vcmpWrap\vcmpTimer.h" />
+    <ClInclude Include="vcmpWrap\Timer\vcmpTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lua\lua53.dll" />
