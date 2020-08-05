@@ -33,7 +33,7 @@ Player::Player(int32_t id)
 	g_Funcs->GetPlayerName(id, m_Name, sizeof(m_Name));
 }
 
-int32_t Player::getID() {
+int32_t Player::getID() const {
 	return m_ID;
 }
 

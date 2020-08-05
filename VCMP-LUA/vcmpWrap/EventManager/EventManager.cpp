@@ -8,6 +8,7 @@ std::unordered_map<std::string, std::vector<sol::function>> EventManager::m_Hand
 	{"onPluginCommand", {}},
 
 	/*** PLAYER ***/
+	{"onClientData", {}},
 	{"onPlayerConnection", {}},
 	{"onPlayerConnect", {}},
 	{"onPlayerDisconnect", {}},
@@ -82,14 +83,19 @@ bool EventManager::trigger(std::string eventName, sol::variadic_args args) {
 		return false;
 	}
 
+	auto handlers = GetHandlers(eventName);
+	if (handlers.size() == 0) return true;
+
 	std::vector<sol::object> largs(args.begin(), args.end());
-	for (auto fn : GetHandlers(eventName)) {
+	for (auto fn : handlers) {
 		fn(sol::as_args(largs));
 		if (EventManager::m_bWasEventCancelled) {
 			EventManager::cancelEvent();
 			break;
 		}
 	}
+
+	return true;
 }
 
 bool EventManager::bind(std::string eventName, sol::function handler) {

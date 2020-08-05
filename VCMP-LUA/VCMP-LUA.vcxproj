@@ -196,6 +196,7 @@
     </ClCompile>
     <ClCompile Include="vcmpWrap\Classes\Player.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Server.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Stream.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Vehicle.cpp" />
     <ClCompile Include="vcmpWrap\EventManager\EventManager.cpp" />
     <ClCompile Include="vcmpWrap\Timer\TimerManager.cpp" />
@@ -219,6 +220,7 @@
     <ClInclude Include="lua\include\lualib.h" />
     <ClInclude Include="vcmpWrap\Classes\Player.h" />
     <ClInclude Include="vcmpWrap\Classes\Server.h" />
+    <ClInclude Include="vcmpWrap\Classes\Stream.h" />
     <ClInclude Include="vcmpWrap\Classes\Vehicle.h" />
     <ClInclude Include="vcmpWrap\EventManager\EventManager.h" />
     <ClInclude Include="vcmpWrap\globaTables.h" />

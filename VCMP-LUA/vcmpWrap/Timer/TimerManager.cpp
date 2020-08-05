@@ -8,7 +8,10 @@ std::vector<vcmpTimer*> TimerManager::m_vcmpTimers;
 #undef DEBUG_TIMERMANAGER
 
 void TimerManager::OnFrame(float elapsedTime) {
-	for (auto i = 0; i < m_vcmpTimers.size(); i++) {
+	size_t size = m_vcmpTimers.size();
+	if (size == 0) return;
+
+	for (auto i = 0; i < size; i++) {
 		vcmpTimer* timer = m_vcmpTimers[i];
 		if (timer->getLastTick() == 0) {
 			timer->setLastTick(GetCurrentSysTime());

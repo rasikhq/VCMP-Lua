@@ -20,7 +20,7 @@ public:
 	std::string getIP();
 	std::string getUID();
 	std::string getUID2();
-	int32_t getID();
+	int32_t getID() const;
 	int32_t getKey();
 	int32_t getState();
 	int32_t getUniqueWorld();
