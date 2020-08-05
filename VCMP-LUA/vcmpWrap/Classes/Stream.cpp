@@ -128,22 +128,28 @@ std::string Stream::ReadString()
 
 void Stream::WriteByte(uint8_t data)
 {
-	if (!isSpaceAvailable(sizeof(data)))
+	if (!isSpaceAvailable(sizeof(data))) {
+		OutputError("Stream :: Stream max capacity of %d reached!", MAX_STREAM_DATA);
 		return;
+	}
 	Write(&data, sizeof(data));
 }
 
 void Stream::WriteNumber(int data)
 {
-	if (!isSpaceAvailable(sizeof(data)))
+	if (!isSpaceAvailable(sizeof(data))) {
+		OutputError("Stream :: Stream max capacity of %d reached!", MAX_STREAM_DATA);
 		return;
+	}
 	Write(&data, sizeof(data));
 }
 
 void Stream::WriteFloat(float data)
 {
-	if (!isSpaceAvailable(sizeof(data)))
+	if (!isSpaceAvailable(sizeof(data))) {
+		OutputError("Stream :: Stream max capacity of %d reached!", MAX_STREAM_DATA);
 		return;
+	}
 	Write(&data, sizeof(data));
 }
 
@@ -154,16 +160,18 @@ void Stream::WriteString(std::string data)
 		return;
 	}
 	uint16_t length = uint16_t(data.length());
-	if(!isSpaceAvailable(sizeof(length)))
+	if (!isSpaceAvailable(sizeof(length)) || !isSpaceAvailable(length)) {
+		OutputError("Stream :: Stream max capacity of %d reached!", MAX_STREAM_DATA);
 		return;
-	uint16_t size = size = ((length >> 8) & 0xFF) | ((length & 0xFF) << 8);
+	}
+	uint16_t size = ((length >> 8) & 0xFF) | ((length & 0xFF) << 8);
 	Write(&size, sizeof(size));
 	Write(data.c_str(), length);
 }
 
 bool Stream::Write(const void* data, size_t size) {
-	m_WriteCursor += size;
 	std::memcpy(&m_Data[m_WriteCursor], data, size);
+	m_WriteCursor += size;
 	return true;
 }
 
