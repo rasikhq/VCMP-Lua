@@ -19,6 +19,18 @@ void RegisterClasses(sol::state* Lua) {
 	Vehicle::Init(Lua);
 
 	Lua->script(R"(
+		DisconnectReason = {
+			["TIMEOUT"]		= 0,
+			["QUIT"]		= 1,
+
+			["KICK"]		= 2,
+			["BAN"]			= 2,
+			["KICKBAN"]		= 2,
+			
+			["CRASH"]		= 3,
+			["ANTICHEAT"]	= 4
+		}
+
 		function INTERNAL__tostring(x, intend)
 		intend = tonumber(intend) or 1
 		local s

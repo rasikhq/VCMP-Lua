@@ -207,7 +207,7 @@ void RegisterVCMPCallbacks() {
 		Player* player = Player::Get(playerId);
 		try {
 			for (auto fn : handlers) {
-				sol::function_result r = fn(player);
+				sol::function_result r = fn(player, reason);
 				if (!r.valid()) {
 					sol::error e = r;
 					OutputError("Event callback error: %s", e.what());
@@ -237,7 +237,7 @@ void RegisterVCMPCallbacks() {
 		uint8_t ret = 1;
 		try {
 			for (auto fn : handlers) {
-				sol::function_result r = fn(player);
+				sol::function_result r = fn(player, offset);
 				if (!r.valid()) {
 					sol::error e = r;
 					OutputError("Event callback error: %s", e.what());
@@ -374,7 +374,7 @@ void RegisterVCMPCallbacks() {
 		Player* player = Player::Get(playerId);
 		try {
 			for (auto fn : handlers) {
-				sol::function_result r = fn(player);
+				sol::function_result r = fn(player, updateType);
 				if (!r.valid()) {
 					sol::error e = r;
 					OutputError("Event callback error: %s", e.what());
@@ -924,7 +924,7 @@ void RegisterVCMPCallbacks() {
 		try {
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			for (auto fn : handlers) {
-				sol::function_result r = fn(vehicle);
+				sol::function_result r = fn(vehicle, updateType);
 				if (!r.valid()) {
 					sol::error e = r;
 					OutputError("Event callback error: %s", e.what());
