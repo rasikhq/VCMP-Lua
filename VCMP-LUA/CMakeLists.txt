@@ -58,11 +58,7 @@ target_include_directories(lib-lua
 	PRIVATE
 		${PROJECT_SOURCE_DIR}/
 		${PROJECT_SOURCE_DIR}/include/
-		#${PROJECT_SOURCE_DIR}/sol/
 		${PROJECT_SOURCE_DIR}/vcmpWrap/
-		#${PROJECT_SOURCE_DIR}/vcmpWrap/Classes/
-		#${PROJECT_SOURCE_DIR}/vcmpWrap/EventManager/
-		#${PROJECT_SOURCE_DIR}/vcmpWrap/Timer/
 )
 
 target_include_directories(lib-lua PRIVATE ${PROJECT_SOURCE_DIR}/lua/${LUA_PLATFORM}/include/)
