@@ -11,18 +11,17 @@
 #include <vcmp.h>
 #include <SimpleIni.h>
 
-extern "C" {
-#include "lua/include/lua.h"
-#include "lua/include/lualib.h"
-#include "lua/include/lauxlib.h"
-}
+#if defined(X86)
+#include "lua/x32/include/lua.hpp"
+#elif defined(X64)
+#include "lua/x64/include/lua.hpp"
+#endif
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 
 #ifdef WIN32
 #include <Windows.h>
-#pragma comment(lib, "lua/liblua53.a")
 #endif
 
 #endif //PCH_H
