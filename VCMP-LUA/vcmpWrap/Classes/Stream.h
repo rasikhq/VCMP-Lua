@@ -30,5 +30,4 @@ private:
 	uint8_t* m_Data;
 	size_t m_ReadCursor;
 	size_t m_WriteCursor;
-	//size_t m_EndPos;
 };
