@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "include/utility.h"
-#include "vcmpWrap/globaTables.h"
+#include "vcmpWrap/globalTables.h"
 #include "vcmpWrap/vcmpCallbacks.h"
 
 PluginFuncs* g_Funcs;
