@@ -163,6 +163,14 @@ void Player::setWantedLevel(int32_t value) {
 	g_Funcs->SetPlayerWantedLevel(m_ID, value);
 }
 
+uint32_t Player::getImmunity() const {
+	return g_Funcs->GetPlayerImmunityFlags(m_ID);
+}
+
+void Player::setImmunity(uint32_t value) {
+	g_Funcs->SetPlayerImmunityFlags(m_ID, value);
+}
+
 float Player::getHP() const {
 	return g_Funcs->GetPlayerHealth(m_ID);
 }
@@ -252,6 +260,7 @@ void Player::Init(sol::state* L) {
 	userdata["cash"] = sol::property(&Player::getCash, &Player::setCash);
 	userdata["score"] = sol::property(&Player::getScore, &Player::setScore);
 	userdata["wantedLevel"] = sol::property(&Player::getWantedLevel, &Player::setWantedLevel);
+	userdata["immunity"] = sol::property(&Player::getImmunity, &Player::setImmunity);
 	userdata["health"] = sol::property(&Player::getHP, &Player::setHP);
 	userdata["armour"] = sol::property(&Player::getArmour, &Player::setArmour);
 	userdata["name"] = sol::property(&Player::getName, &Player::setName);

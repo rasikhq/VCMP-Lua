@@ -36,6 +36,7 @@ public:
 
 	/*** PROPERTIES ***/
 	bool getAdmin() const;
+
 	int32_t getWorld() const;
 	int32_t getSecWorld() const;
 	int32_t getTeam() const;
@@ -44,11 +45,20 @@ public:
 	int32_t getCash() const;
 	int32_t getScore() const;
 	int32_t getWantedLevel() const;
+
+	// TO DO: Create a better immunity interface
+	uint32_t getImmunity() const;
+	//
+
 	float getHP() const;
 	float getArmour() const;
+
 	std::string getName() const;
 	
+	/***  ***/
+
 	void setAdmin(bool);
+
 	void setScore(int32_t);
 	void setWorld(int32_t);
 	void setSecWorld(int32_t);
@@ -57,8 +67,12 @@ public:
 	void setColor(int32_t);
 	void setCash(int32_t);
 	void setWantedLevel(int32_t);
+
+	void setImmunity(uint32_t);
+
 	void setHP(float);
 	void setArmour(float);
+
 	void setName(const std::string&);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/

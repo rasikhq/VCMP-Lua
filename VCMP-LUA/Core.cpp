@@ -62,7 +62,8 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 		sol::lib::table,
 		sol::lib::io, 
 		sol::lib::os,
-		sol::lib::debug
+		sol::lib::debug,
+		sol::lib::package
 	);
 	Lua.set_exception_handler(&my_exception_handler);
 
@@ -80,7 +81,7 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 		}
 	}
 	else {
-		OutputError("No lua scripts speciefied to load");
+		OutputError("No lua scripts specified to load");
 	}
 
 	return 1;
