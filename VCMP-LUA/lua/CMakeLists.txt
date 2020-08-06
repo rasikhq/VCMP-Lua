@@ -1,6 +1,10 @@
 cmake_minimum_required (VERSION 2.6)
 project (lua)
 
+if (UNIX)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
 if(WIN32)
         add_definitions( -D_CRT_SECURE_NO_WARNINGS )
 endif()
