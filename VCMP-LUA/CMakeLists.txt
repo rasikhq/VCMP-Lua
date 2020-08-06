@@ -20,47 +20,47 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 add_library(lib-lua SHARED 
-	${PROJECT_SOURCE_DIR}/Core.cpp
-	${PROJECT_SOURCE_DIR}/pch.h
-	${PROJECT_SOURCE_DIR}/pch.cpp
+	Core.cpp
+	pch.h
+	pch.cpp
 	# include
-	${PROJECT_SOURCE_DIR}/include/SimpleIni.h
-	${PROJECT_SOURCE_DIR}/include/utility.h
-	${PROJECT_SOURCE_DIR}/include/vcmp.h
+	include/SimpleIni.h
+	include/utility.h
+	include/vcmp.h
 	# sol
-	${PROJECT_SOURCE_DIR}/sol/forward.hpp
-	${PROJECT_SOURCE_DIR}/sol/sol.hpp
+	sol/forward.hpp
+	sol/sol.hpp
 	# vcmpWrap
-	${PROJECT_SOURCE_DIR}/vcmpWrap/globalTables.h
-	${PROJECT_SOURCE_DIR}/vcmpWrap/vcmpCallbacks.h
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Classes/Player.h
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Classes/Player.cpp
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Classes/Vehicle.h
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Classes/Vehicle.cpp
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Classes/Server.h
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Classes/Server.cpp
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Classes/Stream.h
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Classes/Stream.cpp
-	${PROJECT_SOURCE_DIR}/vcmpWrap/EventManager/EventManager.h
-	${PROJECT_SOURCE_DIR}/vcmpWrap/EventManager/EventManager.cpp
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Timer/vcmpTimer.h
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Timer/vcmpTimer.cpp
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Timer/TimerManager.h
-	${PROJECT_SOURCE_DIR}/vcmpWrap/Timer/TimerManager.cpp
+	vcmpWrap/globalTables.h
+	vcmpWrap/vcmpCallbacks.h
+	vcmpWrap/Classes/Player.h
+	vcmpWrap/Classes/Player.cpp
+	vcmpWrap/Classes/Vehicle.h
+	vcmpWrap/Classes/Vehicle.cpp
+	vcmpWrap/Classes/Server.h
+	vcmpWrap/Classes/Server.cpp
+	vcmpWrap/Classes/Stream.h
+	vcmpWrap/Classes/Stream.cpp
+	vcmpWrap/EventManager/EventManager.h
+	vcmpWrap/EventManager/EventManager.cpp
+	vcmpWrap/Timer/vcmpTimer.h
+	vcmpWrap/Timer/vcmpTimer.cpp
+	vcmpWrap/Timer/TimerManager.h
+	vcmpWrap/Timer/TimerManager.cpp
 	# Lua
-	${PROJECT_SOURCE_DIR}/lua/lauxlib.h
-	${PROJECT_SOURCE_DIR}/lua/lua.h
-	${PROJECT_SOURCE_DIR}/lua/lua.hpp
-	${PROJECT_SOURCE_DIR}/lua/luaconf.h
-	${PROJECT_SOURCE_DIR}/lua/lualib.h
+	lua/lauxlib.h
+	lua/lua.h
+	lua/lua.hpp
+	lua/luaconf.h
+	lua/lualib.h
 )
 
 target_include_directories(lib-lua
 	PRIVATE
 		${PROJECT_SOURCE_DIR}/
-		${PROJECT_SOURCE_DIR}/include/
-		${PROJECT_SOURCE_DIR}/vcmpWrap/
-		${PROJECT_SOURCE_DIR}/lua/include/
+		include/
+		vcmpWrap/
+		lua
 )
 
 add_subdirectory(lua)
