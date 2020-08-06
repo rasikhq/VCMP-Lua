@@ -21,6 +21,7 @@ endif()
 
 add_library(lib-lua SHARED 
 	${PROJECT_SOURCE_DIR}/Core.cpp
+	${PROJECT_SOURCE_DIR}/pch.h
 	${PROJECT_SOURCE_DIR}/pch.cpp
 	# include
 	${PROJECT_SOURCE_DIR}/include/SimpleIni.h
@@ -47,11 +48,11 @@ add_library(lib-lua SHARED
 	${PROJECT_SOURCE_DIR}/vcmpWrap/Timer/TimerManager.h
 	${PROJECT_SOURCE_DIR}/vcmpWrap/Timer/TimerManager.cpp
 	# Lua
-	${PROJECT_SOURCE_DIR}/lua/${LUA_PLATFORM}/include/lauxlib.h
-	${PROJECT_SOURCE_DIR}/lua/${LUA_PLATFORM}/include/lua.h
-	${PROJECT_SOURCE_DIR}/lua/${LUA_PLATFORM}/include/lua.hpp
-	${PROJECT_SOURCE_DIR}/lua/${LUA_PLATFORM}/include/luaconf.h
-	${PROJECT_SOURCE_DIR}/lua/${LUA_PLATFORM}/include/lualib.h
+	${PROJECT_SOURCE_DIR}/lua/lauxlib.h
+	${PROJECT_SOURCE_DIR}/lua/lua.h
+	${PROJECT_SOURCE_DIR}/lua/lua.hpp
+	${PROJECT_SOURCE_DIR}/lua/luaconf.h
+	${PROJECT_SOURCE_DIR}/lua/lualib.h
 )
 
 target_include_directories(lib-lua
@@ -59,10 +60,12 @@ target_include_directories(lib-lua
 		${PROJECT_SOURCE_DIR}/
 		${PROJECT_SOURCE_DIR}/include/
 		${PROJECT_SOURCE_DIR}/vcmpWrap/
+		${PROJECT_SOURCE_DIR}/lua/include/
 )
 
-target_include_directories(lib-lua PRIVATE ${PROJECT_SOURCE_DIR}/lua/${LUA_PLATFORM}/include/)
-target_link_libraries(lib-lua ${PROJECT_SOURCE_DIR}/lua/${LUA_PLATFORM}/lua53.lib)
+add_subdirectory(lua)
+
+target_link_libraries(lib-lua lualib)
 
 set_target_properties(lib-lua PROPERTIES PREFIX "")
 set_target_properties(lib-lua PROPERTIES OUTPUT_NAME "lua-plugin-${LUA_PLATFORM}")
