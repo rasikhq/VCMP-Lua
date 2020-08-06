@@ -7,24 +7,23 @@
 extern PluginFuncs* g_Funcs;
 
 Stream::Stream()
-	: m_ReadCursor(0), m_WriteCursor(0), m_Data(new uint8_t[MAX_STREAM_DATA])
-{
-	
-}
+	: m_ReadCursor(0), m_WriteCursor(0)
+{}
 
 Stream::Stream(const uint8_t* data, size_t size)
-	: m_ReadCursor(0), m_WriteCursor(0), m_Data(new uint8_t[MAX_STREAM_DATA])
+	: m_ReadCursor(0), m_WriteCursor(0)
 {
 	std::memcpy(m_Data, data, size);
 	m_WriteCursor += size;
 #ifdef DEBUG_STREAM
-	std::cout << "Stream insantiated with size: " << size << std::endl;
+	std::cout << "Stream instantiated with size: " << size << std::endl;
 #endif
 }
 
 Stream::~Stream()
 {
-	delete[] m_Data;
+	m_WriteCursor = 0;
+	m_ReadCursor = 0;
 }
 
 /*******************************************************************************/
