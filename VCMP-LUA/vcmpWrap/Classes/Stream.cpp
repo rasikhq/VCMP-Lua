@@ -15,9 +15,7 @@ Stream::Stream(const uint8_t* data, size_t size)
 {
 	std::memcpy(m_Data, data, size);
 	m_WriteCursor += size;
-#ifdef DEBUG_STREAM
-	std::cout << "Stream instantiated with size: " << size << std::endl;
-#endif
+	spdlog::debug("Stream instantiated with size: {}", size);
 }
 
 Stream::~Stream()
@@ -36,7 +34,7 @@ uint8_t Stream::ReadByte()
 #endif
 
 	if (m_ReadCursor >= m_WriteCursor) {
-		OutputError("Stream :: Not enough 'bytes' to read!");
+		spdlog::error("Stream :: Not enough 'bytes' to read!");
 		return 0x0;
 	}
 
@@ -50,7 +48,7 @@ uint8_t Stream::ReadByte()
 int Stream::ReadNumber()
 {
 	if (m_ReadCursor >= m_WriteCursor) {
-		OutputError("Stream :: Not enough 'number' to read!");
+		spdlog::error("Stream :: Not enough 'number' to read!");
 		return 0;
 	}
 
@@ -69,7 +67,7 @@ int Stream::ReadNumber()
 float Stream::ReadFloat()
 {
 	if (m_ReadCursor >= m_WriteCursor) {
-		OutputError("Stream :: Not enough 'float' to read!");
+		spdlog::error("Stream :: Not enough 'float' to read!");
 		return 0.0f;
 	}
 
@@ -92,7 +90,7 @@ std::string Stream::ReadString()
 #endif
 
 	if (m_ReadCursor >= m_WriteCursor) {
-		OutputError("Stream :: Not enough 'String' to read!");
+		spdlog::error("Stream :: Not enough 'String' to read!");
 		return std::string();
 	}
 
@@ -104,15 +102,10 @@ std::string Stream::ReadString()
 
 	length = ((length >> 8) & 0xFF) | ((length & 0xFF) << 8);
 
-#ifdef DEBUG_STREAM
-	std::cout << "m_ReadCursor: " << m_ReadCursor << "\n"
-		<< "m_WriteCursor: " << m_WriteCursor << "\n"
-		<< "dataSize: " << dataSize << "\n"
-		<< "length: " << length << std::endl;
-#endif
+	spdlog::debug("m_ReadCursor: {0}\nm_WriteCursor: {1}\ndataSize: {2}\nlength: {3}", m_ReadCursor, m_WriteCursor, dataSize, length);
 
 	if (m_ReadCursor + length > m_WriteCursor) {
-		OutputError("Stream :: 'String' buffer exceeds out of capacity!");
+		spdlog::error("Stream :: 'String' buffer exceeds out of capacity!");
 		return std::string();
 	}
 
@@ -128,7 +121,7 @@ std::string Stream::ReadString()
 void Stream::WriteByte(uint8_t data)
 {
 	if (!isSpaceAvailable(sizeof(data))) {
-		OutputError("Stream :: Stream max capacity of %d reached!", MAX_STREAM_DATA);
+		spdlog::error("Stream :: Stream max capacity of {} reached!", MAX_STREAM_DATA);
 		return;
 	}
 	Write(&data, sizeof(data));
@@ -137,7 +130,7 @@ void Stream::WriteByte(uint8_t data)
 void Stream::WriteNumber(int data)
 {
 	if (!isSpaceAvailable(sizeof(data))) {
-		OutputError("Stream :: Stream max capacity of %d reached!", MAX_STREAM_DATA);
+		spdlog::error("Stream :: Stream max capacity of {} reached!", MAX_STREAM_DATA);
 		return;
 	}
 	Write(&data, sizeof(data));
@@ -146,7 +139,7 @@ void Stream::WriteNumber(int data)
 void Stream::WriteFloat(float data)
 {
 	if (!isSpaceAvailable(sizeof(data))) {
-		OutputError("Stream :: Stream max capacity of %d reached!", MAX_STREAM_DATA);
+		spdlog::error("Stream :: Stream max capacity of {} reached!", MAX_STREAM_DATA);
 		return;
 	}
 	Write(&data, sizeof(data));
@@ -155,12 +148,12 @@ void Stream::WriteFloat(float data)
 void Stream::WriteString(std::string data)
 {
 	if (data.length() > 0xFFFF) {
-		OutputError("Stream :: String too large!");
+		spdlog::error("Stream :: String too large!");
 		return;
 	}
 	uint16_t length = uint16_t(data.length());
 	if (!isSpaceAvailable(sizeof(length)) || !isSpaceAvailable(length)) {
-		OutputError("Stream :: Stream max capacity of %d reached!", MAX_STREAM_DATA);
+		spdlog::error("Stream :: Stream max capacity of {} reached!", MAX_STREAM_DATA);
 		return;
 	}
 	uint16_t size = ((length >> 8) & 0xFF) | ((length & 0xFF) << 8);

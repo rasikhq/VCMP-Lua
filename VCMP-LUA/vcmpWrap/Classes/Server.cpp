@@ -48,7 +48,7 @@ bool Server::setOption(const std::string& option, bool toggle) {
 
 sol::object Server::getSettings() {
 	if (g_Funcs->GetServerSettings(&s_Settings) != vcmpErrorNone) {
-		std::cout << "[ERROR] Failed to retrieve server settings from plugin!" << std::endl;
+		spdlog::error("[ERROR] Failed to retrieve server settings from plugin!");
 		return sol::nil;
 	}
 	sol::table settings = Lua.create_table();

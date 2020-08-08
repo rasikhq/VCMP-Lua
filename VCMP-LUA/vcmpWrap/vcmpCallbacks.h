@@ -5,9 +5,6 @@
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
 
-#define DEBUG_ENABLED
-#undef DEBUG_ENABLED
-
 extern PluginFuncs* g_Funcs;
 extern PluginCallbacks* g_Calls;
 extern sol::state Lua;
@@ -15,10 +12,9 @@ extern sol::state Lua;
 void RegisterVCMPCallbacks() {
 	/*** SERVER ***/
 	g_Calls->OnServerInitialise = [] () -> uint8_t {
-#ifdef DEBUG_ENABLED
-		std::cout << "onServerinitialise" << std::endl;
-#endif
-		auto handlers = EventManager::GetHandlers("onServerInit");
+		spdlog::debug("onServerinitialise");
+		
+		 auto handlers = EventManager::GetHandlers("onServerInit");
 		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
 		try {
@@ -26,7 +22,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn();
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -36,15 +32,14 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 		return ret;
 	};
 
 	g_Calls->OnServerShutdown = []() -> void {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnServerShutdown" << std::endl;
-#endif
+		spdlog::debug("OnServerShutdown");
+
 		auto handlers = EventManager::GetHandlers("onServerShutdown");
 		if (handlers.size() == 0) return;
 		try {
@@ -52,7 +47,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn();
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -61,14 +56,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnServerFrame = [](float elapsedTime) -> void {
-#ifdef DEBUG_ENABLED
-		//std::cout << "OnServerFrame" << std::endl;
-#endif
+		//spdlog::debug("OnServerFrame");
+
 		TimerManager::OnFrame(elapsedTime);
 		auto handlers = EventManager::GetHandlers("onServerFrame");
 		if (handlers.size() == 0) return;
@@ -77,7 +71,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(elapsedTime);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -86,14 +80,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 	
 	g_Calls->OnPluginCommand = [](uint32_t commandIdentifier, const char* message) -> uint8_t {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPluginCommand" << std::endl;
-#endif
+		spdlog::debug("OnPluginCommand");
+
 		auto handlers = EventManager::GetHandlers("onPluginCommand");
 		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
@@ -102,7 +95,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(commandIdentifier, message);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -112,15 +105,14 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 		return ret;
 	};
 
 	g_Calls->OnIncomingConnection = [](char* playerName, size_t nameBufferSize, const char* userPassword, const char* ipAddress) -> uint8_t {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnIncomingConnection" << std::endl;
-#endif
+		spdlog::debug("OnIncomingConnection");
+
 		auto handlers = EventManager::GetHandlers("onPlayerConnection");
 		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
@@ -129,7 +121,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(playerName, nameBufferSize, userPassword, ipAddress);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -139,16 +131,15 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 		return ret;
 	};
 
 	/*** PLAYER ***/
 	g_Calls->OnClientScriptData = [](int32_t playerId, const uint8_t* data, size_t size) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnClientScriptData" << std::endl;
-#endif
+		spdlog::debug("OnClientScriptData");
+
 		auto handlers = EventManager::GetHandlers("onClientData");
 		if (handlers.size() == 0) return;
 		Stream stream(data, size);
@@ -158,7 +149,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, stream, size);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 			}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -167,14 +158,13 @@ void RegisterVCMPCallbacks() {
 		}
 	}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 	
 	g_Calls->OnPlayerConnect = [](int32_t playerId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "onPlayerConnect" << std::endl;
-#endif
+		spdlog::debug("OnPlayerConnect");
+
 		auto handlers = EventManager::GetHandlers("onPlayerConnect");
 		if (handlers.size() == 0) return;
 
@@ -184,7 +174,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -193,14 +183,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 	
 	g_Calls->OnPlayerDisconnect = [](int32_t playerId, vcmpDisconnectReason reason) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerDisconnect" << std::endl;
-#endif
+		spdlog::debug("OnPlayerDisconnect");
+
 		auto handlers = EventManager::GetHandlers("onPlayerDisconnect");
 		if (handlers.size() == 0) return;
 
@@ -210,7 +199,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, reason);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -219,18 +208,17 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerModuleList = [](int32_t playerId, const char* list) {
-		
+		spdlog::debug("OnPlayerModuleList");
 	};
 
 	g_Calls->OnPlayerRequestClass = [](int32_t playerId, int32_t offset) -> uint8_t {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerRequestClass" << std::endl;
-#endif
+		spdlog::debug("OnPlayerRequestClass");
+
 		auto handlers = EventManager::GetHandlers("onPlayerRequestClass");
 		if (handlers.size() == 0) return 1;
 		Player* player = Player::Get(playerId);
@@ -240,7 +228,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, offset);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -250,15 +238,14 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 		return ret;
 	};
 
 	g_Calls->OnPlayerRequestSpawn = [](int32_t playerId) -> uint8_t {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerRequestSpawn" << std::endl;
-#endif
+		spdlog::debug("OnPlayerRequestSpawn");
+
 		auto handlers = EventManager::GetHandlers("onPlayerRequestSpawn");
 		if (handlers.size() == 0) return 1;
 		Player* player = Player::Get(playerId);
@@ -268,7 +255,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -278,15 +265,14 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 		return ret;
 	};
 
 	g_Calls->OnPlayerSpawn = [](int32_t playerId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerSpawn" << std::endl;
-#endif
+		spdlog::debug("OnPlayerSpawn");
+
 		auto handlers = EventManager::GetHandlers("onPlayerSpawn");
 		if (handlers.size() == 0) return;
 		Player* player = Player::Get(playerId);
@@ -295,7 +281,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -304,14 +290,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerDeath = [](int32_t playerId, int32_t killerId, int32_t reason, vcmpBodyPart bodyPart) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerDeath" << std::endl;
-#endif
+		spdlog::debug("OnPlayerDeath");
+
 		if (!g_Funcs->IsPlayerConnected(killerId)) {
 			auto handlers = EventManager::GetHandlers("onPlayerWasted");
 			if (handlers.size() > 0) {
@@ -328,7 +313,7 @@ void RegisterVCMPCallbacks() {
 						sol::function_result r = fn(player, reason);
 						if (!r.valid()) {
 							sol::error e = r;
-							OutputError("Event callback error: %s", e.what());
+							spdlog::error("Event callback error: {}", e.what());
 						}
 						if (EventManager::m_bWasEventCancelled) {
 							EventManager::cancelEvent();
@@ -338,7 +323,7 @@ void RegisterVCMPCallbacks() {
 					}
 				}
 				catch (sol::error e) {
-					OutputError(e.what());
+					spdlog::error(e.what());
 				}
 			}
 		}
@@ -352,7 +337,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(killer, player, reason, bodyPart);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -361,14 +346,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerUpdate = [](int32_t playerId, vcmpPlayerUpdate updateType) {
-#ifdef DEBUG_ENABLED
-		//std::cout << "OnPlayerUpdate" << std::endl;
-#endif
+		//spdlog::debug("OnPlayerUpdate");
+
 		auto handlers = EventManager::GetHandlers("onPlayerUpdate");
 		if (handlers.size() == 0) return;
 		Player* player = Player::Get(playerId);
@@ -377,7 +361,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, updateType);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -386,14 +370,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerRequestEnterVehicle = [](int32_t playerId, int32_t vehicleId, int32_t slotIndex) -> uint8_t {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerRequestEnterVehicle" << std::endl;
-#endif
+		spdlog::debug("OnPlayerRequestEnterVehicle");
+
 		auto handlers = EventManager::GetHandlers("onPlayerRequestEnterVehicle");
 		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
@@ -404,7 +387,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, vehicle, vehicleId, slotIndex);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -414,15 +397,14 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 		return ret;
 	};
 
 	g_Calls->OnPlayerEnterVehicle = [](int32_t playerId, int32_t vehicleId, int32_t slotIndex) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerEnterVehicle" << std::endl;
-#endif
+		spdlog::debug("OnPlayerEnterVehicle");
+
 		auto handlers = EventManager::GetHandlers("onPlayerEnterVehicle");
 		if (handlers.size() == 0) return;
 		try {
@@ -432,7 +414,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, vehicle, slotIndex);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -441,14 +423,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerExitVehicle = [](int32_t playerId, int32_t vehicleId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerExitVehicle" << std::endl;
-#endif
+		spdlog::debug("OnPlayerExitVehicle");
+
 		auto handlers = EventManager::GetHandlers("onPlayerExitVehicle");
 		if (handlers.size() == 0) return;
 		try {
@@ -458,7 +439,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, vehicle);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -467,14 +448,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerNameChange = [](int32_t playerId, const char* oldName, const char* newName) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerNameChange" << std::endl;
-#endif
+		spdlog::debug("OnPlayerNameChange");
+
 		auto handlers = EventManager::GetHandlers("onPlayerNameChange");
 		if (handlers.size() == 0) return;
 		try {
@@ -483,7 +463,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, oldName, newName);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -492,23 +472,22 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerStateChange = [](int32_t playerId, vcmpPlayerState oldState, vcmpPlayerState newState) {
-#ifdef DEBUG_ENABLED
-		//std::cout << "OnPlayerStateChange" << std::endl;
-#endif
+		//spdlog::debug("OnPlayerStateChange");
+
 		auto handlers = EventManager::GetHandlers("onPlayerStateChange");
-		if (handlers.size() == 0) return;
+		if (handlers.size() == 0 || newState == oldState) return;
 		try {
 			Player* player = Player::Get(playerId);
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, oldState, newState);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -517,23 +496,22 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerActionChange = [](int32_t playerId, int32_t oldAction, int32_t newAction) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerActionChange" << std::endl;
-#endif
+		spdlog::debug("OnPlayerActionChange");
+
 		auto handlers = EventManager::GetHandlers("onPlayerActionChange");
-		if (handlers.size() == 0) return;
+		if (handlers.size() == 0 || newAction == oldAction) return;
 		try {
 			Player* player = Player::Get(playerId);
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, oldAction, newAction);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -542,14 +520,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerOnFireChange = [](int32_t playerId, uint8_t isOnFire) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerOnFireChange" << std::endl;
-#endif
+		spdlog::debug("OnPlayerOnFireChange");
+
 		auto handlers = EventManager::GetHandlers("onPlayerFireChange");
 		if (handlers.size() == 0) return;
 		try {
@@ -558,7 +535,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, isOnFire);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -567,14 +544,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerCrouchChange = [](int32_t playerId, uint8_t isCrouching) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerCrouchChange" << std::endl;
-#endif
+		spdlog::debug("OnPlayerCrouchChange");
+
 		auto handlers = EventManager::GetHandlers("onPlayerCrouchChange");
 		if (handlers.size() == 0) return;
 		try {
@@ -583,7 +559,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, isCrouching);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -592,14 +568,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerGameKeysChange = [](int32_t playerId, uint32_t oldKeys, uint32_t newKeys) {
-#ifdef DEBUG_ENABLED
-		//std::cout << "OnPlayerGameKeysChange" << std::endl;
-#endif
+		//spdlog::debug("OnPlayerGameKeysChange");
+
 		auto handlers = EventManager::GetHandlers("onPlayerGameKeysChange");
 		if (handlers.size() == 0) return;
 		try {
@@ -608,7 +583,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, oldKeys, newKeys);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -617,14 +592,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerBeginTyping = [](int32_t playerId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerBeginTyping" << std::endl;
-#endif
+		spdlog::debug("OnPlayerBeginTyping");
+
 		auto handlers = EventManager::GetHandlers("onPlayerBeginTyping");
 		if (handlers.size() == 0) return;
 		try {
@@ -633,7 +607,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -642,14 +616,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerEndTyping = [](int32_t playerId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerEndTyping" << std::endl;
-#endif
+		spdlog::debug("OnPlayerEndTyping");
+
 		auto handlers = EventManager::GetHandlers("onPlayerFinishTyping");
 		if (handlers.size() == 0) return;
 		try {
@@ -658,7 +631,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -667,14 +640,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerAwayChange = [](int32_t playerId, uint8_t isAway) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerAwayChange" << std::endl;
-#endif
+		spdlog::debug("OnPlayerAwayChange");
+
 		auto handlers = EventManager::GetHandlers("onPlayerAwayChange");
 		if (handlers.size() == 0) return;
 		try {
@@ -683,7 +655,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, isAway);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -692,14 +664,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerMessage = [](int32_t playerId, const char* message) -> uint8_t {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerMessage" << std::endl;
-#endif
+		spdlog::debug("OnPlayerMessage");
+
 		auto handlers = EventManager::GetHandlers("onPlayerMessage");
 		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
@@ -709,7 +680,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, message);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -719,15 +690,14 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 		return ret;
 	};
 
 	g_Calls->OnPlayerCommand = [](int32_t playerId, const char* message) -> uint8_t {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerCommand" << std::endl;
-#endif
+		spdlog::debug("OnPlayerCommand");
+
 		auto handlers = EventManager::GetHandlers("onPlayerCommand");
 		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
@@ -740,7 +710,7 @@ void RegisterVCMPCallbacks() {
 					sol::function_result r = fn(player, sol::lua_nil, sol::lua_nil);
 					if (!r.valid()) {
 						sol::error e = r;
-						OutputError("Event callback error: %s", e.what());
+						spdlog::error("Event callback error: {}", e.what());
 					}
 					if (EventManager::m_bWasEventCancelled) {
 						EventManager::cancelEvent();
@@ -755,7 +725,7 @@ void RegisterVCMPCallbacks() {
 						sol::function_result r = fn(player, command, sol::as_table_t<std::vector<std::string>>(args));
 						if (!r.valid()) {
 							sol::error e = r;
-							OutputError("Event callback error: %s", e.what());
+							spdlog::error("Event callback error: {}", e.what());
 						}
 						if (EventManager::m_bWasEventCancelled) {
 							EventManager::cancelEvent();
@@ -767,7 +737,7 @@ void RegisterVCMPCallbacks() {
 						sol::function_result r = fn(player, command, sol::lua_nil);
 						if (!r.valid()) {
 							sol::error e = r;
-							OutputError("Event callback error: %s", e.what());
+							spdlog::error("Event callback error: {}", e.what());
 						}
 						if (EventManager::m_bWasEventCancelled) {
 							EventManager::cancelEvent();
@@ -779,15 +749,14 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 		return ret;
 	};
 
 	g_Calls->OnPlayerPrivateMessage = [](int32_t playerId, int32_t targetPlayerId, const char* message) -> uint8_t {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerPrivateMessage" << std::endl;
-#endif
+		spdlog::debug("OnPlayerPrivateMessage");
+
 		auto handlers = EventManager::GetHandlers("onPlayerPM");
 		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
@@ -798,7 +767,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, targetPlayer, message);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -808,15 +777,14 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 		return ret;
 	};
 
 	g_Calls->OnPlayerKeyBindDown = [](int32_t playerId, int32_t bindId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerKeyBindDown" << std::endl;
-#endif
+		spdlog::debug("OnPlayerKeyBindDown");
+
 		auto handlers = EventManager::GetHandlers("onPlayerKeyDown");
 		if (handlers.size() == 0) return;
 		try {
@@ -825,7 +793,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, bindId);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -834,14 +802,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerKeyBindUp = [](int32_t playerId, int32_t bindId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerKeyBindUp" << std::endl;
-#endif
+		spdlog::debug("OnPlayerKeyBindUp");
+
 		auto handlers = EventManager::GetHandlers("onPlayerKeyUp");
 		if (handlers.size() == 0) return;
 		try {
@@ -850,7 +817,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, bindId);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -859,14 +826,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerSpectate = [](int32_t playerId, int32_t targetPlayerId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerSpectate" << std::endl;
-#endif
+		spdlog::debug("OnPlayerSpectate");
+
 		auto handlers = EventManager::GetHandlers("onPlayerSpectate");
 		if (handlers.size() == 0) return;
 		try {
@@ -876,7 +842,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, targetPlayer);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -885,14 +851,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnPlayerCrashReport = [](int32_t playerId, const char* report) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnPlayerCrashReport" << std::endl;
-#endif
+		spdlog::debug("OnPlayerCrashReport");
+
 		auto handlers = EventManager::GetHandlers("onPlayerCrashReport");
 		if (handlers.size() == 0) return;
 		try {
@@ -901,7 +866,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(player, report);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -910,15 +875,14 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 	
 	/*** VEHICLE ***/
 	g_Calls->OnVehicleUpdate = [](int32_t vehicleId, vcmpVehicleUpdate updateType) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnVehicleUpdate" << std::endl;
-#endif
+		spdlog::debug("OnVehicleUpdate");
+
 		auto handlers = EventManager::GetHandlers("onVehicleUpdate");
 		if (handlers.size() == 0) return;
 		try {
@@ -927,7 +891,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(vehicle, updateType);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -936,14 +900,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnVehicleExplode = [](int32_t vehicleId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnVehicleExplode" << std::endl;
-#endif
+		spdlog::debug("OnVehicleExplode");
+
 		auto handlers = EventManager::GetHandlers("onVehicleExplode");
 		if (handlers.size() == 0) return;
 		try {
@@ -952,7 +915,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(vehicle);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -961,14 +924,13 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 
 	g_Calls->OnVehicleRespawn = [](int32_t vehicleId) {
-#ifdef DEBUG_ENABLED
-		std::cout << "OnVehicleRespawn" << std::endl;
-#endif
+		spdlog::debug("OnVehicleRespawn");
+
 		auto handlers = EventManager::GetHandlers("onVehicleRespawn");
 		if (handlers.size() == 0) return;
 		try {
@@ -977,7 +939,7 @@ void RegisterVCMPCallbacks() {
 				sol::function_result r = fn(vehicle);
 				if (!r.valid()) {
 					sol::error e = r;
-					OutputError("Event callback error: %s", e.what());
+					spdlog::error("Event callback error: {}", e.what());
 				}
 				if (EventManager::m_bWasEventCancelled) {
 					EventManager::cancelEvent();
@@ -986,7 +948,7 @@ void RegisterVCMPCallbacks() {
 			}
 		}
 		catch (sol::error e) {
-			OutputError(e.what());
+			spdlog::error(e.what());
 		}
 	};
 

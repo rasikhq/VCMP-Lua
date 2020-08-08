@@ -70,7 +70,7 @@ bool EventManager::eventExists(const std::string& eventName) {
 
 bool EventManager::create(std::string eventName) {
 	if (eventExists(eventName)) {
-		OutputError("Event Manager :: A custom event named %s already exists", eventName);
+		spdlog::error("Event Manager :: A custom event named {} already exists", eventName);
 		return false;
 	}
 	m_Handlers[eventName] = {};
@@ -79,7 +79,7 @@ bool EventManager::create(std::string eventName) {
 
 bool EventManager::trigger(std::string eventName, sol::variadic_args args) {
 	if (!eventExists(eventName)) {
-		OutputError("Event Manager :: A custom event with the name %s does not exist", eventName);
+		spdlog::error("Event Manager :: A custom event with the name {} does not exist", eventName);
 		return false;
 	}
 
@@ -100,13 +100,13 @@ bool EventManager::trigger(std::string eventName, sol::variadic_args args) {
 
 bool EventManager::bind(std::string eventName, sol::function handler) {
 	if (!eventExists(eventName)) {
-		OutputError("Event Manager :: No such event named %s exists", eventName);
+		spdlog::error("Event Manager :: No such event named {} exists", eventName);
 		return false;
 	}
 
 	for (const auto& handle : m_Handlers[eventName]) {
 		if (handle.pointer() == handler.pointer()) {
-			OutputError("Event Manager :: Function handler for event %s is already bound to the given function!", eventName);
+			spdlog::error("Event Manager :: Function handler for event {} is already bound to the given function!", eventName);
 			return false;
 		}
 	}
@@ -116,7 +116,7 @@ bool EventManager::bind(std::string eventName, sol::function handler) {
 
 bool EventManager::unbind(std::string eventName, sol::function handler) {
 	if (!eventExists(eventName)) {
-		OutputError("Event Manager :: No such named %s exists", eventName);
+		spdlog::error("Event Manager :: No such named {} exists", eventName);
 		return false;
 	}
 
@@ -126,7 +126,7 @@ bool EventManager::unbind(std::string eventName, sol::function handler) {
 			return true;
 		}
 	}
-	OutputError("Event Manager :: No function handlers are bound for event %s!", eventName);
+	spdlog::error("Event Manager :: No function handlers are bound for event {}!", eventName);
 	return false;
 }
 

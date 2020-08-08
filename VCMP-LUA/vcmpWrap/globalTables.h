@@ -1,14 +1,18 @@
 #pragma once
+#include "Log/Logger.h"
+
 #include "EventManager/EventManager.h"
 #include "Timer/TimerManager.h"
-#include "Classes/Stream.h"
 
+#include "Classes/Stream.h"
 #include "Classes/Server.h"
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
 
 void RegisterClasses(sol::state* Lua) {
 	sol::state& state = *Lua;
+
+	Logger::Init(Lua, spdlog::level::trace); // Set level to info to avoid debug messages
 
 	EventManager::Init(Lua);
 	TimerManager::Init(Lua);

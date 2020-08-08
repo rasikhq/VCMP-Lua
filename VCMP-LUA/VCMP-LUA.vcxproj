@@ -163,7 +163,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)vendor</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>WIN32;SOL_ALL_SAFETIES_ON;X64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -173,7 +173,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>x64\lua53.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua\lualib64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\Development\C++\VCMP-Lua\VCMP-LUA;D:\Development\C++\VCMP-Lua\VCMP-LUA\lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -227,6 +227,7 @@
     <ClInclude Include="vcmpWrap\EventManager\EventManager.h" />
     <ClInclude Include="vcmpWrap\globalTables.h" />
     <ClInclude Include="vcmpWrap\globaTables.h" />
+    <ClInclude Include="vcmpWrap\Log\Logger.h" />
     <ClInclude Include="vcmpWrap\Timer\TimerManager.h" />
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h" />
     <ClInclude Include="pch.h" />

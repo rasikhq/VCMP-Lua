@@ -36,13 +36,10 @@ void TimerManager::OnFrame(float elapsedTime) {
 				const sol::function& fn = timer->getCallback();
 				if (fn.valid()) {
 					const std::vector<sol::object>& args = timer->getArgs();
-#ifdef DEBUG_TIMERMANAGER
-					
-#endif
 					sol::function_result result = fn(sol::as_args(args));
 					if (!result.valid()) {
 						sol::error e = result;
-						OutputError("Timer handler failed: %s", e.what());
+						spdlog::error("Timer handler failed: {}", e.what());
 					}
 				}
 				else {
@@ -51,7 +48,7 @@ void TimerManager::OnFrame(float elapsedTime) {
 				}
 			}
 			catch (sol::error e) {
-				OutputError(e.what());
+				spdlog::error(e.what());
 			}
 			timer->setLastTick(currentTick);
 			if (repeat > 0) {
@@ -68,17 +65,17 @@ void TimerManager::OnFrame(float elapsedTime) {
 
 vcmpTimer* TimerManager::createTimer(sol::function callback, unsigned int interval, int32_t repeat, sol::variadic_args args) {
 	if (!callback.valid()) {
-		OutputError("Expected function at argument 1");
+		spdlog::error("Expected function at argument 1");
 		return nullptr;
 	}
 	else if (interval < 50) {
-		OutputError("Interval cannot be less tahn 50ms!");
+		spdlog::error("Interval cannot be less than 50ms!");
 		return nullptr;
 	}
 	std::vector<sol::object> largs(args.begin(), args.end());
-#ifdef DEBUG_TIMERMANAGER
-	std::cout << "createTimer :: Received VA of size: " << args.size() << std::endl;
-#endif
+
+	spdlog::debug("createTimer :: Received VA of size: {}", args.size());
+
 	m_vcmpTimers.push_back(new vcmpTimer(callback, interval, repeat, largs));
 	return m_vcmpTimers.back();
 }

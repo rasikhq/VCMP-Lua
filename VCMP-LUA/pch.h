@@ -8,6 +8,9 @@
 #include <unordered_map>
 #include <sstream>
 
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/daily_file_sink.h>
+
 #include <vcmp.h>
 #include <SimpleIni.h>
 

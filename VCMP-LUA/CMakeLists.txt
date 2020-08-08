@@ -33,6 +33,7 @@ add_library(lib-lua SHARED
 	# vcmpWrap
 	vcmpWrap/globalTables.h
 	vcmpWrap/vcmpCallbacks.h
+	vcmpWrap/Log/Logger.h
 	vcmpWrap/Classes/Player.h
 	vcmpWrap/Classes/Player.cpp
 	vcmpWrap/Classes/Vehicle.h
@@ -60,11 +61,11 @@ target_include_directories(lib-lua
 		${PROJECT_SOURCE_DIR}/
 		include/
 		vcmpWrap/
-		lua
+		lua/
+		vendor/
 )
 
 add_subdirectory(lua)
-
 target_link_libraries(lib-lua lualib)
 
 set_target_properties(lib-lua PROPERTIES PREFIX "")

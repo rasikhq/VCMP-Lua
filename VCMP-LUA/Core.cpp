@@ -39,18 +39,18 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 	if (ini_ret < 0) {
 		switch (ini_ret) {
 			case SI_FAIL:
-				OutputError("Failed to load LUA config file");
+				spdlog::error("Failed to load LUA config file");
 				break;
 
 			case SI_NOMEM:
-				OutputError("Failed to load LUA config file (No memory)");
+				spdlog::error("Failed to load LUA config file (No memory)");
 				break;
 
 			case SI_FILE:
-				OutputError("Failed to load LUA config file: %s", std::strerror(errno));
+				spdlog::error("Failed to load LUA config file: %s", std::strerror(errno));
 				break;
 
-			default: OutputError("Failed to load LUA config file (unknown)");
+			default: spdlog::error("Failed to load LUA config file (unknown)");
 		}
 		return false;
 	}
@@ -61,19 +61,42 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 	RegisterClasses(&Lua);
 	RegisterVCMPCallbacks();
 
-	std::list<CSimpleIniA::Entry> scripts;
-	if (conf.GetAllValues("scripts", "script", scripts) && scripts.size() > 0) {
-		for (auto it = scripts.begin(); it != scripts.end(); it++) {
-			auto result = Lua.safe_script_file(it->pItem, sol::script_pass_on_error);
-			if (!result.valid()) {
-				sol::error e = result;
-				OutputError("Failed to load script: %s", e.what());
+	// Load Configuration
+	{
+		std::list<CSimpleIniA::Entry> configOptions;
+		if (conf.GetAllKeys("config", configOptions) && configOptions.size() > 0) {
+			for (const auto& setting : configOptions) {
+				if (strcmp(setting.pItem, "loglevel") == 0) {
+					const auto value = conf.GetValue("config", setting.pItem);
+					try {
+						unsigned short loglevel = std::stoi(value);
+						spdlog::info("Reading logging level as: {}", loglevel);
+						Logger::setLevel(loglevel);
+					}
+					catch (const std::exception e) { spdlog::error("Invalid logging level!"); }
+				}
+				else if (strcmp(setting.pItem, "logfile") == 0) {
+					Logger::setFile(conf.GetValue("config", setting.pItem), 0, 0);
+				}
 			}
 		}
+		else spdlog::warn("No configuration settings supplied, using defaults");
 	}
-	else {
-		OutputError("No lua scripts specified to load");
+	
+	// Load Scripts
+	{
+		std::list<CSimpleIniA::Entry> scripts;
+		if (conf.GetAllValues("scripts", "script", scripts) && scripts.size() > 0) {
+			for (auto it = scripts.begin(); it != scripts.end(); it++) {
+				auto result = Lua.safe_script_file(it->pItem, sol::script_pass_on_error);
+				if (!result.valid()) {
+					sol::error e = result;
+					spdlog::error("Failed to load script: %s", e.what());
+				}
+			}
+		}
+		else spdlog::error("No Lua scripts specified to load");
 	}
-
+	
 	return 1;
 }
