@@ -22,12 +22,27 @@ public:
 
 	/*** METHODS ***/
 	bool destroy();
+	bool getOption(vcmpVehicleOption) const;
+	void setOption(vcmpVehicleOption, bool);
 
 	/*** READ-ONLY ***/
 	int32_t getID() const;
 	int32_t getModel() const;
-
+	
 	/*** PROPERTIES ***/
+	int32_t getWorld() const;
+	uint32_t getIdleRespawnTime() const;
+	float getHealth() const;
+	sol::as_table_t<std::vector<float>> getSpawnPosition() const;
+	sol::as_table_t<std::vector<float>> getSpawnRotation() const;
+	sol::as_table_t<std::vector<int32_t>> getColor() const;
+
+	void setWorld(int32_t);
+	void setIdleRespawnTime(uint32_t);
+	void setHealth(float);
+	void setSpawnPosition(sol::table);
+	void setSpawnRotation(sol::table);
+	void setColor(sol::object, sol::object);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	inline const char* getType() { return Vehicle::getStaticType(); }

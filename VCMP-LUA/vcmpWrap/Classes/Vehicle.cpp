@@ -43,6 +43,14 @@ bool Vehicle::destroy() {
 	return (g_Funcs->DeleteVehicle(m_ID) == vcmpError::vcmpErrorNone);
 }
 
+bool Vehicle::getOption(vcmpVehicleOption option) const {
+	return static_cast<bool>(g_Funcs->GetVehicleOption(m_ID, option));
+}
+
+void Vehicle::setOption(vcmpVehicleOption option, bool status) {
+	g_Funcs->SetVehicleOption(option, option, static_cast<uint8_t>(status));
+}
+
 /*** PROPERTIES ***/
 int32_t Vehicle::getID() const {
 	return m_ID;
@@ -50,6 +58,74 @@ int32_t Vehicle::getID() const {
 
 int32_t Vehicle::getModel() const {
 	return g_Funcs->GetVehicleModel(m_ID);
+}
+
+int32_t Vehicle::getWorld() const {
+	return g_Funcs->GetVehicleWorld(m_ID);
+}
+
+void Vehicle::setWorld(int32_t world) {
+	g_Funcs->SetVehicleWorld(m_ID, world);
+}
+
+uint32_t Vehicle::getIdleRespawnTime() const {
+	return g_Funcs->GetVehicleIdleRespawnTimer(m_ID);
+}
+
+void Vehicle::setIdleRespawnTime(uint32_t time) {
+	g_Funcs->SetVehicleIdleRespawnTimer(m_ID, time);
+}
+
+float Vehicle::getHealth() const {
+	return g_Funcs->GetVehicleHealth(m_ID);
+}
+
+void Vehicle::setHealth(float health) {
+	g_Funcs->SetVehicleHealth(m_ID, health);
+}
+
+sol::as_table_t<std::vector<float>> Vehicle::getSpawnPosition() const {
+	float x, y, z;
+	g_Funcs->GetVehicleSpawnPosition(m_ID, &x, &y, &z);
+	std::vector<float> position = { x, y, z };
+	return sol::as_table(position);
+}
+
+void Vehicle::setSpawnPosition(sol::table position) {
+	if (position.size() < 3) return;
+	g_Funcs->SetVehicleSpawnPosition(m_ID, position[1], position[2], position[3]);
+}
+
+sol::as_table_t<std::vector<float>> Vehicle::getSpawnRotation() const {
+	float x, y, z;
+	g_Funcs->GetVehicleSpawnRotationEuler(m_ID, &x, &y, &z);
+	std::vector<float> rotation = { x, y, z };
+	return sol::as_table(rotation);
+}
+
+void Vehicle::setSpawnRotation(sol::table rotation) {
+	if (rotation.size() < 3) return;
+	g_Funcs->SetVehicleSpawnRotationEuler(m_ID, rotation[1], rotation[2], rotation[3]);
+}
+
+sol::as_table_t<std::vector<int32_t>> Vehicle::getColor() const {
+	int32_t primary, secondary;
+	g_Funcs->GetVehicleColour(m_ID, &primary, &secondary);
+	std::vector<int32_t> color = { primary, secondary };
+	return sol::as_table(color);
+}
+
+void Vehicle::setColor(sol::object _primary, sol::object _secondary) {
+	int32_t primary, secondary;
+	g_Funcs->GetVehicleColour(m_ID, &primary, &secondary);
+
+	if (_primary.get_type() == sol::type::number)
+		primary = _primary.as<int32_t>();
+
+	if (_secondary.get_type() == sol::type::number)
+		secondary = _secondary.as<int32_t>();
+
+	g_Funcs->SetVehicleColour(m_ID, primary, secondary);
 }
 
 /*** COMMON PROPERTIES ***/

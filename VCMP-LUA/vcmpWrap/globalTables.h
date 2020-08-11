@@ -65,15 +65,15 @@ void RegisterClasses(sol::state* Lua) {
 
 void InitGlobals(sol::state* Lua) {
 	Lua->new_enum("DisconnectReason",
-		"timeout",		vcmpDisconnectReason::vcmpDisconnectReasonTimeout,
-		"quit",			vcmpDisconnectReason::vcmpDisconnectReasonQuit,
+		"timeout",				vcmpDisconnectReason::vcmpDisconnectReasonTimeout,
+		"quit",					vcmpDisconnectReason::vcmpDisconnectReasonQuit,
 		//
-		"kick",			vcmpDisconnectReason::vcmpDisconnectReasonKick,
-		"ban",			vcmpDisconnectReason::vcmpDisconnectReasonKick,
-		"kickBan",		vcmpDisconnectReason::vcmpDisconnectReasonKick,
+		"kick",					vcmpDisconnectReason::vcmpDisconnectReasonKick,
+		"ban",					vcmpDisconnectReason::vcmpDisconnectReasonKick,
+		"kickBan",				vcmpDisconnectReason::vcmpDisconnectReasonKick,
 		//
-		"crash",		vcmpDisconnectReason::vcmpDisconnectReasonCrash,
-		"ac",			vcmpDisconnectReason::vcmpDisconnectReasonAntiCheat
+		"crash",				vcmpDisconnectReason::vcmpDisconnectReasonCrash,
+		"ac",					vcmpDisconnectReason::vcmpDisconnectReasonAntiCheat
 	);
 
 	Lua->new_enum("PlayerOption",
@@ -90,5 +90,15 @@ void InitGlobals(sol::state* Lua) {
 		//
 		"chatTags",				vcmpPlayerOption::vcmpPlayerOptionChatTagsEnabled,
 		"drunkEffects",			vcmpPlayerOption::vcmpPlayerOptionDrunkEffects
+	);
+
+	Lua->new_enum("VehicleOption",
+		"lockDoors",			vcmpVehicleOption::vcmpVehicleOptionDoorsLocked,
+		"alarm",				vcmpVehicleOption::vcmpVehicleOptionAlarm,
+		"lights",				vcmpVehicleOption::vcmpVehicleOptionLights,
+		"radioLocked",			vcmpVehicleOption::vcmpVehicleOptionRadioLocked,
+		"ghost",				vcmpVehicleOption::vcmpVehicleOptionGhost,
+		"siren",				vcmpVehicleOption::vcmpVehicleOptionSiren,
+		"singleUse",			vcmpVehicleOption::vcmpVehicleOptionSingleUse
 	);
 }

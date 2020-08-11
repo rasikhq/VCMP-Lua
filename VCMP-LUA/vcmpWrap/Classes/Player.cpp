@@ -46,6 +46,13 @@ void Player::setOption(vcmpPlayerOption option, bool status) {
 	g_Funcs->SetPlayerOption(m_ID, option, static_cast<uint8_t>(status));
 }
 
+bool Player::isPlayerStreamed(Player* player) const {
+	if (player->isOnline()) {
+		return g_Funcs->IsPlayerStreamedForPlayer(m_ID, player->getID());
+	}
+	return false;
+}
+
 /*** PROPERTIES ***/
 int32_t Player::getID() const {
 	return m_ID;
@@ -258,6 +265,7 @@ sol::as_table_t<std::vector<float>> Player::getPosition() const
 
 void Player::setPosition(sol::table position)
 {
+	if (position.size() < 3) return;
 	g_Funcs->SetPlayerPosition(m_ID, position[1], position[2], position[3]);
 }
 
@@ -283,6 +291,7 @@ void Player::Init(sol::state* L) {
 	userdata["msg"] = &Player::msg;
 	userdata["getOption"] = &Player::getOption;
 	userdata["setOption"] = &Player::setOption;
+	userdata["isPlayerStreamed"] = &Player::isPlayerStreamed;
 
 	/*** READ-ONLY ***/
 	userdata.set("getType", &Player::getType);

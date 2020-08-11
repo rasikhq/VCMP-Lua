@@ -21,6 +21,7 @@ public:
 	void msg(const std::string&);
 	bool getOption(vcmpPlayerOption) const;
 	void setOption(vcmpPlayerOption, bool);
+	bool isPlayerStreamed(Player*) const;
 
 	/*** READ-ONLY ***/
 	std::string getIP();
@@ -50,11 +51,11 @@ public:
 	int32_t getScore() const;
 	int32_t getWantedLevel() const;
 	int32_t getWeaponSlot() const;
-	Player* getSpectateTarget() const;
 	uint32_t getImmunity() const;
 	float getHP() const;
 	float getArmour() const;
 	std::string getName() const;
+	Player* getSpectateTarget() const;
 	Vehicle* getVehicle() const;
 	
 	/***  ***/
