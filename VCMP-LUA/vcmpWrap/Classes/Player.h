@@ -17,6 +17,11 @@ public:
 	/*** CONSTRUCTORS ***/
 	Player(int32_t id);
 
+	/*** METHODS ***/
+	void msg(const std::string&);
+	bool getOption(vcmpPlayerOption) const;
+	void setOption(vcmpPlayerOption, bool);
+
 	/*** READ-ONLY ***/
 	std::string getIP();
 	std::string getUID();
@@ -34,14 +39,8 @@ public:
 	float getFPS() const;
 	void getModules() const;
 
-	/*** METHODS ***/
-	void msg(const std::string&);
-	bool getOption(vcmpPlayerOption) const;
-	void setOption(vcmpPlayerOption, bool);
-
 	/*** PROPERTIES ***/
 	bool getAdmin() const;
-	//
 	int32_t getWorld() const;
 	int32_t getSecWorld() const;
 	int32_t getTeam() const;
@@ -52,22 +51,15 @@ public:
 	int32_t getWantedLevel() const;
 	int32_t getWeaponSlot() const;
 	Player* getSpectateTarget() const;
-	//
-	// TO DO: Create a better immunity interface
 	uint32_t getImmunity() const;
-	//
-	//
 	float getHP() const;
 	float getArmour() const;
-	//
 	std::string getName() const;
-	//
 	Vehicle* getVehicle() const;
 	
 	/***  ***/
 
 	void setAdmin(bool);
-	//
 	void setWorld(int32_t);
 	void setSecWorld(int32_t);
 	void setTeam(int32_t);
@@ -78,14 +70,10 @@ public:
 	void setWantedLevel(int32_t);
 	void setWeaponSlot(int32_t);
 	void setSpectateTarget(Player*);
-	//
 	void setImmunity(uint32_t);
-	//
 	void setHP(float);
 	void setArmour(float);
-	//
 	void setName(const std::string&);
-	//
 	void setVehicle(Vehicle*);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/

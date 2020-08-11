@@ -38,15 +38,17 @@ Vehicle::Vehicle(int32_t model, int32_t world, sol::table transform, int32_t pri
 	m_ID = g_Funcs->CreateVehicle(model, world, transform[1], transform[2], transform[3], transform[4], primaryColor, secondaryColor);
 }
 
+/*** METHODS ***/
 bool Vehicle::destroy() {
 	return (g_Funcs->DeleteVehicle(m_ID) == vcmpError::vcmpErrorNone);
 }
 
-int32_t Vehicle::getID() {
+/*** PROPERTIES ***/
+int32_t Vehicle::getID() const {
 	return m_ID;
 }
 
-int32_t Vehicle::getModel() {
+int32_t Vehicle::getModel() const {
 	return g_Funcs->GetVehicleModel(m_ID);
 }
 
@@ -95,12 +97,15 @@ void Vehicle::Init(sol::state* L) {
 		>()
 	);
 
-	/*** READ-ONLY ***/
-	userdata.set("getID", &Vehicle::getID);
-	userdata.set("getModel", &Vehicle::getModel);
+	userdata["type"] = &Vehicle::getStaticType;
+	userdata["findByID"] = &Vehicle::Get;
 
 	/*** METHODS ***/
 	userdata["destroy"] = &Vehicle::destroy;
+
+	/*** READ-ONLY ***/
+	userdata.set("getID", &Vehicle::getID);
+	userdata.set("getModel", &Vehicle::getModel);
 
 	/*** PROPERTIES ***/
 

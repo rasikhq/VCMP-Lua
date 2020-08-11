@@ -17,12 +17,15 @@ public:
 	Vehicle(int32_t, int32_t, float, float, float, float, int32_t = -1, int32_t = -1);
 	Vehicle(int32_t, int32_t, sol::table, int32_t = -1, int32_t = -1);
 
-	/*** READ-ONLY ***/
-	int32_t getID();
-	int32_t getModel();
+	/*** DESTRUCTOR(S) ***/
+	~Vehicle() = default;
 
 	/*** METHODS ***/
 	bool destroy();
+
+	/*** READ-ONLY ***/
+	int32_t getID() const;
+	int32_t getModel() const;
 
 	/*** PROPERTIES ***/
 
