@@ -9,6 +9,7 @@ std::unordered_map<std::string, std::vector<sol::function>> EventManager::m_Hand
 
 	/*** PLAYER ***/
 	{"onClientData", {}},
+	{"onPlayerMouleList", {}},
 	{"onPlayerConnection", {}},
 	{"onPlayerConnect", {}},
 	{"onPlayerDisconnect", {}},

@@ -110,6 +110,7 @@ void RegisterVCMPCallbacks() {
 		return ret;
 	};
 
+	/*** PLAYER ***/
 	g_Calls->OnIncomingConnection = [](char* playerName, size_t nameBufferSize, const char* userPassword, const char* ipAddress) -> uint8_t {
 		spdlog::debug("OnIncomingConnection");
 
@@ -136,7 +137,6 @@ void RegisterVCMPCallbacks() {
 		return ret;
 	};
 
-	/*** PLAYER ***/
 	g_Calls->OnClientScriptData = [](int32_t playerId, const uint8_t* data, size_t size) {
 		spdlog::debug("OnClientScriptData");
 
@@ -214,6 +214,27 @@ void RegisterVCMPCallbacks() {
 
 	g_Calls->OnPlayerModuleList = [](int32_t playerId, const char* list) {
 		spdlog::debug("OnPlayerModuleList");
+
+		auto handlers = EventManager::GetHandlers("onPlayerModuleList");
+		if (handlers.size() == 0) return;
+
+		Player* player = Player::Get(playerId);
+		try {
+			for (auto fn : handlers) {
+				sol::function_result r = fn(player, list);
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
 	};
 
 	g_Calls->OnPlayerRequestClass = [](int32_t playerId, int32_t offset) -> uint8_t {

@@ -9,10 +9,13 @@
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
 
+void InitGlobals(sol::state*);
+
 void RegisterClasses(sol::state* Lua) {
 	sol::state& state = *Lua;
 
 	Logger::Init(Lua, spdlog::level::trace); // Set level to info to avoid debug messages
+	InitGlobals(Lua);
 
 	EventManager::Init(Lua);
 	TimerManager::Init(Lua);
@@ -23,18 +26,6 @@ void RegisterClasses(sol::state* Lua) {
 	Vehicle::Init(Lua);
 
 	Lua->script(R"(
-		DisconnectReason = {
-			["TIMEOUT"]		= 0,
-			["QUIT"]		= 1,
-
-			["KICK"]		= 2,
-			["BAN"]			= 2,
-			["KICKBAN"]		= 2,
-			
-			["CRASH"]		= 3,
-			["ANTICHEAT"]	= 4
-		}
-
 		function INTERNAL__tostring(x, intend)
 		intend = tonumber(intend) or 1
 		local s
@@ -70,4 +61,34 @@ void RegisterClasses(sol::state* Lua) {
 		end
 	end
 	)");
+}
+
+void InitGlobals(sol::state* Lua) {
+	Lua->new_enum("DisconnectReason",
+		"timeout",		vcmpDisconnectReason::vcmpDisconnectReasonTimeout,
+		"quit",			vcmpDisconnectReason::vcmpDisconnectReasonQuit,
+		//
+		"kick",			vcmpDisconnectReason::vcmpDisconnectReasonKick,
+		"ban",			vcmpDisconnectReason::vcmpDisconnectReasonKick,
+		"kickBan",		vcmpDisconnectReason::vcmpDisconnectReasonKick,
+		//
+		"crash",		vcmpDisconnectReason::vcmpDisconnectReasonCrash,
+		"ac",			vcmpDisconnectReason::vcmpDisconnectReasonAntiCheat
+	);
+
+	Lua->new_enum("PlayerOption",
+		"frozen",				vcmpPlayerOption::vcmpPlayerOptionControllable,
+		"driveBy",				vcmpPlayerOption::vcmpPlayerOptionDriveBy,
+		"whiteScanLines",		vcmpPlayerOption::vcmpPlayerOptionWhiteScanlines,
+		"greenScanLines",		vcmpPlayerOption::vcmpPlayerOptionGreenScanlines,
+		"widescreen",			vcmpPlayerOption::vcmpPlayerOptionWidescreen,
+		"showMarkers",			vcmpPlayerOption::vcmpPlayerOptionShowMarkers,
+		"canAttack",			vcmpPlayerOption::vcmpPlayerOptionCanAttack,
+		//
+		"hasMarker",			vcmpPlayerOption::vcmpPlayerOptionHasMarker,
+		"showOnRadar",			vcmpPlayerOption::vcmpPlayerOptionHasMarker,
+		//
+		"chatTags",				vcmpPlayerOption::vcmpPlayerOptionChatTagsEnabled,
+		"drunkEffects",			vcmpPlayerOption::vcmpPlayerOptionDrunkEffects
+	);
 }

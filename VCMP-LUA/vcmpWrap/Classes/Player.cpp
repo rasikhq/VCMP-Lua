@@ -33,11 +33,25 @@ Player::Player(int32_t id)
 	g_Funcs->GetPlayerName(id, m_Name, sizeof(m_Name));
 }
 
+/*** METHODS ***/
+void Player::msg(const std::string& msg) {
+	g_Funcs->SendClientMessage(m_ID, 0xFFFFFFFF, msg.c_str());
+}
+
+bool Player::getOption(vcmpPlayerOption option) const {
+	return static_cast<bool>(g_Funcs->GetPlayerOption(m_ID, option));
+}
+
+void Player::setOption(vcmpPlayerOption option, bool status) {
+	g_Funcs->SetPlayerOption(m_ID, option, static_cast<uint8_t>(status));
+}
+
+/*** PROPERTIES ***/
 int32_t Player::getID() const {
 	return m_ID;
 }
 
-bool Player::isOnline() {
+bool Player::isOnline() const {
 	return static_cast<bool>(g_Funcs->IsPlayerConnected(m_ID));
 }
 
@@ -67,36 +81,44 @@ std::string Player::getUID2() {
 	return std::string(buffer);
 }
 
-int32_t Player::getKey() {
+int32_t Player::getKey() const {
 	return g_Funcs->GetPlayerKey(m_ID);
 }
 
-int32_t Player::getState() {
+int32_t Player::getState() const {
 	return g_Funcs->GetPlayerState(m_ID);
 }
 
-int32_t Player::getUniqueWorld() {
+int32_t Player::getUniqueWorld() const {
 	return g_Funcs->GetPlayerUniqueWorld(m_ID);
 }
 
-int32_t Player::getClass() {
+int32_t Player::getClass() const {
 	return g_Funcs->GetPlayerClass(m_ID);
 }
 
-bool Player::isSpawned() {
+bool Player::isSpawned() const {
 	return static_cast<bool>(g_Funcs->IsPlayerSpawned(m_ID));
 }
 
-bool Player::isTyping() {
+bool Player::isTyping() const {
 	return static_cast<bool>(g_Funcs->IsPlayerTyping(m_ID));
 }
 
-int32_t Player::getPing() {
+bool Player::isCrouching() const {
+	return static_cast<bool>(g_Funcs->IsPlayerCrouching(m_ID));
+}
+
+int32_t Player::getPing() const {
 	return g_Funcs->GetPlayerPing(m_ID);
 }
 
-float Player::getFPS() {
+float Player::getFPS() const {
 	return (float) g_Funcs->GetPlayerFPS(m_ID);
+}
+
+void Player::getModules() const {
+	g_Funcs->GetPlayerModuleList(m_ID);
 }
 
 int32_t Player::getWorld() const {
@@ -195,8 +217,34 @@ void Player::setName(const std::string& name) {
 	strcpy(m_Name, name.c_str());
 }
 
-void Player::msg(const std::string& msg) {
-	g_Funcs->SendClientMessage(m_ID, 0xFFFFFFFF, msg.c_str());
+Vehicle* Player::getVehicle() const {
+	auto id = g_Funcs->GetPlayerVehicleId(m_ID);
+	if (g_Funcs->GetLastError() == vcmpError::vcmpErrorNoSuchEntity)
+		return nullptr;
+	auto vehicle = Vehicle::Get(id);
+	return vehicle;
+}
+
+void Player::setVehicle(Vehicle* vehicle) {
+	g_Funcs->PutPlayerInVehicle(m_ID, vehicle->getID(), 0, 1, 1);
+}
+
+int32_t Player::getWeaponSlot() const {
+	return g_Funcs->GetPlayerWeaponSlot(m_ID);
+}
+
+void Player::setWeaponSlot(int32_t slot) {
+	g_Funcs->SetPlayerWeaponSlot(m_ID, slot);
+}
+
+Player* Player::getSpectateTarget() const {
+	auto id = g_Funcs->GetPlayerSpectateTarget(m_ID);
+	auto player = Player::Get(id);
+	return player;
+}
+
+void Player::setSpectateTarget(Player* player) {
+	g_Funcs->SetPlayerSpectateTarget(m_ID, player->getID());
 }
 
 /*** COMMON PROPERTIES ***/
@@ -231,6 +279,11 @@ void Player::Init(sol::state* L) {
 	userdata["type"] = &Player::getStaticType;
 	userdata["findByID"] = &Player::Get;
 
+	/*** METHODS ***/
+	userdata["msg"] = &Player::msg;
+	userdata["getOption"] = &Player::getOption;
+	userdata["setOption"] = &Player::setOption;
+
 	/*** READ-ONLY ***/
 	userdata.set("getType", &Player::getType);
 	userdata.set("getID", &Player::getID);
@@ -244,11 +297,10 @@ void Player::Init(sol::state* L) {
 	userdata.set("isOnline", &Player::isOnline);
 	userdata.set("isSpawned", &Player::isSpawned);
 	userdata.set("isTyping", &Player::isTyping);
+	userdata.set("isCrouching", &Player::isCrouching);
 	userdata.set("getPing", &Player::getPing);
 	userdata.set("getFPS", &Player::getFPS);
-
-	/*** METHODS ***/
-	userdata["msg"] = &Player::msg;
+	userdata.set("getModules", &Player::getModules);
 
 	/*** PROPERTIES ***/
 	userdata["admin"] = sol::property(&Player::getAdmin, &Player::setAdmin);
@@ -264,6 +316,9 @@ void Player::Init(sol::state* L) {
 	userdata["health"] = sol::property(&Player::getHP, &Player::setHP);
 	userdata["armour"] = sol::property(&Player::getArmour, &Player::setArmour);
 	userdata["name"] = sol::property(&Player::getName, &Player::setName);
+	userdata["vehicle"] = sol::property(&Player::getVehicle, &Player::setVehicle);
+	userdata["weaponSlot"] = sol::property(&Player::getWeaponSlot, &Player::setWeaponSlot);
+	userdata["spectateTarget"] = sol::property(&Player::getSpectateTarget, &Player::setSpectateTarget);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	userdata["position"] = sol::property(&Player::getPosition, &Player::setPosition);

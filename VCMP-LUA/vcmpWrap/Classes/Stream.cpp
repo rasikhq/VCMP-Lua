@@ -110,7 +110,7 @@ std::string Stream::ReadString()
 	}
 
 	static char data[MAX_STREAM_DATA];
-	std:memcpy(&data, &m_Data[m_ReadCursor], length);
+	std::memcpy(&data, &m_Data[m_ReadCursor], length);
 	
 	m_ReadCursor += length;
 	return std::string(data);
