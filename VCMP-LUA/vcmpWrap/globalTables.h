@@ -77,7 +77,7 @@ void InitGlobals(sol::state* Lua) {
 	);
 
 	Lua->new_enum("PlayerOption",
-		"frozen",				vcmpPlayerOption::vcmpPlayerOptionControllable,
+		"controllable",			vcmpPlayerOption::vcmpPlayerOptionControllable,
 		"driveBy",				vcmpPlayerOption::vcmpPlayerOptionDriveBy,
 		"whiteScanLines",		vcmpPlayerOption::vcmpPlayerOptionWhiteScanlines,
 		"greenScanLines",		vcmpPlayerOption::vcmpPlayerOptionGreenScanlines,

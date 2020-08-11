@@ -39,7 +39,7 @@ void Player::msg(const std::string& msg) {
 }
 
 bool Player::getOption(vcmpPlayerOption option) const {
-	return static_cast<bool>(g_Funcs->GetPlayerOption(m_ID, option));
+	return g_Funcs->GetPlayerOption(m_ID, option);
 }
 
 void Player::setOption(vcmpPlayerOption option, bool status) {

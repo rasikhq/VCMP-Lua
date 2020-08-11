@@ -44,11 +44,11 @@ bool Vehicle::destroy() {
 }
 
 bool Vehicle::getOption(vcmpVehicleOption option) const {
-	return static_cast<bool>(g_Funcs->GetVehicleOption(m_ID, option));
+	return g_Funcs->GetVehicleOption(m_ID, option);
 }
 
 void Vehicle::setOption(vcmpVehicleOption option, bool status) {
-	g_Funcs->SetVehicleOption(option, option, static_cast<uint8_t>(status));
+	g_Funcs->SetVehicleOption(m_ID, option, static_cast<uint8_t>(status));
 }
 
 /*** PROPERTIES ***/
@@ -115,15 +115,15 @@ sol::as_table_t<std::vector<int32_t>> Vehicle::getColor() const {
 	return sol::as_table(color);
 }
 
-void Vehicle::setColor(sol::object _primary, sol::object _secondary) {
+void Vehicle::setColor(sol::table colors) {
 	int32_t primary, secondary;
 	g_Funcs->GetVehicleColour(m_ID, &primary, &secondary);
 
-	if (_primary.get_type() == sol::type::number)
-		primary = _primary.as<int32_t>();
+	if (colors[1].get_type() == sol::type::number)
+		primary = colors[1];
 
-	if (_secondary.get_type() == sol::type::number)
-		secondary = _secondary.as<int32_t>();
+	if (colors[2].get_type() == sol::type::number)
+		secondary = colors[2];
 
 	g_Funcs->SetVehicleColour(m_ID, primary, secondary);
 }
@@ -178,12 +178,20 @@ void Vehicle::Init(sol::state* L) {
 
 	/*** METHODS ***/
 	userdata["destroy"] = &Vehicle::destroy;
+	userdata["getOption"] = &Vehicle::getOption;
+	userdata["setOption"] = &Vehicle::setOption;
 
 	/*** READ-ONLY ***/
 	userdata.set("getID", &Vehicle::getID);
 	userdata.set("getModel", &Vehicle::getModel);
 
 	/*** PROPERTIES ***/
+	userdata["world"] = sol::property(&Vehicle::getWorld, &Vehicle::setWorld);
+	userdata["health"] = sol::property(&Vehicle::getHealth, &Vehicle::setHealth);
+	userdata["idleRespawnTime"] = sol::property(&Vehicle::getIdleRespawnTime, &Vehicle::setIdleRespawnTime);
+	userdata["spawnPosition"] = sol::property(&Vehicle::getSpawnPosition, &Vehicle::setSpawnPosition);
+	userdata["spawnRotation"] = sol::property(&Vehicle::getSpawnRotation, &Vehicle::setSpawnRotation);
+	userdata["color"] = sol::property(&Vehicle::getColor, &Vehicle::setColor);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	userdata["position"] = sol::property(&Vehicle::getPosition, &Vehicle::setPosition);

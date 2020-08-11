@@ -42,7 +42,7 @@ public:
 	void setHealth(float);
 	void setSpawnPosition(sol::table);
 	void setSpawnRotation(sol::table);
-	void setColor(sol::object, sol::object);
+	void setColor(sol::table);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	inline const char* getType() { return Vehicle::getStaticType(); }
