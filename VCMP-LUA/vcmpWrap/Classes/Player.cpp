@@ -311,6 +311,8 @@ void Player::setRotation(float angle)
 /******/
 
 void Player::Init(sol::state* L) {
+	s_Players.reserve(MAX_PLAYERS);
+
 	sol::usertype<Player> userdata = L->new_usertype<Player>("Player");
 
 	userdata["type"] = &Player::getStaticType;

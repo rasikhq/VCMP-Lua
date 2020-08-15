@@ -28,6 +28,11 @@ void Object::Unregister(Object* Object) {
 
 Object::Object(int32_t model, int32_t world, float x, float y, float z, int32_t alpha)
 {
+	if (s_Objects.size() >= s_Objects.capacity()) {
+		spdlog::error("Max Object entity limit of {} reached!", MAX_OBJECTS);
+		throw("Entity limit reached!");
+		return;
+	}
 	m_ID = g_Funcs->CreateObject(model, world, x, y, z, alpha);
 	if (g_Funcs->GetLastError() == vcmpError::vcmpErrorNone)
 		Register(this);
@@ -35,6 +40,11 @@ Object::Object(int32_t model, int32_t world, float x, float y, float z, int32_t 
 
 Object::Object(int32_t model, int32_t world, sol::table transform)
 {
+	if (s_Objects.size() >= s_Objects.capacity()) {
+		spdlog::error("Max Object entity limit of {} reached!", MAX_OBJECTS);
+		throw("Entity limit reached!");
+		return;
+	}
 	float x = transform.get_or(1, 0.0f);
 	float y = transform.get_or(2, 0.0f);
 	float z = transform.get_or(3, 0.0f);
@@ -197,6 +207,8 @@ void Object::setRotation(sol::table rotation)
 /******/
 
 void Object::Init(sol::state* L) {
+	s_Objects.reserve(MAX_OBJECTS);
+
 	sol::usertype<Object> userdata = L->new_usertype<Object>("Object",
 		sol::constructors<
 				Object(int32_t, int32_t, float, float, float),

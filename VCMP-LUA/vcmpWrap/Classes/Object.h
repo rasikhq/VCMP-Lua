@@ -1,7 +1,8 @@
 #pragma once
 #include "pch.h"
+#include "../Constants.h"
 
-#define DEFAULT_DURATION 1000
+const uint32_t DEFAULT_DURATION = 0;
 
 class Player;
 

@@ -1,11 +1,14 @@
 #pragma once
 #include "pch.h"
+#include "utility.h"
 
 class vcmpTimer {
 public:
 	static void Init(sol::state* Lua);
 
 	vcmpTimer(sol::function callback, unsigned int interval, int32_t repeat, std::vector<sol::object> args);
+	~vcmpTimer() { bIsValid = false; }
+
 	inline unsigned int getInterval() { return m_interval; }
 	inline int32_t getRepeat() { return m_repeat; }
 	inline int64_t getLastTick() { return m_LastTick; }

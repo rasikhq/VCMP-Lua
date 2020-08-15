@@ -28,6 +28,11 @@ void Vehicle::Unregister(Vehicle* Vehicle) {
 
 Vehicle::Vehicle(int32_t model, int32_t world, float x, float y, float z, float angle, int32_t primaryColor, int32_t secondaryColor) 
 {
+	if (s_Vehicles.size() >= s_Vehicles.capacity()) {
+		spdlog::error("Max Vehicle entity limit of {} reached!", MAX_VEHICLES);
+		throw("Entity limit reached!");
+		return;
+	}
 	m_ID = g_Funcs->CreateVehicle(model, world, x, y, z, angle, primaryColor, secondaryColor);
 	if (g_Funcs->GetLastError() == vcmpError::vcmpErrorNone)
 		Register(this);
@@ -35,6 +40,11 @@ Vehicle::Vehicle(int32_t model, int32_t world, float x, float y, float z, float 
 
 Vehicle::Vehicle(int32_t model, int32_t world, sol::table transform, int32_t primaryColor, int32_t secondaryColor)
 {
+	if (s_Vehicles.size() >= s_Vehicles.capacity()) {
+		spdlog::error("Max Vehicle entity limit of {} reached!", MAX_VEHICLES);
+		throw("Entity limit reached!");
+		return;
+	}
 	m_ID = g_Funcs->CreateVehicle(model, world, transform[1], transform[2], transform[3], transform.get_or(4, 0.0f), primaryColor, secondaryColor);
 	if (g_Funcs->GetLastError() == vcmpError::vcmpErrorNone)
 		Register(this);
