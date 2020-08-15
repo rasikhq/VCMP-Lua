@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Vehicle.h"
 
 extern PluginFuncs* g_Funcs;
 extern sol::state Lua;
@@ -226,14 +227,16 @@ void Player::setName(const std::string& name) {
 
 Vehicle* Player::getVehicle() const {
 	auto id = g_Funcs->GetPlayerVehicleId(m_ID);
-	if (g_Funcs->GetLastError() == vcmpError::vcmpErrorNoSuchEntity)
+	spdlog::debug("Player::getVehicle() :: id: {} :: vcmpError: {}", id, int(g_Funcs->GetLastError()));
+	if (!id || g_Funcs->GetLastError() != vcmpError::vcmpErrorNone)
 		return nullptr;
+	spdlog::debug("Player::getVehicle() :: Returning Vehicle pointer");
 	auto vehicle = Vehicle::Get(id);
 	return vehicle;
 }
 
-void Player::setVehicle(Vehicle* vehicle) {
-	g_Funcs->PutPlayerInVehicle(m_ID, vehicle->getID(), 0, 1, 1);
+void Player::setVehicle(void* vehicle) {
+	g_Funcs->PutPlayerInVehicle(m_ID, static_cast<Vehicle*>(vehicle)->getID(), 0, 1, 1);
 }
 
 int32_t Player::getWeaponSlot() const {
@@ -244,14 +247,14 @@ void Player::setWeaponSlot(int32_t slot) {
 	g_Funcs->SetPlayerWeaponSlot(m_ID, slot);
 }
 
-Player* Player::getSpectateTarget() const {
+void* Player::getSpectateTarget() const {
 	auto id = g_Funcs->GetPlayerSpectateTarget(m_ID);
 	auto player = Player::Get(id);
-	return player;
+	return (Player*)player;
 }
 
-void Player::setSpectateTarget(Player* player) {
-	g_Funcs->SetPlayerSpectateTarget(m_ID, player->getID());
+void Player::setSpectateTarget(void* player) {
+	g_Funcs->SetPlayerSpectateTarget(m_ID, static_cast<Player*>(player)->getID());
 }
 
 /*** COMMON PROPERTIES ***/

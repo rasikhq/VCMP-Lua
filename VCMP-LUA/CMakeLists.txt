@@ -31,17 +31,20 @@ add_library(lib-lua SHARED
 	sol/forward.hpp
 	sol/sol.hpp
 	# vcmpWrap
+	vcmpWrap/Constants.h
 	vcmpWrap/globalTables.h
 	vcmpWrap/vcmpCallbacks.h
 	vcmpWrap/Log/Logger.h
+	vcmpWrap/Classes/Stream.h
+	vcmpWrap/Classes/Stream.cpp
+	vcmpWrap/Classes/Server.h
+	vcmpWrap/Classes/Server.cpp
 	vcmpWrap/Classes/Player.h
 	vcmpWrap/Classes/Player.cpp
 	vcmpWrap/Classes/Vehicle.h
 	vcmpWrap/Classes/Vehicle.cpp
-	vcmpWrap/Classes/Server.h
-	vcmpWrap/Classes/Server.cpp
-	vcmpWrap/Classes/Stream.h
-	vcmpWrap/Classes/Stream.cpp
+	vcmpWrap/Classes/Object.h
+	vcmpWrap/Classes/Object.cpp
 	vcmpWrap/EventManager/EventManager.h
 	vcmpWrap/EventManager/EventManager.cpp
 	vcmpWrap/Timer/vcmpTimer.h

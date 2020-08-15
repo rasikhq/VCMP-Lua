@@ -8,6 +8,7 @@
 #include "Classes/Server.h"
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
+#include "Classes/Object.h"
 
 void InitGlobals(sol::state*);
 
@@ -24,6 +25,7 @@ void RegisterClasses(sol::state* Lua) {
 	Server::Init(Lua);
 	Player::Init(Lua);
 	Vehicle::Init(Lua);
+	Object::Init(Lua);
 
 	Lua->script(R"(
 		function INTERNAL__tostring(x, intend)
@@ -100,5 +102,12 @@ void InitGlobals(sol::state* Lua) {
 		"ghost",				vcmpVehicleOption::vcmpVehicleOptionGhost,
 		"siren",				vcmpVehicleOption::vcmpVehicleOptionSiren,
 		"singleUse",			vcmpVehicleOption::vcmpVehicleOptionSingleUse
+	);
+
+	Lua->new_enum("VehicleSpeed",
+		"normal",				vcmpVehicleSpeed::Normal,
+		"normalRelative",		vcmpVehicleSpeed::NormalRelative,
+		"turn",					vcmpVehicleSpeed::Turn,
+		"turnRelative",			vcmpVehicleSpeed::TurnRelative
 	);
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
-#include "Vehicle.h"
+
+class Vehicle;
 
 class Player {
 public:
@@ -55,7 +56,7 @@ public:
 	float getHP() const;
 	float getArmour() const;
 	std::string getName() const;
-	Player* getSpectateTarget() const;
+	void* getSpectateTarget() const;
 	Vehicle* getVehicle() const;
 	
 	/***  ***/
@@ -70,12 +71,12 @@ public:
 	void setScore(int32_t);
 	void setWantedLevel(int32_t);
 	void setWeaponSlot(int32_t);
-	void setSpectateTarget(Player*);
+	void setSpectateTarget(void*);
 	void setImmunity(uint32_t);
 	void setHP(float);
 	void setArmour(float);
 	void setName(const std::string&);
-	void setVehicle(Vehicle*);
+	void setVehicle(void*);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	inline const char* getType() { return Player::getStaticType(); }

@@ -182,6 +182,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Object.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -220,10 +221,12 @@
     <ClInclude Include="lua\include\lua.hpp" />
     <ClInclude Include="lua\include\luaconf.h" />
     <ClInclude Include="lua\include\lualib.h" />
+    <ClInclude Include="vcmpWrap\Classes\Object.h" />
     <ClInclude Include="vcmpWrap\Classes\Player.h" />
     <ClInclude Include="vcmpWrap\Classes\Server.h" />
     <ClInclude Include="vcmpWrap\Classes\Stream.h" />
     <ClInclude Include="vcmpWrap\Classes\Vehicle.h" />
+    <ClInclude Include="vcmpWrap\Constants.h" />
     <ClInclude Include="vcmpWrap\EventManager\EventManager.h" />
     <ClInclude Include="vcmpWrap\globalTables.h" />
     <ClInclude Include="vcmpWrap\globaTables.h" />

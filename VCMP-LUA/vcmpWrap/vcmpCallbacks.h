@@ -902,7 +902,7 @@ void RegisterVCMPCallbacks() {
 	
 	/*** VEHICLE ***/
 	g_Calls->OnVehicleUpdate = [](int32_t vehicleId, vcmpVehicleUpdate updateType) {
-		spdlog::debug("OnVehicleUpdate");
+		//spdlog::debug("OnVehicleUpdate");
 
 		auto handlers = EventManager::GetHandlers("onVehicleUpdate");
 		if (handlers.size() == 0) return;
