@@ -55,11 +55,11 @@ void TimerManager::OnFrame(float elapsedTime) {
 vcmpTimer* TimerManager::createTimer(sol::function callback, unsigned int interval, int32_t repeat, sol::variadic_args args) {
 	if (m_vcmpTimers.size() >= m_vcmpTimers.capacity()) {
 		spdlog::error("Timer object limit of {} reached!", MAX_TIMERS);
-		return nullptr;
+		throw("Timers limit reached1");
 	}
 	if (!callback.valid()) {
 		spdlog::error("Expected function at argument 1");
-		return nullptr;
+		throw("Invalid callback specified!");
 	}
 	else if (interval < 50) {
 		spdlog::error("Interval cannot be less than 50ms!");
