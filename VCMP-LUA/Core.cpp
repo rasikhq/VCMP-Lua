@@ -47,7 +47,7 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 				break;
 
 			case SI_FILE:
-				spdlog::error("Failed to load LUA config file: %s", std::strerror(errno));
+				spdlog::error("Failed to load LUA config file: {}", std::strerror(errno));
 				break;
 
 			default: spdlog::error("Failed to load LUA config file (unknown)");
@@ -91,7 +91,7 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 				auto result = Lua.safe_script_file(it->pItem, sol::script_pass_on_error);
 				if (!result.valid()) {
 					sol::error e = result;
-					spdlog::error("Failed to load script: %s", e.what());
+					spdlog::error("Failed to load script: {}", e.what());
 				}
 			}
 		}

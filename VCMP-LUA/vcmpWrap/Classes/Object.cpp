@@ -63,13 +63,39 @@ void Object::setAlphaEx(int32_t alpha, uint32_t duration) { g_Funcs->SetObjectAl
 
 void Object::moveToDefault(float x, float y, float z, uint32_t duration) { g_Funcs->MoveObjectTo(m_ID, x, y, z, duration); }
 void Object::moveTo(float x, float y, float z) { g_Funcs->MoveObjectTo(m_ID, x, y, z, DEFAULT_DURATION); }
-void Object::moveToExDefault(sol::table position, uint32_t duration) { g_Funcs->MoveObjectTo(m_ID, position.get_or(1, 0.0f), position.get_or(2, 0.0f), position.get_or(3, 0.0f), duration); }
-void Object::moveToEx(sol::table transform) { g_Funcs->MoveObjectTo(m_ID, transform.get_or(1, 0.0f), transform.get_or(2, 0.0f), transform.get_or(3, 0.0f), transform.get_or(4, DEFAULT_DURATION)); }
+
+void Object::moveToExDefault(sol::table position, uint32_t duration) {
+	g_Funcs->MoveObjectTo(m_ID, 
+		position.get_or(1, 0.0f), 
+		position.get_or(2, 0.0f), 
+		position.get_or(3, 0.0f), 
+	duration); 
+}
+void Object::moveToEx(sol::table transform) { 
+	g_Funcs->MoveObjectTo(m_ID, transform.get_or(1, 0.0f), 
+		transform.get_or(2, 0.0f), 
+		transform.get_or(3, 0.0f), 
+		transform.get_or(4, DEFAULT_DURATION)
+	); 
+}
 
 void Object::moveByDefault(float x, float y, float z, uint32_t duration) { g_Funcs->MoveObjectBy(m_ID, x, y, z, duration); }
 void Object::moveBy(float x, float y, float z) { g_Funcs->MoveObjectBy(m_ID, x, y, z, DEFAULT_DURATION); }
-void Object::moveByExDefault(sol::table position, uint32_t duration) { g_Funcs->MoveObjectBy(m_ID, position.get_or(1, 0.0f), position.get_or(2, 0.0f), position.get_or(3, 0.0f), duration); }
-void Object::moveByEx(sol::table transform) { g_Funcs->MoveObjectBy(m_ID, transform.get_or(1, 0.0f), transform.get_or(2, 0.0f), transform.get_or(3, 0.0f), transform.get_or(4, DEFAULT_DURATION)); }
+void Object::moveByExDefault(sol::table position, uint32_t duration) { 
+	g_Funcs->MoveObjectBy(m_ID, 
+		position.get_or(1, 0.0f), 
+		position.get_or(2, 0.0f), 
+		position.get_or(3, 0.0f), 
+	duration); 
+}
+void Object::moveByEx(sol::table transform) { 
+	g_Funcs->MoveObjectBy(m_ID, 
+		transform.get_or(1, 0.0f), 
+		transform.get_or(2, 0.0f), 
+		transform.get_or(3, 0.0f), 
+		transform.get_or(4, DEFAULT_DURATION)
+	); 
+}
 
 void Object::rotateToDefault(sol::table rotation, uint32_t duration) {
 	float x = rotation.get_or(1, 0.0f);
@@ -119,14 +145,28 @@ void Object::rotateBy(sol::table rotation) {
 int32_t Object::getID() const { return m_ID; }
 int32_t Object::getModel() const { return g_Funcs->GetObjectModel(m_ID); }
 
-int32_t Object::getWorld() const { return g_Funcs->GetObjectWorld(m_ID); }
-void Object::setWorld(int32_t world) { g_Funcs->SetObjectWorld(m_ID, world); }
+int32_t Object::getWorld() const { 
+	return g_Funcs->GetObjectWorld(m_ID); 
+}
+void Object::setWorld(int32_t world) {
+	if (getWorld() == world)
+		return;
+	g_Funcs->SetObjectWorld(m_ID, world); 
+}
 
-bool Object::getShotReports() const { return static_cast<bool>(g_Funcs->IsObjectShotReportEnabled(m_ID)); }
-void Object::setShotReports(bool status) { g_Funcs->SetObjectShotReportEnabled(m_ID, static_cast<uint8_t>(status)); }
+bool Object::getShotReports() const { 
+	return static_cast<bool>(g_Funcs->IsObjectShotReportEnabled(m_ID)); 
+}
+void Object::setShotReports(bool status) { 
+	g_Funcs->SetObjectShotReportEnabled(m_ID, static_cast<uint8_t>(status)); 
+}
 
-bool Object::getBumpReports() const { return static_cast<bool>(g_Funcs->IsObjectTouchedReportEnabled(m_ID)); }
-void Object::setBumpReports(bool status) { g_Funcs->SetObjectTouchedReportEnabled(m_ID, static_cast<uint8_t>(status)); }
+bool Object::getBumpReports() const { 
+	return static_cast<bool>(g_Funcs->IsObjectTouchedReportEnabled(m_ID)); 
+}
+void Object::setBumpReports(bool status) {
+	g_Funcs->SetObjectTouchedReportEnabled(m_ID, static_cast<uint8_t>(status)); 
+}
 
 /*** COMMON PROPERTIES AMONGST ENTITIES ***/
 sol::as_table_t<std::vector<float>> Object::getPosition() const

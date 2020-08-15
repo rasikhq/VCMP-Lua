@@ -68,7 +68,9 @@ bool Player::getAdmin() const {
 }
 
 void Player::setAdmin(bool toggle) {
-	g_Funcs->SetPlayerAdmin(m_ID, static_cast<bool>(toggle));
+	if (getAdmin() == toggle)
+		return;
+	g_Funcs->SetPlayerAdmin(m_ID, static_cast<uint8_t>(toggle));
 }
 
 std::string Player::getIP() {
@@ -134,14 +136,18 @@ int32_t Player::getWorld() const {
 }
 
 void Player::setWorld(int32_t value) {
+	if (getWorld() == value)
+		return;
 	g_Funcs->SetPlayerWorld(m_ID, value);
 }
 
-int32_t Player::getSecWorld()const {
+int32_t Player::getSecWorld() const {
 	return g_Funcs->GetPlayerSecondaryWorld(m_ID);
 }
 
 void Player::setSecWorld(int32_t value) {
+	if (getSecWorld() == value)
+		return;
 	g_Funcs->SetPlayerSecondaryWorld(m_ID, value);
 }
 
@@ -150,6 +156,8 @@ int32_t Player::getTeam() const {
 }
 
 void Player::setTeam(int32_t value) {
+	if (getTeam() == value)
+		return;
 	g_Funcs->SetPlayerTeam(m_ID, value);
 }
 
@@ -158,6 +166,8 @@ int32_t Player::getSkin() const {
 }
 
 void Player::setSkin(int32_t value) {
+	if (getSkin() == value)
+		return;
 	g_Funcs->SetPlayerSkin(m_ID, value);
 }
 
@@ -166,6 +176,8 @@ int32_t Player::getColor() const {
 }
 
 void Player::setColor(int32_t value) {
+	if (getColor() == value)
+		return;
 	g_Funcs->SetPlayerColour(m_ID, value);
 }
 
@@ -174,6 +186,8 @@ int32_t Player::getCash() const {
 }
 
 void Player::setCash(int32_t value) {
+	if (getCash() == value)
+		return;
 	g_Funcs->SetPlayerMoney(m_ID, value);
 }
 
@@ -182,6 +196,8 @@ int32_t Player::getScore() const {
 }
 
 void Player::setScore(int32_t value) {
+	if (getScore() == value)
+		return;
 	g_Funcs->SetPlayerScore(m_ID, value);
 }
 
@@ -190,6 +206,8 @@ int32_t Player::getWantedLevel() const {
 }
 
 void Player::setWantedLevel(int32_t value) {
+	if (getWantedLevel() == value)
+		return;
 	g_Funcs->SetPlayerWantedLevel(m_ID, value);
 }
 
@@ -198,6 +216,8 @@ uint32_t Player::getImmunity() const {
 }
 
 void Player::setImmunity(uint32_t value) {
+	if (getImmunity() == value)
+		return;
 	g_Funcs->SetPlayerImmunityFlags(m_ID, value);
 }
 
@@ -206,6 +226,8 @@ float Player::getHP() const {
 }
 
 void Player::setHP(float value) {
+	if (getHP() == value)
+		return;
 	g_Funcs->SetPlayerHealth(m_ID, value);
 }
 
@@ -214,6 +236,8 @@ float Player::getArmour() const {
 }
 
 void Player::setArmour(float value) {
+	if (getArmour() == value)
+		return;
 	g_Funcs->SetPlayerArmour(m_ID, value);
 }
 
@@ -222,6 +246,8 @@ std::string Player::getName() const {
 }
 
 void Player::setName(const std::string& name) {
+	if (getName() == name)
+		return;
 	strcpy(m_Name, name.c_str());
 }
 
@@ -289,6 +315,7 @@ void Player::Init(sol::state* L) {
 
 	userdata["type"] = &Player::getStaticType;
 	userdata["findByID"] = &Player::Get;
+	userdata["count"] = []() { return s_Players.size(); };
 
 	/*** METHODS ***/
 	userdata["msg"] = &Player::msg;

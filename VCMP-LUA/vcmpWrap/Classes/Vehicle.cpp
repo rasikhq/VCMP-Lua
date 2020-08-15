@@ -123,14 +123,30 @@ void Vehicle::setSpeedExDefault(sol::table values, bool bAddSpeed) {
 int32_t Vehicle::getID() const { return m_ID; }
 int32_t Vehicle::getModel() const { return g_Funcs->GetVehicleModel(m_ID); }
 
-int32_t Vehicle::getWorld() const { return g_Funcs->GetVehicleWorld(m_ID); }
-void Vehicle::setWorld(int32_t world) { g_Funcs->SetVehicleWorld(m_ID, world); }
+int32_t Vehicle::getWorld() const {
+	return g_Funcs->GetVehicleWorld(m_ID); 
+}
+void Vehicle::setWorld(int32_t world) {
+	if (getWorld() == world)
+		return;
+	g_Funcs->SetVehicleWorld(m_ID, world); 
+}
 
-uint32_t Vehicle::getIdleRespawnTime() const { return g_Funcs->GetVehicleIdleRespawnTimer(m_ID); }
-void Vehicle::setIdleRespawnTime(uint32_t time) { g_Funcs->SetVehicleIdleRespawnTimer(m_ID, time); }
+uint32_t Vehicle::getIdleRespawnTime() const {
+	return g_Funcs->GetVehicleIdleRespawnTimer(m_ID); 
+}
+void Vehicle::setIdleRespawnTime(uint32_t time) {
+	g_Funcs->SetVehicleIdleRespawnTimer(m_ID, time); 
+}
 
-float Vehicle::getHealth() const { return g_Funcs->GetVehicleHealth(m_ID); }
-void Vehicle::setHealth(float health) { g_Funcs->SetVehicleHealth(m_ID, health); }
+float Vehicle::getHealth() const {
+	return g_Funcs->GetVehicleHealth(m_ID); 
+}
+void Vehicle::setHealth(float health) {
+	if (getHealth() == health)
+		return;
+	g_Funcs->SetVehicleHealth(m_ID, health); 
+}
 
 sol::as_table_t<std::vector<float>> Vehicle::getSpawnPosition() const {
 	float x, y, z;

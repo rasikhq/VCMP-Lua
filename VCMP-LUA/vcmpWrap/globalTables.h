@@ -79,35 +79,35 @@ void InitGlobals(sol::state* Lua) {
 	);
 
 	Lua->new_enum("PlayerOption",
-		"controllable",			vcmpPlayerOption::vcmpPlayerOptionControllable,
-		"driveBy",				vcmpPlayerOption::vcmpPlayerOptionDriveBy,
-		"whiteScanLines",		vcmpPlayerOption::vcmpPlayerOptionWhiteScanlines,
-		"greenScanLines",		vcmpPlayerOption::vcmpPlayerOptionGreenScanlines,
-		"widescreen",			vcmpPlayerOption::vcmpPlayerOptionWidescreen,
-		"showMarkers",			vcmpPlayerOption::vcmpPlayerOptionShowMarkers,
-		"canAttack",			vcmpPlayerOption::vcmpPlayerOptionCanAttack,
+		"controllable",				vcmpPlayerOption::vcmpPlayerOptionControllable,
+		"driveBy",					vcmpPlayerOption::vcmpPlayerOptionDriveBy,
+		"whiteScanLines",			vcmpPlayerOption::vcmpPlayerOptionWhiteScanlines,
+		"greenScanLines",			vcmpPlayerOption::vcmpPlayerOptionGreenScanlines,
+		"widescreen",				vcmpPlayerOption::vcmpPlayerOptionWidescreen,
+		"showMarkers",				vcmpPlayerOption::vcmpPlayerOptionShowMarkers,
+		"canAttack",				vcmpPlayerOption::vcmpPlayerOptionCanAttack,
 		//
-		"hasMarker",			vcmpPlayerOption::vcmpPlayerOptionHasMarker,
-		"showOnRadar",			vcmpPlayerOption::vcmpPlayerOptionHasMarker,
+		"hasMarker",				vcmpPlayerOption::vcmpPlayerOptionHasMarker,
+		"showOnRadar",				vcmpPlayerOption::vcmpPlayerOptionHasMarker,
 		//
-		"chatTags",				vcmpPlayerOption::vcmpPlayerOptionChatTagsEnabled,
-		"drunkEffects",			vcmpPlayerOption::vcmpPlayerOptionDrunkEffects
+		"chatTags",					vcmpPlayerOption::vcmpPlayerOptionChatTagsEnabled,
+		"drunkEffects",				vcmpPlayerOption::vcmpPlayerOptionDrunkEffects
 	);
 
 	Lua->new_enum("VehicleOption",
-		"lockDoors",			vcmpVehicleOption::vcmpVehicleOptionDoorsLocked,
-		"alarm",				vcmpVehicleOption::vcmpVehicleOptionAlarm,
-		"lights",				vcmpVehicleOption::vcmpVehicleOptionLights,
-		"radioLocked",			vcmpVehicleOption::vcmpVehicleOptionRadioLocked,
-		"ghost",				vcmpVehicleOption::vcmpVehicleOptionGhost,
-		"siren",				vcmpVehicleOption::vcmpVehicleOptionSiren,
-		"singleUse",			vcmpVehicleOption::vcmpVehicleOptionSingleUse
+		"lockDoors",				vcmpVehicleOption::vcmpVehicleOptionDoorsLocked,
+		"alarm",					vcmpVehicleOption::vcmpVehicleOptionAlarm,
+		"lights",					vcmpVehicleOption::vcmpVehicleOptionLights,
+		"radioLocked",				vcmpVehicleOption::vcmpVehicleOptionRadioLocked,
+		"ghost",					vcmpVehicleOption::vcmpVehicleOptionGhost,
+		"siren",					vcmpVehicleOption::vcmpVehicleOptionSiren,
+		"singleUse",				vcmpVehicleOption::vcmpVehicleOptionSingleUse
 	);
 
 	Lua->new_enum("VehicleSpeed",
-		"normal",				vcmpVehicleSpeed::Normal,
-		"normalRelative",		vcmpVehicleSpeed::NormalRelative,
-		"turn",					vcmpVehicleSpeed::Turn,
-		"turnRelative",			vcmpVehicleSpeed::TurnRelative
+		"normal",					vcmpVehicleSpeed::Normal,
+		"normalRelative",			vcmpVehicleSpeed::NormalRelative,
+		"turn",						vcmpVehicleSpeed::Turn,
+		"turnRelative",				vcmpVehicleSpeed::TurnRelative
 	);
 }
