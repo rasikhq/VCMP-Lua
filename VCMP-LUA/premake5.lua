@@ -18,13 +18,7 @@ project "LuaPlugin"
 		"sol/**.hpp",
         
         "vcmpWrap/**.h",
-        "vcmpWrap/Classes/**.h",
-        "vcmpWrap/Classes/**.cpp",
-        "vcmpWrap/EventManager/**.cpp",
-        "vcmpWrap/EventManager/**.h",
-        "vcmpWrap/Log/**.h",
-        "vcmpWrap/Timer/**.h",
-        "vcmpWrap/Timer/**.cpp",
+        "vcmpWrap/**.cpp",
     }
     
 	includedirs
