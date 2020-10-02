@@ -1,0 +1,12 @@
+﻿  Core.cpp
+  pch.cpp
+  Object.cpp
+  Player.cpp
+  Server.cpp
+  Stream.cpp
+  Vehicle.cpp
+  EventManager.cpp
+  TimerManager.cpp
+  ConvertUTF.c
+     Creating library ..\bin\Release-windows-x86_64\LuaPlugin\LuaPlugin.lib and object ..\bin\Release-windows-x86_64\LuaPlugin\LuaPlugin.exp
+  LuaPlugin.vcxproj -> C:\repos\VCMP-Lua\VCMP-LUA\..\bin\Release-windows-x86_64\LuaPlugin\LuaPlugin.dll

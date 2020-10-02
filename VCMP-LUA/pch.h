@@ -2,6 +2,7 @@
 #define PCH_H
 
 #define _CRT_SECURE_NO_WARNINGS
+#undef _UNICODE
 
 #include <iostream>
 #include <vector>

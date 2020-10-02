@@ -1,0 +1,2 @@
+﻿lua.obj : warning LNK4006: main already defined in luac.obj; second definition ignored
+  Lua.vcxproj -> C:\repos\VCMP-Lua\VCMP-LUA\vendor\Lua\..\..\..\bin\Release-windows-x86_64\Lua\Lua.lib
