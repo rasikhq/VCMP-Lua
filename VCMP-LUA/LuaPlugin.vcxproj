@@ -58,8 +58,8 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -77,8 +77,8 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SPDLOG_COMPILED_LIB;_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -101,8 +101,6 @@
     <ClInclude Include="include\utility.h" />
     <ClInclude Include="include\vcmp.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="sol\forward.hpp" />
-    <ClInclude Include="sol\sol.hpp" />
     <ClInclude Include="vcmpWrap\Classes\Object.h" />
     <ClInclude Include="vcmpWrap\Classes\Player.h" />
     <ClInclude Include="vcmpWrap\Classes\Server.h" />
@@ -140,93 +138,96 @@
     <ClInclude Include="vendor\Lua\lundump.h" />
     <ClInclude Include="vendor\Lua\lvm.h" />
     <ClInclude Include="vendor\Lua\lzio.h" />
-    <ClInclude Include="vendor\spdlog\async.h" />
-    <ClInclude Include="vendor\spdlog\async_logger-inl.h" />
-    <ClInclude Include="vendor\spdlog\async_logger.h" />
-    <ClInclude Include="vendor\spdlog\cfg\argv.h" />
-    <ClInclude Include="vendor\spdlog\cfg\env.h" />
-    <ClInclude Include="vendor\spdlog\cfg\helpers-inl.h" />
-    <ClInclude Include="vendor\spdlog\cfg\helpers.h" />
-    <ClInclude Include="vendor\spdlog\cfg\log_levels.h" />
-    <ClInclude Include="vendor\spdlog\common-inl.h" />
-    <ClInclude Include="vendor\spdlog\common.h" />
-    <ClInclude Include="vendor\spdlog\details\backtracer-inl.h" />
-    <ClInclude Include="vendor\spdlog\details\backtracer.h" />
-    <ClInclude Include="vendor\spdlog\details\circular_q.h" />
-    <ClInclude Include="vendor\spdlog\details\console_globals.h" />
-    <ClInclude Include="vendor\spdlog\details\file_helper-inl.h" />
-    <ClInclude Include="vendor\spdlog\details\file_helper.h" />
-    <ClInclude Include="vendor\spdlog\details\fmt_helper.h" />
-    <ClInclude Include="vendor\spdlog\details\log_msg-inl.h" />
-    <ClInclude Include="vendor\spdlog\details\log_msg.h" />
-    <ClInclude Include="vendor\spdlog\details\log_msg_buffer-inl.h" />
-    <ClInclude Include="vendor\spdlog\details\log_msg_buffer.h" />
-    <ClInclude Include="vendor\spdlog\details\mpmc_blocking_q.h" />
-    <ClInclude Include="vendor\spdlog\details\null_mutex.h" />
-    <ClInclude Include="vendor\spdlog\details\os-inl.h" />
-    <ClInclude Include="vendor\spdlog\details\os.h" />
-    <ClInclude Include="vendor\spdlog\details\periodic_worker-inl.h" />
-    <ClInclude Include="vendor\spdlog\details\periodic_worker.h" />
-    <ClInclude Include="vendor\spdlog\details\registry-inl.h" />
-    <ClInclude Include="vendor\spdlog\details\registry.h" />
-    <ClInclude Include="vendor\spdlog\details\synchronous_factory.h" />
-    <ClInclude Include="vendor\spdlog\details\tcp_client-windows.h" />
-    <ClInclude Include="vendor\spdlog\details\tcp_client.h" />
-    <ClInclude Include="vendor\spdlog\details\thread_pool-inl.h" />
-    <ClInclude Include="vendor\spdlog\details\thread_pool.h" />
-    <ClInclude Include="vendor\spdlog\details\windows_include.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bin_to_hex.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\chrono.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\color.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\compile.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\core.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\format-inl.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\format.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\locale.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\ostream.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\posix.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\printf.h" />
-    <ClInclude Include="vendor\spdlog\fmt\bundled\ranges.h" />
-    <ClInclude Include="vendor\spdlog\fmt\fmt.h" />
-    <ClInclude Include="vendor\spdlog\fmt\ostr.h" />
-    <ClInclude Include="vendor\spdlog\formatter.h" />
-    <ClInclude Include="vendor\spdlog\fwd.h" />
-    <ClInclude Include="vendor\spdlog\logger-inl.h" />
-    <ClInclude Include="vendor\spdlog\logger.h" />
-    <ClInclude Include="vendor\spdlog\pattern_formatter-inl.h" />
-    <ClInclude Include="vendor\spdlog\pattern_formatter.h" />
-    <ClInclude Include="vendor\spdlog\sinks\android_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\ansicolor_sink-inl.h" />
-    <ClInclude Include="vendor\spdlog\sinks\ansicolor_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\base_sink-inl.h" />
-    <ClInclude Include="vendor\spdlog\sinks\base_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\basic_file_sink-inl.h" />
-    <ClInclude Include="vendor\spdlog\sinks\basic_file_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\daily_file_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\dist_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\dup_filter_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\msvc_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\null_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\ostream_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\ringbuffer_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\rotating_file_sink-inl.h" />
-    <ClInclude Include="vendor\spdlog\sinks\rotating_file_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\sink-inl.h" />
-    <ClInclude Include="vendor\spdlog\sinks\sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\stdout_color_sinks-inl.h" />
-    <ClInclude Include="vendor\spdlog\sinks\stdout_color_sinks.h" />
-    <ClInclude Include="vendor\spdlog\sinks\stdout_sinks-inl.h" />
-    <ClInclude Include="vendor\spdlog\sinks\stdout_sinks.h" />
-    <ClInclude Include="vendor\spdlog\sinks\syslog_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\systemd_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\tcp_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\win_eventlog_sink.h" />
-    <ClInclude Include="vendor\spdlog\sinks\wincolor_sink-inl.h" />
-    <ClInclude Include="vendor\spdlog\sinks\wincolor_sink.h" />
-    <ClInclude Include="vendor\spdlog\spdlog-inl.h" />
-    <ClInclude Include="vendor\spdlog\spdlog.h" />
-    <ClInclude Include="vendor\spdlog\tweakme.h" />
-    <ClInclude Include="vendor\spdlog\version.h" />
+    <ClInclude Include="vendor\spdlog\bench\utils.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\async.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\async_logger-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\async_logger.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\cfg\argv.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\cfg\env.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\cfg\helpers-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\cfg\helpers.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\common-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\common.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\backtracer-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\backtracer.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\circular_q.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\console_globals.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\file_helper-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\file_helper.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\fmt_helper.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\log_msg-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\log_msg.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\log_msg_buffer-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\log_msg_buffer.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\mpmc_blocking_q.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\null_mutex.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\os-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\os.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\periodic_worker-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\periodic_worker.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\registry-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\registry.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\synchronous_factory.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\tcp_client-windows.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\tcp_client.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\thread_pool-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\thread_pool.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\details\windows_include.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bin_to_hex.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\chrono.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\color.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\compile.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\core.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\format-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\format.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\locale.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\os.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\ostream.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\posix.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\printf.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\bundled\ranges.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\chrono.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\fmt.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fmt\ostr.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\formatter.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\fwd.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\logger-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\logger.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\pattern_formatter-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\pattern_formatter.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\android_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\ansicolor_sink-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\ansicolor_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\base_sink-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\base_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\basic_file_sink-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\basic_file_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\daily_file_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\dist_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\dup_filter_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\msvc_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\null_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\ostream_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\ringbuffer_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\rotating_file_sink-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\rotating_file_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\sink-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\stdout_color_sinks-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\stdout_color_sinks.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\stdout_sinks-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\stdout_sinks.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\syslog_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\systemd_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\tcp_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\win_eventlog_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\wincolor_sink-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\sinks\wincolor_sink.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\spdlog-inl.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\spdlog.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\stopwatch.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\tweakme.h" />
+    <ClInclude Include="vendor\spdlog\include\spdlog\version.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
@@ -240,8 +241,22 @@
     <ClCompile Include="vcmpWrap\EventManager\EventManager.cpp" />
     <ClCompile Include="vcmpWrap\Timer\TimerManager.cpp" />
     <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp" />
+    <ClCompile Include="vendor\spdlog\bench\async_bench.cpp" />
+    <ClCompile Include="vendor\spdlog\bench\bench.cpp" />
+    <ClCompile Include="vendor\spdlog\bench\formatter-bench.cpp" />
+    <ClCompile Include="vendor\spdlog\bench\latency.cpp" />
+    <ClCompile Include="vendor\spdlog\src\async.cpp" />
+    <ClCompile Include="vendor\spdlog\src\cfg.cpp" />
+    <ClCompile Include="vendor\spdlog\src\color_sinks.cpp" />
+    <ClCompile Include="vendor\spdlog\src\file_sinks.cpp" />
+    <ClCompile Include="vendor\spdlog\src\fmt.cpp" />
+    <ClCompile Include="vendor\spdlog\src\spdlog.cpp" />
+    <ClCompile Include="vendor\spdlog\src\stdout_sinks.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="vendor\spdlog\spdlog.vcxproj">
+      <Project>{8EAD431C-7A4F-6EF2-630A-82464F4BF542}</Project>
+    </ProjectReference>
     <ProjectReference Include="vendor\Lua\Lua.vcxproj">
       <Project>{A705880B-130F-887C-9C8A-9E7C0893937C}</Project>
     </ProjectReference>

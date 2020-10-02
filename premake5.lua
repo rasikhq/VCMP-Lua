@@ -17,7 +17,9 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
-IncludeDir["Lua"] = "%{wks.location}/VCMP-Lua/vendor/Lua/include"
+IncludeDir["Lua"] = "%{wks.location}/VCMP-Lua/vendor/Lua"
+IncludeDir["spdlog"] = "%{wks.location}/VCMP-Lua/vendor/spdlog/include/"
 
 include "VCMP-LUA/vendor/Lua"
+include "VCMP-LUA/vendor/spdlog"
 include "VCMP-LUA"

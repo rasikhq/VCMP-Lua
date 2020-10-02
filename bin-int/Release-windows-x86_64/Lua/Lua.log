@@ -1,2 +1,37 @@
-﻿lua.obj : warning LNK4006: main already defined in luac.obj; second definition ignored
-  Lua.vcxproj -> C:\repos\VCMP-Lua\VCMP-LUA\vendor\Lua\..\..\..\bin\Release-windows-x86_64\Lua\Lua.lib
+﻿  lapi.c
+  lauxlib.c
+  lbaselib.c
+  lbitlib.c
+  lcode.c
+  lcorolib.c
+  lctype.c
+  ldblib.c
+  ldebug.c
+  ldo.c
+  ldump.c
+  lfunc.c
+  lgc.c
+  linit.c
+  liolib.c
+  llex.c
+  lmathlib.c
+  lmem.c
+  loadlib.c
+  lobject.c
+  lopcodes.c
+  loslib.c
+  lparser.c
+  lstate.c
+  lstring.c
+  lstrlib.c
+  ltable.c
+  ltablib.c
+  ltm.c
+  lua.c
+  luac.c
+  lundump.c
+  lutf8lib.c
+  lvm.c
+  lzio.c
+lua.obj : warning LNK4006: main already defined in luac.obj; second definition ignored
+  Lua.vcxproj -> D:\Development\C++\VCMP-Lua\VCMP-LUA\vendor\Lua\..\..\..\bin\Release-windows-x86_64\Lua\Lua.lib

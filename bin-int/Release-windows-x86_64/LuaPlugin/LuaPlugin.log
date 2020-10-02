@@ -7,6 +7,17 @@
   Vehicle.cpp
   EventManager.cpp
   TimerManager.cpp
-  ConvertUTF.c
-     Creating library ..\bin\Release-windows-x86_64\LuaPlugin\LuaPlugin.lib and object ..\bin\Release-windows-x86_64\LuaPlugin\LuaPlugin.exp
-  LuaPlugin.vcxproj -> C:\repos\VCMP-Lua\VCMP-LUA\..\bin\Release-windows-x86_64\LuaPlugin\LuaPlugin.dll
+  vcmpTimer.cpp
+  async_bench.cpp
+  bench.cpp
+  formatter-bench.cpp
+D:\Development\C++\VCMP-Lua\VCMP-LUA\vendor\spdlog\bench\formatter-bench.cpp(6,10): fatal error C1083: Cannot open include file: 'benchmark/benchmark.h': No such file or directory
+  latency.cpp
+D:\Development\C++\VCMP-Lua\VCMP-LUA\vendor\spdlog\bench\latency.cpp(10,10): fatal error C1083: Cannot open include file: 'benchmark/benchmark.h': No such file or directory
+  async.cpp
+  cfg.cpp
+  color_sinks.cpp
+  file_sinks.cpp
+  fmt.cpp
+  spdlog.cpp
+  stdout_sinks.cpp

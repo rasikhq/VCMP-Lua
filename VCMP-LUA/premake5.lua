@@ -33,19 +33,24 @@ project "LuaPlugin"
 		"%{wks.location}/VCMP-LUA/include",
 		"%{wks.location}/VCMP-LUA/vcmpWrap",
 		"%{wks.location}/VCMP-LUA/vendor",
+		"%{wks.location}/VCMP-LUA/vendor/Lua",
+		"%{wks.location}/VCMP-LUA/vendor/sol",
+		"%{wks.location}/VCMP-LUA/vendor/spdlog/include",
 	}
 
-	links { "Lua" }
+	defines { "SPDLOG_COMPILED_LIB" }
+
+	links { "spdlog", "Lua" }
 
 	filter "system:windows"
 		systemversion "latest"
 
 	filter "configurations:Debug"
-		defines "_DEBUG"
+		defines {"_DEBUG"}
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "_RELEASE"
+		defines {"_RELEASE"}
 		runtime "Release"
 		optimize "on"
