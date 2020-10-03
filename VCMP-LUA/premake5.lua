@@ -9,13 +9,12 @@ project "LuaPlugin"
     
 	files
 	{
-		"**.h",
-        "**.cpp",
+		"pch.h",
+        "pch.cpp",
+        "Core.cpp",
 
         "include/**.h",
         "include/**.c",
-        
-		"sol/**.hpp",
         
         "vcmpWrap/**.h",
         "vcmpWrap/**.cpp",
@@ -32,13 +31,12 @@ project "LuaPlugin"
 		"%{wks.location}/VCMP-LUA/vendor/spdlog/include",
 	}
 
-	defines { "SPDLOG_COMPILED_LIB" }
-
 	links { "spdlog", "Lua" }
 
 	filter "system:windows"
 		systemversion "latest"
-
+		defines { "WIN32" }
+	  
 	filter "configurations:Debug"
 		defines {"_DEBUG"}
 		runtime "Debug"

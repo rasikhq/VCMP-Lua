@@ -1,7 +1,7 @@
 project "spdlog"
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++11"
 	staticruntime "on"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -13,11 +13,9 @@ project "spdlog"
 		"src/**.cpp"
 	}
 
-	defines { "SPDLOG_COMPILED_LIB" }
-
 	includedirs
 	{
-		"include",
+		"%{wks.location}/VCMP-LUA/vendor/spdlog/include"
 	}
 	
     filter "system:windows"

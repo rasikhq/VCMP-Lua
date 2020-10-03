@@ -15,7 +15,7 @@
 #include <vcmp.h>
 #include <SimpleIni.h>
 
-#include "lua/lua.hpp"
+#include <Lua/lua.hpp>
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>

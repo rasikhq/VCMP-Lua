@@ -4,7 +4,9 @@ workspace "VCMPLua"
 
 	configurations
 	{
+		"Debug32",
 		"Debug",
+		"Release32",
 		"Release"
 	}
 
@@ -13,12 +15,9 @@ workspace "VCMPLua"
 		"MultiProcessorCompile"
 	}
 
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+	defines { "SPDLOG_COMPILED_LIB" }
 
--- Include directories relative to root folder (solution directory)
-IncludeDir = {}
-IncludeDir["Lua"] = "%{wks.location}/VCMP-Lua/vendor/Lua"
-IncludeDir["spdlog"] = "%{wks.location}/VCMP-Lua/vendor/spdlog/include/"
+outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 include "VCMP-LUA/vendor/Lua"
 include "VCMP-LUA/vendor/spdlog"
