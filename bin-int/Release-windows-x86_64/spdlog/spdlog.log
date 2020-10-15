@@ -5,4 +5,4 @@
   fmt.cpp
   spdlog.cpp
   stdout_sinks.cpp
-  spdlog.vcxproj -> D:\Development\C++\VCMP-Lua\VCMP-LUA\vendor\spdlog\..\..\..\bin\Release-windows-x86_64\spdlog\spdlog.lib
+  spdlog.vcxproj -> C:\dev\CPP\VCMP-Lua\VCMP-LUA\vendor\spdlog\..\..\..\bin\Release-windows-x86_64\spdlog\spdlog.lib

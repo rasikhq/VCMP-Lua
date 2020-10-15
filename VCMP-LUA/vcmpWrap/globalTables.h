@@ -11,6 +11,8 @@
 #include "Classes/Vehicle.h"
 #include "Classes/Object.h"
 
+#include "Modules/MariaDB/MySQL.h"
+
 void InitGlobals(sol::state*);
 
 void RegisterClasses(sol::state* Lua) {
@@ -22,6 +24,11 @@ void RegisterClasses(sol::state* Lua) {
 	EventManager::Init(Lua);
 	TimerManager::Init(Lua);
 	Stream::Init(Lua);
+
+	// Modules
+	MySQL::Init(Lua);
+
+	// Wrap
 
 	Server::Init(Lua);
 	Player::Init(Lua);

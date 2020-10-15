@@ -2,10 +2,10 @@ project "LuaPlugin"
 	kind "SharedLib"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	-- staticruntime "on"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+    objdir ("%{wks.location}/bin/interm/" .. outputdir .. "/%{prj.name}")
     
 	files
 	{
@@ -17,7 +17,7 @@ project "LuaPlugin"
         "include/**.c",
         
         "vcmpWrap/**.h",
-        "vcmpWrap/**.cpp",
+		"vcmpWrap/**.cpp",
     }
     
 	includedirs
@@ -36,6 +36,7 @@ project "LuaPlugin"
 	filter "system:windows"
 		systemversion "latest"
 		defines { "WIN32" }
+		links { "libcrypto", "libssl", "mysqlcppconn8-static" }
 	  
 	filter "configurations:Debug"
 		defines {"_DEBUG"}
@@ -46,3 +47,5 @@ project "LuaPlugin"
 		defines {"_RELEASE"}
 		runtime "Release"
 		optimize "on"
+
+include "modules/mariadb"

@@ -34,4 +34,4 @@
   lvm.c
   lzio.c
 lua.obj : warning LNK4006: main already defined in luac.obj; second definition ignored
-  Lua.vcxproj -> D:\Development\C++\VCMP-Lua\VCMP-LUA\vendor\Lua\..\..\..\bin\Release-windows-x86_64\Lua\Lua.lib
+  Lua.vcxproj -> C:\dev\CPP\VCMP-Lua\VCMP-LUA\vendor\Lua\..\..\..\bin\Release-windows-x86_64\Lua\Lua.lib
