@@ -23,18 +23,23 @@ private:
 public:
 	/*** METHODS ***/
 	std::variant<bool, mariadb::u64> execute(const std::string& query);
+	void executeCallback(const sol::function& callback, const std::string& query);
 	std::variant<bool, mariadb::u64> executePrepare(const std::string& query, sol::table args);
+	void executePrepareCallback(const sol::function& callback, const std::string& query, sol::table args);
 
 	sol::table query(const std::string& query);
+	void queryCallback(const sol::function& callback, const std::string& query);
 	sol::table queryPrepare(const std::string& query, sol::table args);
+	void queryPrepareCallback(const sol::function& callback, const std::string& query, sol::table args);
 
 	std::variant<bool, mariadb::u64> insert(const std::string& query);
+	void insertCallback(const sol::function& callback, const std::string& query);
 	std::variant<bool, mariadb::u64> insertPrepare(const std::string& query, sol::table args);
+	void insertPrepareCallback(const sol::function& callback, const std::string& query, sol::table args);
 private:
 	std::variant<int, float, std::string, sol::lua_nil_t> GetLuaData(mariadb::result_set_ref result_set, mariadb::u32 index) {
 		using namespace mariadb;
 		std::variant<int, float, std::string, sol::lua_nil_t> data;
-		//spdlog::debug("column type is: {}", result_set->column_type(index));
 		switch (result_set->column_type(index))
 		{
 			case value::signed8:

@@ -8,6 +8,7 @@
 #include <vector>
 #include <unordered_map>
 #include <sstream>
+#include <future>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/daily_file_sink.h>
