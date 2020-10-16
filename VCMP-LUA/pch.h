@@ -2,6 +2,7 @@
 #define PCH_H
 
 #define _CRT_SECURE_NO_WARNINGS
+#undef _UNICODE
 
 #include <iostream>
 #include <vector>
@@ -14,10 +15,12 @@
 #include <vcmp.h>
 #include <SimpleIni.h>
 
-#include "lua/lua.hpp"
+#include <Lua/lua.hpp>
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
+
+#include <mariadb++/connection.hpp>
 
 #ifdef WIN32
 #include <Windows.h>

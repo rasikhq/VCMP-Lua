@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules">
+      <UniqueIdentifier>{FEAC8BD4-6A8C-0A70-73A4-9546DF0271D1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\mariadb">
+      <UniqueIdentifier>{9D4A2070-09D6-8D34-12E7-10297EF1E934}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\mariadb\include">
+      <UniqueIdentifier>{10BFA8F3-7CF6-F08A-8500-55AEF1B61784}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\mariadb\include\mariadb++">
+      <UniqueIdentifier>{25BCFD45-912A-53C5-DA13-0EC546C14861}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\mariadb\src">
+      <UniqueIdentifier>{340F6AC6-A070-47D4-29DE-8D86953E7E93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vcmpWrap">
+      <UniqueIdentifier>{35942F2D-2161-8A38-4A7A-78E036A6BFC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vcmpWrap\Classes">
+      <UniqueIdentifier>{1268E483-FE60-03D6-2793-E85A13EBE2E1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vcmpWrap\EventManager">
+      <UniqueIdentifier>{61E5F048-CD51-AC43-9645-44A10271CEAB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vcmpWrap\Log">
+      <UniqueIdentifier>{86BEB3A6-7221-434B-1BA7-7B0107E90ECE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vcmpWrap\Timer">
+      <UniqueIdentifier>{C5182B23-B1E6-1E29-9A7A-8F4F86E7FA8D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\ConvertUTF.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SimpleIni.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\utility.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vcmp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\main.hpp">
+      <Filter>modules\mariadb\include</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\account.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\bind.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\concurrency.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\connection.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\conversion_helper.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\data.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\date_time.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\decimal.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\exceptions.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\last_error.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\result_set.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\save_point.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\statement.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\time.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\time_span.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\transaction.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\mariadb\include\mariadb++\types.hpp">
+      <Filter>modules\mariadb\include\mariadb++</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="vcmpWrap\Classes\Object.h">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Classes\Player.h">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Classes\Server.h">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Classes\Stream.h">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Classes\Vehicle.h">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Constants.h">
+      <Filter>vcmpWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\EventManager\EventManager.h">
+      <Filter>vcmpWrap\EventManager</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Log\Logger.h">
+      <Filter>vcmpWrap\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Timer\TimerManager.h">
+      <Filter>vcmpWrap\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Timer\vcmpTimer.h">
+      <Filter>vcmpWrap\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\globalTables.h">
+      <Filter>vcmpWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\vcmpCallbacks.h">
+      <Filter>vcmpWrap</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQL.h" />
+    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLConnection.h" />
+    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLAccount.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Core.cpp" />
+    <ClCompile Include="include\ConvertUTF.c">
+      <Filter>include</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\mariadb\src\main.cpp">
+      <Filter>modules\mariadb\src</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Object.cpp">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Classes\Player.cpp">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Classes\Server.cpp">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Classes\Stream.cpp">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Classes\Vehicle.cpp">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\EventManager\EventManager.cpp">
+      <Filter>vcmpWrap\EventManager</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Timer\TimerManager.cpp">
+      <Filter>vcmpWrap\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp">
+      <Filter>vcmpWrap\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQL.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLAccount.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLConnection.cpp" />
+  </ItemGroup>
+</Project>
