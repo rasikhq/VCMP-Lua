@@ -107,7 +107,6 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;mysqlcppconn8-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>..\bin\Debug32-windows-x86_64\LuaPlugin\LuaPlugin.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -127,7 +126,6 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;mysqlcppconn8-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>..\bin\Debug-windows-x86_64\LuaPlugin\LuaPlugin.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -144,7 +142,6 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>libcrypto.lib;libssl.lib;mysqlcppconn8-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>..\bin\Release32-windows-x86_64\LuaPlugin\LuaPlugin.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -195,9 +192,6 @@
     <ClInclude Include="modules\mariadb\include\mariadb++\time_span.hpp" />
     <ClInclude Include="modules\mariadb\include\mariadb++\transaction.hpp" />
     <ClInclude Include="modules\mariadb\include\mariadb++\types.hpp" />
-    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLAccount.h" />
-    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLConnection.h" />
-    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQL.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="vcmpWrap\Classes\Object.h" />
     <ClInclude Include="vcmpWrap\Classes\Player.h" />
@@ -207,6 +201,9 @@
     <ClInclude Include="vcmpWrap\Constants.h" />
     <ClInclude Include="vcmpWrap\EventManager\EventManager.h" />
     <ClInclude Include="vcmpWrap\Log\Logger.h" />
+    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQL.h" />
+    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLAccount.h" />
+    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLConnection.h" />
     <ClInclude Include="vcmpWrap\Timer\TimerManager.h" />
     <ClInclude Include="vcmpWrap\Timer\vcmpTimer.h" />
     <ClInclude Include="vcmpWrap\globalTables.h" />
@@ -220,9 +217,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLAccount.cpp" />
-    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLConnection.cpp" />
-    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQL.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Object.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Player.cpp" />
@@ -230,6 +224,9 @@
     <ClCompile Include="vcmpWrap\Classes\Stream.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Vehicle.cpp" />
     <ClCompile Include="vcmpWrap\EventManager\EventManager.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQL.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLAccount.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLConnection.cpp" />
     <ClCompile Include="vcmpWrap\Timer\TimerManager.cpp" />
     <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp" />
   </ItemGroup>

@@ -29,7 +29,6 @@ void RegisterClasses(sol::state* Lua) {
 	MySQL::Init(Lua);
 
 	// Wrap
-
 	Server::Init(Lua);
 	Player::Init(Lua);
 	Vehicle::Init(Lua);
@@ -46,7 +45,10 @@ void RegisterClasses(sol::state* Lua) {
 				for ii = 1, intend do
 					s = s .. "\t"
 				end
-				s = s .. tostring(i) .. " = " .. tostring(v)
+				local idx = ''
+				if type(i) == "string" then idx = '["'..i..'"]'
+				else idx = '['..tostring(i)..']' end
+				s = s .. idx .. " = " .. "["..type(v).."] "..tostring(v)
 				if type(v) == "table" then
 					s = s .. " " .. INTERNAL__tostring(v, intend+1)
 				end

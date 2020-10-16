@@ -31,6 +31,12 @@
     <Filter Include="vcmpWrap\Log">
       <UniqueIdentifier>{86BEB3A6-7221-434B-1BA7-7B0107E90ECE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vcmpWrap\Modules">
+      <UniqueIdentifier>{FD85E18C-E97E-00DF-12B1-E563FE08E0EA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vcmpWrap\Modules\MariaDB">
+      <UniqueIdentifier>{3C167B15-283B-CA95-5186-AF253D0AC9B3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vcmpWrap\Timer">
       <UniqueIdentifier>{C5182B23-B1E6-1E29-9A7A-8F4F86E7FA8D}</UniqueIdentifier>
     </Filter>
@@ -127,6 +133,15 @@
     <ClInclude Include="vcmpWrap\Log\Logger.h">
       <Filter>vcmpWrap\Log</Filter>
     </ClInclude>
+    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQL.h">
+      <Filter>vcmpWrap\Modules\MariaDB</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLAccount.h">
+      <Filter>vcmpWrap\Modules\MariaDB</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLConnection.h">
+      <Filter>vcmpWrap\Modules\MariaDB</Filter>
+    </ClInclude>
     <ClInclude Include="vcmpWrap\Timer\TimerManager.h">
       <Filter>vcmpWrap\Timer</Filter>
     </ClInclude>
@@ -139,9 +154,6 @@
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h">
       <Filter>vcmpWrap</Filter>
     </ClInclude>
-    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQL.h" />
-    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLConnection.h" />
-    <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLAccount.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
@@ -170,14 +182,20 @@
     <ClCompile Include="vcmpWrap\EventManager\EventManager.cpp">
       <Filter>vcmpWrap\EventManager</Filter>
     </ClCompile>
+    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQL.cpp">
+      <Filter>vcmpWrap\Modules\MariaDB</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLAccount.cpp">
+      <Filter>vcmpWrap\Modules\MariaDB</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLConnection.cpp">
+      <Filter>vcmpWrap\Modules\MariaDB</Filter>
+    </ClCompile>
     <ClCompile Include="vcmpWrap\Timer\TimerManager.cpp">
       <Filter>vcmpWrap\Timer</Filter>
     </ClCompile>
     <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp">
       <Filter>vcmpWrap\Timer</Filter>
     </ClCompile>
-    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQL.cpp" />
-    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLAccount.cpp" />
-    <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLConnection.cpp" />
   </ItemGroup>
 </Project>

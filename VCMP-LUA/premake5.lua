@@ -36,7 +36,6 @@ project "LuaPlugin"
 	filter "system:windows"
 		systemversion "latest"
 		defines { "WIN32" }
-		links { "libcrypto", "libssl", "mysqlcppconn8-static" }
 	  
 	filter "configurations:Debug"
 		defines {"_DEBUG"}
