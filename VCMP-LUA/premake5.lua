@@ -33,6 +33,9 @@ project "LuaPlugin"
 
 	links { "spdlog", "Lua" }
 
+	-- Specify modules
+	include "modules/mariadb"
+
 	filter "system:windows"
 		systemversion "latest"
 		defines { "WIN32" }
@@ -46,5 +49,3 @@ project "LuaPlugin"
 		defines {"_RELEASE"}
 		runtime "Release"
 		optimize "on"
-
-include "modules/mariadb"
