@@ -12,6 +12,7 @@ workspace "VCMPLua"
 	architecture "x86_64"
 	startproject "LuaPlugin"
 	targetname "luaplugin"
+	targetprefix "" -- Disable prefix
 	targetsuffix "_x64" -- Default architecture
 
 	configurations
