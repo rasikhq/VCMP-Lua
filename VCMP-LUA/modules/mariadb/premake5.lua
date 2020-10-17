@@ -1,7 +1,6 @@
 files
 {
 	"include/**.hpp",
-	"src/**.cpp",
 }
 
 includedirs
@@ -10,5 +9,9 @@ includedirs
 	"include/mysql",
 }
 
-libdirs { "lib" }
-links { "MariaDBClient.lib" }
+configuration "windows"
+	libdirs { "lib" }
+	links { "MariaDBClient.lib" }
+
+configuration "linux"
+	links { "mariadb-client" }
