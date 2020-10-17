@@ -11,17 +11,21 @@
 workspace "VCMPLua"
 	architecture "x86_64"
 	startproject "LuaPlugin"
+	targetname "luaplugin"
+	targetsuffix "_x64" -- Default architecture
 
 	configurations
 	{
-		"Debug32",
-		"Debug",
+		-- Debug configurations are not used
+		-- "Debug32",
+		-- "Debug",
 		"Release32",
 		"Release"
 	}
 
 	filter "configurations:*32"
 		architecture "x86"
+		targetsuffix "_x86"
 
 	filter "system:windows"
 		systemversion "latest"
