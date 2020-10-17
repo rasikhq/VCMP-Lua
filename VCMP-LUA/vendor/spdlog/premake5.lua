@@ -2,7 +2,7 @@ project "spdlog"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++11"
-	-- staticruntime "on"
+	pic "on"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin/interm/" .. outputdir .. "/%{prj.name}")

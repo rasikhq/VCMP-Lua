@@ -14,4 +14,5 @@ configuration "windows"
 	links { "MariaDBClient.lib" }
 
 configuration "linux"
-	links { "libmariadbclient" }
+	libdirs { "//usr/lib/x86_64-linux-gnu" }
+	links { "mariadbclient" }
