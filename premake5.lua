@@ -10,14 +10,22 @@ workspace "VCMPLua"
 		"Release"
 	}
 
-	flags
-	{
-		"MultiProcessorCompile"
-	}
+	filter "configurations:*32"
+		architecture "x86"
 
-	defines { "SPDLOG_COMPILED_LIB" }
+	filter "system:windows"
+		systemversion "latest"
 
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+	filter "configurations:Debug"
+		runtime "Debug"
+		symbols "on"
+
+	filter "configurations:Release"
+		runtime "Release"
+		optimize "on"
+
+	flags { "MultiProcessorCompile"	}
+	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 include "VCMP-LUA/vendor/Lua"
 include "VCMP-LUA/vendor/spdlog"
