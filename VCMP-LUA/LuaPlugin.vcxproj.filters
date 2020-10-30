@@ -16,9 +16,6 @@
     <Filter Include="modules\mariadb\include\mariadb++">
       <UniqueIdentifier>{25BCFD45-912A-53C5-DA13-0EC546C14861}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\mariadb\src">
-      <UniqueIdentifier>{340F6AC6-A070-47D4-29DE-8D86953E7E93}</UniqueIdentifier>
-    </Filter>
     <Filter Include="vcmpWrap">
       <UniqueIdentifier>{35942F2D-2161-8A38-4A7A-78E036A6BFC6}</UniqueIdentifier>
     </Filter>
@@ -53,9 +50,6 @@
     </ClInclude>
     <ClInclude Include="include\vcmp.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="modules\mariadb\include\main.hpp">
-      <Filter>modules\mariadb\include</Filter>
     </ClInclude>
     <ClInclude Include="modules\mariadb\include\mariadb++\account.hpp">
       <Filter>modules\mariadb\include\mariadb++</Filter>
@@ -159,9 +153,6 @@
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="include\ConvertUTF.c">
       <Filter>include</Filter>
-    </ClCompile>
-    <ClCompile Include="modules\mariadb\src\main.cpp">
-      <Filter>modules\mariadb\src</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Object.cpp">

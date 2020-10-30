@@ -14,4 +14,9 @@ configuration "windows"
 	links { "MariaDBClient.lib" }
 
 configuration "linux"
-	links { "mariadbclient" }
+	filter "configurations:*32"
+		links { "libmariadbclient32.a" }
+
+	filter "configurations:Release"
+		links { "libmariadbclient.a" }
+	--links { "mariadbclient" }
