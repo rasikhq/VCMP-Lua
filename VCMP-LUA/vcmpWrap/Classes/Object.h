@@ -24,7 +24,7 @@ public:
 	Object(int32_t, int32_t, sol::table);
 
 	/*** DESTRUCTOR(S) ***/
-	~Object() = default;
+	~Object() { destroy(); };
 
 	/*** METHODS ***/
 	bool destroy();

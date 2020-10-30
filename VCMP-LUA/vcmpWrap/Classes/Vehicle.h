@@ -23,7 +23,7 @@ public:
 	Vehicle(int32_t, int32_t, sol::table, int32_t = -1, int32_t = -1);
 
 	/*** DESTRUCTOR(S) ***/
-	~Vehicle() = default;
+	~Vehicle() { destroy(); };
 
 	/*** METHODS ***/
 	bool destroy();

@@ -164,11 +164,10 @@ void RegisterVCMPCallbacks() {
 	
 	g_Calls->OnPlayerConnect = [](int32_t playerId) {
 		spdlog::debug("OnPlayerConnect");
-
 		auto handlers = EventManager::GetHandlers("onPlayerConnect");
-		if (handlers.size() == 0) return;
 
 		Player* player = Player::Register(playerId);
+		if (handlers.size() == 0) return;
 		try {
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player);
@@ -189,11 +188,13 @@ void RegisterVCMPCallbacks() {
 	
 	g_Calls->OnPlayerDisconnect = [](int32_t playerId, vcmpDisconnectReason reason) {
 		spdlog::debug("OnPlayerDisconnect");
-
 		auto handlers = EventManager::GetHandlers("onPlayerDisconnect");
+		
+		Player* player = Player::Get(playerId);
+		Player::Unregister(player);
+
 		if (handlers.size() == 0) return;
 
-		Player* player = Player::Get(playerId);
 		try {
 			for (auto fn : handlers) {
 				sol::function_result r = fn(player, reason);
@@ -724,6 +725,11 @@ void RegisterVCMPCallbacks() {
 		uint8_t ret = 1;
 		try {
 			Player* player = Player::Get(playerId);
+			if (player == nullptr) {
+				spdlog::critical("VCMP CALLBACK :: OnPlayerCommand >> Got a playerid ({}) which is not reigstered in player pool", playerId);
+				throw("Critical failure");
+				return 0;
+			}
 			std::string data(message);
 			std::vector<std::string> args = std::split(data, ' ');
 			for (auto fn : handlers) {

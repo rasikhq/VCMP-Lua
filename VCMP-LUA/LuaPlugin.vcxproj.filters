@@ -148,6 +148,7 @@
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h">
       <Filter>vcmpWrap</Filter>
     </ClInclude>
+    <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
@@ -188,5 +189,6 @@
     <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp">
       <Filter>vcmpWrap\Timer</Filter>
     </ClCompile>
+    <ClCompile Include="vcmpWrap\Classes\Checkpoint.cpp" />
   </ItemGroup>
 </Project>

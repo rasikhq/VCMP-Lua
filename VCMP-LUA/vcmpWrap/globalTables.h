@@ -10,6 +10,7 @@
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
 #include "Classes/Object.h"
+#include "Classes/Checkpoint.h"
 
 #include "Modules/MariaDB/MySQL.h"
 
@@ -33,6 +34,7 @@ void RegisterClasses(sol::state* Lua) {
 	Player::Init(Lua);
 	Vehicle::Init(Lua);
 	Object::Init(Lua);
+	Checkpoint::Init(Lua);
 
 	Lua->script(R"(
 		function INTERNAL__tostring(x, intend)

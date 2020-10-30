@@ -103,6 +103,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />
     <ClInclude Include="include\ConvertUTF.h" />
     <ClInclude Include="include\SimpleIni.h" />
     <ClInclude Include="include\utility.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="vcmpWrap\Classes\Checkpoint.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="include\ConvertUTF.c" />
     <ClCompile Include="pch.cpp" />

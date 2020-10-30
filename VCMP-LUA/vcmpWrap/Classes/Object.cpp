@@ -186,7 +186,14 @@ sol::as_table_t<std::vector<float>> Object::getPosition() const
 	std::vector<float> position = { x, y, z };
 	return sol::as_table(position);
 }
-void Object::setPosition(sol::table position) { g_Funcs->SetObjectPosition(m_ID, position[1], position[2], position[3]); }
+void Object::setPosition(sol::table position) { 
+	if (position.size() < 3) {
+		spdlog::error("Object::setPosition: Invalid position table!");
+		throw("Invalid position forwarded, requires 3 floats");
+		return;
+	}
+	g_Funcs->SetObjectPosition(m_ID, position[1], position[2], position[3]); 
+}
 
 sol::as_table_t<std::vector<float>> Object::getRotation() const
 {
@@ -211,12 +218,12 @@ void Object::Init(sol::state* L) {
 
 	sol::usertype<Object> userdata = L->new_usertype<Object>("Object",
 		sol::constructors<
-				Object(int32_t, int32_t, float, float, float),
-				Object(int32_t, int32_t, float, float, float, int32_t),
+			Object(int32_t, int32_t, float, float, float),
+			Object(int32_t, int32_t, float, float, float, int32_t),
 
-				Object(int32_t, int32_t, sol::table)
-			>()
-		);
+			Object(int32_t, int32_t, sol::table)
+		>()
+	);
 
 	userdata["type"] = &Object::getStaticType;
 	userdata["findByID"] = &Object::Get;
