@@ -11,6 +11,7 @@
 #include "Classes/Vehicle.h"
 #include "Classes/Object.h"
 #include "Classes/Checkpoint.h"
+#include "Classes/Pickup.h"
 
 #include "Modules/MariaDB/MySQL.h"
 
@@ -35,6 +36,7 @@ void RegisterClasses(sol::state* Lua) {
 	Vehicle::Init(Lua);
 	Object::Init(Lua);
 	Checkpoint::Init(Lua);
+	Pickup::Init(Lua);
 
 	Lua->script(R"(
 		function INTERNAL__tostring(x, intend)
@@ -121,5 +123,10 @@ void InitGlobals(sol::state* Lua) {
 		"normalRelative",			vcmpVehicleSpeed::NormalRelative,
 		"turn",						vcmpVehicleSpeed::Turn,
 		"turnRelative",				vcmpVehicleSpeed::TurnRelative
+	);
+
+	Lua->new_enum("PickupOption",
+		"singleUse", vcmpPickupOption::vcmpPickupOptionSingleUse,
+		"forceSize", vcmpPickupOption::forceSizeVcmpPickupOption
 	);
 }
