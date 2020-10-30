@@ -10,8 +10,10 @@ includedirs
 }
 
 configuration "windows"
-	libdirs { "lib" }
 	links { "MariaDBClient.lib" }
 
 configuration "linux"
-	links { "mariadbclient" }
+	filter "configurations:Release32"
+		linkoptions { "-L modules/mariadb/lib/mariadbclient32.a" }
+	filter "configurations:Release"
+		linkoptions { "-L xmodules/mariadb/lib/mariadbclient.a" }
