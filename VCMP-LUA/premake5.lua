@@ -5,20 +5,20 @@ project "LuaPlugin"
 	pic "on"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("%{wks.location}/bin/interm/" .. outputdir .. "/%{prj.name}")
+    	objdir ("%{wks.location}/bin/interm/" .. outputdir .. "/%{prj.name}")
     
 	files
 	{
 		"pch.h",
-        "pch.cpp",
-        "Core.cpp",
+        	"pch.cpp",
+        	"Core.cpp",
 
-        "include/**.h",
-        "include/**.c",
+        	"include/**.h",
+        	"include/**.c",
         
-        "vcmpWrap/**.h",
+        	"vcmpWrap/**.h",
 		"vcmpWrap/**.cpp",
-    }
+    	}
     
 	includedirs
 	{
@@ -49,3 +49,9 @@ project "LuaPlugin"
 		defines {"_RELEASE"}
 		runtime "Release"
 		optimize "on"
+	
+	configuration "linux"
+		filter "configurations:Release32"
+			linkoptions { "-L modules/mariadb/lib/mariadbclient32.a" }
+		filter "configurations:Release"
+			linkoptions { "-L xmodules/mariadb/lib/mariadbclient.a" }
