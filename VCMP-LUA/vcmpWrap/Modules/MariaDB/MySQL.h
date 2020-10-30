@@ -14,6 +14,8 @@ public:
 	}
 
 	/*** METHODS ***/
-	static MySQLAccount* createAccount(const std::string& host, const std::string& user, const std::string& password, const std::string& database, mariadb::u32 port = 3306U, const std::string& unix_socket = "");
+	static MySQLAccount* createAccount(const std::string& host, const std::string& user, const std::string& password, const std::string& database);
+	static MySQLAccount* createAccountEx(const std::string& host, const std::string& user, const std::string& password, const std::string& database, mariadb::u32 port);
+	static MySQLAccount* createAccountEx2(const std::string& host, const std::string& user, const std::string& password, const std::string& database, mariadb::u32 port, const std::string& unix_socket);
 	static MySQLConnection* createConnection(MySQLAccount* account);
 };
