@@ -6,6 +6,7 @@
 #include "Timer/TimerManager.h"
 
 #include "Classes/Stream.h"
+#include "Classes/Bind.h"
 #include "Classes/Server.h"
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
@@ -26,6 +27,7 @@ void RegisterClasses(sol::state* Lua) {
 	EventManager::Init(Lua);
 	TimerManager::Init(Lua);
 	Stream::Init(Lua);
+	Bind::Init(Lua);
 
 	// Modules
 	MySQL::Init(Lua);
@@ -92,6 +94,36 @@ void InitGlobals(sol::state* Lua) {
 		"ac",					vcmpDisconnectReason::vcmpDisconnectReasonAntiCheat
 	);
 
+	Lua->new_enum("BodyPart",
+		"body",					vcmpBodyPart::vcmpBodyPartBody,
+		"torso",				vcmpBodyPart::vcmpBodyPartTorso,
+		"leftArm",				vcmpBodyPart::vcmpBodyPartLeftArm,
+		"rightArm",				vcmpBodyPart::vcmpBodyPartRightArm,
+		"leftLeg",				vcmpBodyPart::vcmpBodyPartLeftLeg,
+		"rightLeg",				vcmpBodyPart::vcmpBodyPartRightArm,
+		"head",					vcmpBodyPart::vcmpBodyPartHead,
+		"inVehicle",			vcmpBodyPart::vcmpBodyPartInVehicle
+	);
+
+	Lua->new_enum("PlayerState",
+		"none",					vcmpPlayerState::vcmpPlayerStateNone,
+		"normal",				vcmpPlayerState::vcmpPlayerStateNormal,
+		"aim",					vcmpPlayerState::vcmpPlayerStateAim,
+		"driver",				vcmpPlayerState::vcmpPlayerStateDriver,
+		"passenger",			vcmpPlayerState::vcmpPlayerStatePassenger,
+		"enterDriver",			vcmpPlayerState::vcmpPlayerStateEnterDriver,
+		"enterPassenger",		vcmpPlayerState::vcmpPlayerStateEnterPassenger,
+		"exit",					vcmpPlayerState::vcmpPlayerStateExit,
+		"unspawned",			vcmpPlayerState::vcmpPlayerStateUnspawned
+	);
+
+	Lua->new_enum("PlayerUpdate",
+		"normal",				vcmpPlayerUpdate::vcmpPlayerUpdateNormal,
+		"aiming",				vcmpPlayerUpdate::vcmpPlayerUpdateAiming,
+		"driver",				vcmpPlayerUpdate::vcmpPlayerUpdateDriver,
+		"passenger",			vcmpPlayerUpdate::vcmpPlayerUpdatePassenger
+	);
+
 	Lua->new_enum("PlayerOption",
 		"controllable",				vcmpPlayerOption::vcmpPlayerOptionControllable,
 		"driveBy",					vcmpPlayerOption::vcmpPlayerOptionDriveBy,
@@ -106,6 +138,18 @@ void InitGlobals(sol::state* Lua) {
 		//
 		"chatTags",					vcmpPlayerOption::vcmpPlayerOptionChatTagsEnabled,
 		"drunkEffects",				vcmpPlayerOption::vcmpPlayerOptionDrunkEffects
+	);
+
+	Lua->new_enum("VehicleUpdate",
+		"driverSync",				vcmpVehicleUpdate::vcmpVehicleUpdateDriverSync,
+		"otherSync",				vcmpVehicleUpdate::vcmpVehicleUpdateOtherSync,
+		"position",					vcmpVehicleUpdate::vcmpVehicleUpdatePosition,
+		"health",					vcmpVehicleUpdate::vcmpVehicleUpdateHealth,
+		//
+		"color",					vcmpVehicleUpdate::vcmpVehicleUpdateColour,
+		"colour",					vcmpVehicleUpdate::vcmpVehicleUpdateColour,
+		//
+		"rotation",					vcmpVehicleUpdate::vcmpVehicleUpdateRotation
 	);
 
 	Lua->new_enum("VehicleOption",

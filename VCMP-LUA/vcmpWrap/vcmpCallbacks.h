@@ -4,6 +4,7 @@
 #include "Timer/TimerManager.h"
 #include "Classes/Player.h"
 #include "Classes/Vehicle.h"
+#include "Classes/Bind.h"
 
 extern PluginFuncs* g_Funcs;
 extern PluginCallbacks* g_Calls;
@@ -406,7 +407,7 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			Vehicle* vehicle = Vehicle::Get(vehicleId);
 			for (auto fn : handlers) {
-				sol::function_result r = fn(player, vehicle, vehicleId, slotIndex);
+				sol::function_result r = fn(player, vehicle, slotIndex);
 				if (!r.valid()) {
 					sol::error e = r;
 					spdlog::error("Event callback error: {}", e.what());
@@ -814,10 +815,12 @@ void RegisterVCMPCallbacks() {
 
 		auto handlers = EventManager::GetHandlers("onPlayerKeyDown");
 		if (handlers.size() == 0) return;
+
+		Bind* bind = Bind::Get(bindId);
 		try {
 			Player* player = Player::Get(playerId);
 			for (auto fn : handlers) {
-				sol::function_result r = fn(player, bindId);
+				sol::function_result r = fn(player, bind);
 				if (!r.valid()) {
 					sol::error e = r;
 					spdlog::error("Event callback error: {}", e.what());
@@ -838,10 +841,11 @@ void RegisterVCMPCallbacks() {
 
 		auto handlers = EventManager::GetHandlers("onPlayerKeyUp");
 		if (handlers.size() == 0) return;
+		Bind* bind = Bind::Get(bindId);
 		try {
 			Player* player = Player::Get(playerId);
 			for (auto fn : handlers) {
-				sol::function_result r = fn(player, bindId);
+				sol::function_result r = fn(player, bind);
 				if (!r.valid()) {
 					sol::error e = r;
 					spdlog::error("Event callback error: {}", e.what());

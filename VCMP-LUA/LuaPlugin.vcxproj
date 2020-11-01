@@ -103,6 +103,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="vcmpWrap\Classes\Bind.h" />
     <ClInclude Include="vcmpWrap\Classes\Pickup.h" />
     <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />
     <ClInclude Include="include\ConvertUTF.h" />
@@ -144,6 +145,7 @@
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="vcmpWrap\Classes\Bind.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Pickup.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Checkpoint.cpp" />
     <ClCompile Include="Core.cpp" />

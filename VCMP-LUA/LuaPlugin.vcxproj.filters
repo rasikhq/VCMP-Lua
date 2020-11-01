@@ -150,6 +150,7 @@
     </ClInclude>
     <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />
     <ClInclude Include="vcmpWrap\Classes\Pickup.h" />
+    <ClInclude Include="vcmpWrap\Classes\Bind.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
@@ -192,5 +193,6 @@
     </ClCompile>
     <ClCompile Include="vcmpWrap\Classes\Checkpoint.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Pickup.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Bind.cpp" />
   </ItemGroup>
 </Project>
