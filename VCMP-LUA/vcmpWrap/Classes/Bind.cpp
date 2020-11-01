@@ -1,11 +1,13 @@
 #include "Bind.h"
 
 extern PluginFuncs* g_Funcs;
+extern sol::state Lua;
 
 std::vector<Bind*> Bind::s_Binds;
 
 void Bind::clearAllBinds() {
 	g_Funcs->RemoveAllKeyBinds();
+	s_Binds.clear();
 }
 
 void Bind::Register(Bind* bind) {
@@ -58,8 +60,10 @@ sol::table Bind::getData() const {
 	sol::table data;
 	int32_t key1, key2, key3;
 	uint8_t signalsOnRelease;
-	g_Funcs->GetKeyBindData(m_ID, &signalsOnRelease, &key1, &key2, &key3);
+	if (g_Funcs->GetKeyBindData(m_ID, &signalsOnRelease, &key1, &key2, &key3) == vcmpError::vcmpErrorNoSuchEntity)
+		return sol::nil;
 
+	data = Lua.create_table();
 	data["keyOne"] = key1;
 	data["keyTwo"] = key2;
 	data["keyThree"] = key3;
@@ -91,6 +95,7 @@ void Bind::Init(sol::state* L) {
 	userdata["type"] = &Bind::getStaticType;
 	userdata["findByID"] = &Bind::Get;
 	userdata["findByTag"] = &Bind::GetByTag;
+	userdata["clearAllBinds"] = &Bind::clearAllBinds;
 
 	/*** METHODS ***/
 

@@ -3,47 +3,15 @@
 extern PluginFuncs* g_Funcs;
 extern sol::state Lua;
 
-optionUMType Server::s_OptionCode = {
-	{"DeathMessages",       vcmpServerOption::vcmpServerOptionDeathMessages},
-	{"DriveBy",             vcmpServerOption::vcmpServerOptionDisableDriveBy},
-	{"DriveOnWater",        vcmpServerOption::vcmpServerOptionDriveOnWater},
-	{"FastSwitch",          vcmpServerOption::vcmpServerOptionFastSwitch},
-	{"FlyingCars",          vcmpServerOption::vcmpServerOptionFlyingCars},
-	{"FrameLimit",          vcmpServerOption::vcmpServerOptionFrameLimiter},
-	{"FriendlyFire",        vcmpServerOption::vcmpServerOptionFriendlyFire},
-	{"JoinMessages",        vcmpServerOption::vcmpServerOptionJoinMessages},
-	{"JumpSwitch",          vcmpServerOption::vcmpServerOptionJumpSwitch},
-	{"ShootInAir",          vcmpServerOption::vcmpServerOptionShootInAir},
-	{"Nametags",            vcmpServerOption::vcmpServerOptionShowNameTags},
-	{"TeamMarkersOnly",     vcmpServerOption::vcmpServerOptionOnlyShowTeamMarkers},
-	{"StuntBike",           vcmpServerOption::vcmpServerOptionStuntBike},
-	{"SyncFrameLimiter",    vcmpServerOption::vcmpServerOptionSyncFrameLimiter},
-	{"TaxiBoostJump",       vcmpServerOption::vcmpServerOptionTaxiBoostJump},
-	{"WallGlitch",          vcmpServerOption::vcmpServerOptionWallGlitch},
-	{"DeathMessages",       vcmpServerOption::vcmpServerOptionDeathMessages},
-	{"Classes",             vcmpServerOption::vcmpServerOptionUseClasses},
-	{"ChatTags",            vcmpServerOption::vcmpServerOptionChatTagsEnabled},
-	{"BackfaceCulling",     vcmpServerOption::vcmpServerOptionDisableBackfaceCulling},
-	{"HeliBladeDamage",     vcmpServerOption::vcmpServerOptionDisableHeliBladeDamage},
-	{"PerfectHandling",     vcmpServerOption::vcmpServerOptionPerfectHandling},
-	{"Markers",             vcmpServerOption::vcmpServerOptionShowMarkers}
-};
-
 static ServerSettings s_Settings;
 
-bool Server::getOption(const std::string& option) {
-	if (s_OptionCode.find(option) != s_OptionCode.end()) {
-		return g_Funcs->GetServerOption(s_OptionCode[option]);
-	}
-	return false;
+bool Server::getOption(vcmpServerOption option) {
+	return g_Funcs->GetServerOption(option);
 }
 
-bool Server::setOption(const std::string& option, bool toggle) {
-	if (s_OptionCode.find(option) != s_OptionCode.end()) {
-		g_Funcs->SetServerOption(s_OptionCode[option], toggle);
-		return true;
-	}
-	return false;
+bool Server::setOption(vcmpServerOption option, bool toggle) {
+	g_Funcs->SetServerOption(option, toggle);
+	return true;
 }
 
 sol::object Server::getSettings() {
@@ -53,9 +21,10 @@ sol::object Server::getSettings() {
 	}
 	sol::table settings = Lua.create_table();
 
-	settings["maxPlayers"] = s_Settings.maxPlayers;;
+	settings["maxPlayers"] = s_Settings.maxPlayers;
 	settings["port"] = s_Settings.port;
 	settings["serverName"] = std::string(s_Settings.serverName);
+	settings["flags"] = s_Settings.flags;
 
 	return settings;
 }
@@ -63,5 +32,6 @@ sol::object Server::getSettings() {
 void Server::Init(sol::state* L) {
 	sol::state& state = *L;
 	L->set("Server", L->create_table_with("getSettings", &Server::getSettings));
-	state["Server"]["option"] = sol::property(&Server::getOption, &Server::setOption);
+	state["Server"]["getOption"] = &Server::getOption;
+	state["Server"]["setOption"] = &Server::setOption;
 }

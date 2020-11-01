@@ -82,6 +82,33 @@ void RegisterClasses(sol::state* Lua) {
 }
 
 void InitGlobals(sol::state* Lua) {
+	/*** GENERIC CONSTANTS ***/
+	Lua->new_enum("ServerOption",
+		"deathMessages",		vcmpServerOption::vcmpServerOptionDeathMessages,
+		"driveBy",				vcmpServerOption::vcmpServerOptionDisableDriveBy,
+		"driveOnWater",			vcmpServerOption::vcmpServerOptionDriveOnWater,
+		"fastSwitch",			vcmpServerOption::vcmpServerOptionFastSwitch,
+		"flyingCars",			vcmpServerOption::vcmpServerOptionFlyingCars,
+		"frameLimit",			vcmpServerOption::vcmpServerOptionFrameLimiter,
+		"friendlyFire",			vcmpServerOption::vcmpServerOptionFriendlyFire,
+		"joinMessages",			vcmpServerOption::vcmpServerOptionJoinMessages,
+		"jumpSwitch",			vcmpServerOption::vcmpServerOptionJumpSwitch,
+		"shootInAir",			vcmpServerOption::vcmpServerOptionShootInAir,
+		"nametags",				vcmpServerOption::vcmpServerOptionShowNameTags,
+		"teamMarkersOnly",		vcmpServerOption::vcmpServerOptionOnlyShowTeamMarkers,
+		"stuntBike",			vcmpServerOption::vcmpServerOptionStuntBike,
+		"syncFrameLimiter",		vcmpServerOption::vcmpServerOptionSyncFrameLimiter,
+		"taxiBoostJump",		vcmpServerOption::vcmpServerOptionTaxiBoostJump,
+		"wallGlitch",			vcmpServerOption::vcmpServerOptionWallGlitch,
+		"deathMessages",		vcmpServerOption::vcmpServerOptionDeathMessages,
+		"classes",				vcmpServerOption::vcmpServerOptionUseClasses,
+		"chatTags",				vcmpServerOption::vcmpServerOptionChatTagsEnabled,
+		"backfaceCulling",		vcmpServerOption::vcmpServerOptionDisableBackfaceCulling,
+		"heliBladeDamage",		vcmpServerOption::vcmpServerOptionDisableHeliBladeDamage,
+		"perfectHandling",		vcmpServerOption::vcmpServerOptionPerfectHandling,
+		"showMarkers",			vcmpServerOption::vcmpServerOptionShowMarkers
+	);
+
 	Lua->new_enum("DisconnectReason",
 		"timeout",				vcmpDisconnectReason::vcmpDisconnectReasonTimeout,
 		"quit",					vcmpDisconnectReason::vcmpDisconnectReasonQuit,
@@ -104,6 +131,8 @@ void InitGlobals(sol::state* Lua) {
 		"head",					vcmpBodyPart::vcmpBodyPartHead,
 		"inVehicle",			vcmpBodyPart::vcmpBodyPartInVehicle
 	);
+
+	/*** PLAYER CONSTANTS ***/
 
 	Lua->new_enum("PlayerState",
 		"none",					vcmpPlayerState::vcmpPlayerStateNone,
@@ -140,6 +169,8 @@ void InitGlobals(sol::state* Lua) {
 		"drunkEffects",				vcmpPlayerOption::vcmpPlayerOptionDrunkEffects
 	);
 
+	/*** VEHICLE CONSTANTS ***/
+
 	Lua->new_enum("VehicleUpdate",
 		"driverSync",				vcmpVehicleUpdate::vcmpVehicleUpdateDriverSync,
 		"otherSync",				vcmpVehicleUpdate::vcmpVehicleUpdateOtherSync,
@@ -168,6 +199,8 @@ void InitGlobals(sol::state* Lua) {
 		"turn",						vcmpVehicleSpeed::Turn,
 		"turnRelative",				vcmpVehicleSpeed::TurnRelative
 	);
+
+	/*** PICKUP CONSTANTS ***/
 
 	Lua->new_enum("PickupOption",
 		"singleUse", vcmpPickupOption::vcmpPickupOptionSingleUse,
