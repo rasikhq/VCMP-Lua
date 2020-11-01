@@ -1039,7 +1039,7 @@ void RegisterVCMPCallbacks() {
 		spdlog::debug("OnPickupPickAttempt");
 
 		auto handlers = EventManager::GetHandlers("onPickupPickAttempt");
-		if (handlers.size() == 0) return;
+		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
 		try {
 			Pickup* pickup = Pickup::Get(pickupId);
