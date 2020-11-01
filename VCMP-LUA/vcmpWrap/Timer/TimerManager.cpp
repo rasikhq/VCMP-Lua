@@ -29,8 +29,10 @@ void TimerManager::OnFrame(float elapsedTime) {
 		if (delta > timer->get()->getInterval() && repeat != 0) {
 			const sol::function& fn = timer->get()->getCallback();
 			if (fn.valid()) {
+				Lua["thisTimer"] = timer->get();
 				const std::vector<sol::object>& args = timer->get()->getArgs();
 				sol::function_result result = fn(sol::as_args(args));
+				Lua["thisTimer"] = sol::nil;
 				if (!result.valid()) {
 					sol::error e = result;
 					spdlog::error("Timer handler failed: {}", e.what());
@@ -76,13 +78,14 @@ vcmpTimer* TimerManager::createTimer(sol::function callback, unsigned int interv
 }
 
 void TimerManager::destroyTimer(vcmpTimer* reference) {
-	for (auto it = m_vcmpTimers.begin(); it != m_vcmpTimers.end(); it++) {
+	/*for (auto it = m_vcmpTimers.begin(); it != m_vcmpTimers.end(); it++) {
 		if (it->get() == reference) {
 			it = m_vcmpTimers.erase(it);
 			if(it == m_vcmpTimers.end())
 				break;
 		}
-	}
+	}*/
+	reference->bIsValid = false;
 }
 
 void TimerManager::Init(sol::state* Lua) {
