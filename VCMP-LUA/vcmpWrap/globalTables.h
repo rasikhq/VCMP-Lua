@@ -133,7 +133,6 @@ void InitGlobals(sol::state* Lua) {
 	);
 
 	/*** PLAYER CONSTANTS ***/
-
 	Lua->new_enum("PlayerState",
 		"none",					vcmpPlayerState::vcmpPlayerStateNone,
 		"normal",				vcmpPlayerState::vcmpPlayerStateNormal,
@@ -170,7 +169,6 @@ void InitGlobals(sol::state* Lua) {
 	);
 
 	/*** VEHICLE CONSTANTS ***/
-
 	Lua->new_enum("VehicleUpdate",
 		"driverSync",				vcmpVehicleUpdate::vcmpVehicleUpdateDriverSync,
 		"otherSync",				vcmpVehicleUpdate::vcmpVehicleUpdateOtherSync,
@@ -201,9 +199,18 @@ void InitGlobals(sol::state* Lua) {
 	);
 
 	/*** PICKUP CONSTANTS ***/
-
 	Lua->new_enum("PickupOption",
-		"singleUse", vcmpPickupOption::vcmpPickupOptionSingleUse,
-		"forceSize", vcmpPickupOption::forceSizeVcmpPickupOption
+		"singleUse",				vcmpPickupOption::vcmpPickupOptionSingleUse,
+		"forceSize",				vcmpPickupOption::forceSizeVcmpPickupOption
+	);
+
+	/*** MISC CONSTANTS ***/
+	Lua->new_enum("EntityType",
+		"vehicle",					vcmpEntityPool::vcmpEntityPoolVehicle,
+		"object",					vcmpEntityPool::vcmpEntityPoolObject,
+		"pickup",					vcmpEntityPool::vcmpEntityPoolPickup,
+		"radio",					vcmpEntityPool::vcmpEntityPoolRadio,
+		"blip",						vcmpEntityPool::vcmpEntityPoolBlip,
+		"checkpoint",				vcmpEntityPool::vcmpEntityPoolCheckPoint
 	);
 }

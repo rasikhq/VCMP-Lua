@@ -984,127 +984,206 @@ void RegisterVCMPCallbacks() {
 	};
 
 	/*** OBJECT ***/
-//	g_Calls->OnObjectShot = [](int32_t objectId, int32_t playerId, int32_t weaponId) {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnObjectShot" << std::endl;
-//#endif
-//		lua_getglobal(LUA, "onObjectShot");
-//		if (lua_isfunction(LUA, -1)) {
-//			lua_pushinteger(LUA, (lua_Integer) objectId);
-//			lua_pushinteger(LUA, (lua_Integer) playerId);
-//			lua_pushinteger(LUA, (lua_Integer) weaponId);
-//			VerifyLua(LUA, lua_pcall(LUA, 3, 0, 0));
-//		}
-//		else { lua_pop(LUA, -1); }
-//	};
-//	g_Calls->OnObjectTouched = [](int32_t objectId, int32_t playerId) {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnObjectTouched" << std::endl;
-//#endif
-//		lua_getglobal(LUA, "onObjectTouched");
-//		if (lua_isfunction(LUA, -1)) {
-//			lua_pushinteger(LUA, (lua_Integer) objectId);
-//			lua_pushinteger(LUA, (lua_Integer) playerId);
-//			VerifyLua(LUA, lua_pcall(LUA, 2, 0, 0));
-//		}
-//		else { lua_pop(LUA, -1); }
-//	};
-//
+	g_Calls->OnObjectShot = [](int32_t objectId, int32_t playerId, int32_t weaponId) {
+		spdlog::debug("OnObjectShot");
+
+		auto handlers = EventManager::GetHandlers("onObjectShot");
+		if (handlers.size() == 0) return;
+		try {
+			Object* object = Object::Get(objectId);
+			Player* player = Player::Get(playerId);
+			for (auto fn : handlers) {
+				sol::function_result r = fn(object, player, weaponId);
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
+	};
+
+	g_Calls->OnObjectTouched = [](int32_t objectId, int32_t playerId) {
+		spdlog::debug("OnObjectTouched");
+
+		auto handlers = EventManager::GetHandlers("onObjectTouch");
+		if (handlers.size() == 0) return;
+		try {
+			Object* object = Object::Get(objectId);
+			Player* player = Player::Get(playerId);
+			for (auto fn : handlers) {
+				sol::function_result r = fn(object, player);
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
+	};
+
 	/*** PICKUP ***/
-//
-//	g_Calls->OnPickupPickAttempt = [](int32_t pickupId, int32_t playerId) -> uint8_t {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnPickupPickAttempt" << std::endl;
-//#endif
-//		lua_getglobal(LUA, "onPickupPickAttempt");
-//		if (lua_isfunction(LUA, -1)) {
-//			lua_pushinteger(LUA, (lua_Integer) pickupId);
-//			lua_pushinteger(LUA, (lua_Integer) playerId);
-//			if (VerifyLua(LUA, lua_pcall(LUA, 2, 0, 0))) {
-//				lua_Integer returnValue = Lua::GetInteger();
-//				return (returnValue == NULL ? 1 : (uint8_t) returnValue);
-//			}
-//		}
-//		else { lua_pop(LUA, -1); }
-//		return (uint8_t) 1;
-//	};
-//	g_Calls->OnPickupPicked = [](int32_t pickupId, int32_t playerId) {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnPickupPicked" << std::endl;
-//#endif
-//		lua_getglobal(LUA, "onPickupPicked");
-//		if (lua_isfunction(LUA, -1)) {
-//			lua_pushinteger(LUA, (lua_Integer) pickupId);
-//			lua_pushinteger(LUA, (lua_Integer) playerId);
-//			VerifyLua(LUA, lua_pcall(LUA, 2, 0, 0));
-//		}
-//		else { lua_pop(LUA, -1); }
-//	};
-//	g_Calls->OnPickupRespawn = [](int32_t pickupId) {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnPickupRespawn" << std::endl;
-//#endif
-//		lua_getglobal(LUA, "onPickupRespawn");
-//		if (lua_isfunction(LUA, -1)) {
-//			lua_pushinteger(LUA, (lua_Integer) pickupId);
-//			VerifyLua(LUA, lua_pcall(LUA, 1, 0, 0));
-//		}
-//		else { lua_pop(LUA, -1); }
-//	};
-//
+	g_Calls->OnPickupPickAttempt = [](int32_t pickupId, int32_t playerId) -> uint8_t {
+		spdlog::debug("OnPickupPickAttempt");
+
+		auto handlers = EventManager::GetHandlers("onPickupPickAttempt");
+		if (handlers.size() == 0) return;
+		uint8_t ret = 1;
+		try {
+			Pickup* pickup = Pickup::Get(pickupId);
+			Player* player = Player::Get(playerId);
+			for (auto fn : handlers) {
+				sol::function_result r = fn(pickup, player);
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					ret = 0;
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
+		return ret;
+	};
+
+	g_Calls->OnPickupPicked = [](int32_t pickupId, int32_t playerId) {
+		spdlog::debug("OnPickupPicked");
+
+		auto handlers = EventManager::GetHandlers("onPickupPicked");
+		if (handlers.size() == 0) return;
+		try {
+			Pickup* pickup = Pickup::Get(pickupId);
+			Player* player = Player::Get(playerId);
+			for (auto fn : handlers) {
+				sol::function_result r = fn(pickup, player);
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
+	};
+
 	/*** CHECKPOINT ***/
-//
-//	g_Calls->OnCheckpointEntered = [](int32_t checkPointId, int32_t playerId) {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnCheckpointEntered" << std::endl;
-//#endif
-//		lua_getglobal(LUA, "onCheckpointEntered");
-//		if (lua_isfunction(LUA, -1)) {
-//			lua_pushinteger(LUA, (lua_Integer) checkPointId);
-//			lua_pushinteger(LUA, (lua_Integer) playerId);
-//			VerifyLua(LUA, lua_pcall(LUA, 2, 0, 0));
-//		}
-//		else { lua_pop(LUA, -1); }
-//	};
-//	g_Calls->OnCheckpointExited = [](int32_t checkPointId, int32_t playerId) {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnCheckpointExited" << std::endl;
-//#endif
-//		lua_getglobal(LUA, "onCheckpointExited");
-//		if (lua_isfunction(LUA, -1)) {
-//			lua_pushinteger(LUA, (lua_Integer) checkPointId);
-//			lua_pushinteger(LUA, (lua_Integer) playerId);
-//			VerifyLua(LUA, lua_pcall(LUA, 2, 0, 0));
-//		}
-//		else { lua_pop(LUA, -1); }
-//	};
-//
+
+	g_Calls->OnCheckpointEntered = [](int32_t checkPointId, int32_t playerId) {
+		spdlog::debug("OnCheckpointEntered");
+
+		auto handlers = EventManager::GetHandlers("onCheckpointEnter");
+		if (handlers.size() == 0) return;
+		try {
+			Checkpoint* checkpoint = Checkpoint::Get(checkPointId);
+			Player* player = Player::Get(playerId);
+			for (auto fn : handlers) {
+				sol::function_result r = fn(checkpoint, player);
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
+	};
+
+	g_Calls->OnCheckpointExited = [](int32_t checkPointId, int32_t playerId) {
+		spdlog::debug("OnCheckpointExited");
+
+		auto handlers = EventManager::GetHandlers("onCheckpointExi");
+		if (handlers.size() == 0) return;
+		try {
+			Checkpoint* checkpoint = Checkpoint::Get(checkPointId);
+			Player* player = Player::Get(playerId);
+			for (auto fn : handlers) {
+				sol::function_result r = fn(checkpoint, player);
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
+	};
+
 	/*** MISC ***/
-//
-//	g_Calls->OnEntityPoolChange = [](vcmpEntityPool entityType, int32_t entityId, uint8_t isDeleted) {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnEntityPoolChange" << std::endl;
-//#endif
-//		lua_getglobal(LUA, "onEntityPoolChange");
-//		if (lua_isfunction(LUA, -1)) {
-//			lua_pushinteger(LUA, (lua_Integer) entityType);
-//			lua_pushinteger(LUA, (lua_Integer) entityId);
-//			lua_pushinteger(LUA, (lua_Integer) isDeleted);
-//			VerifyLua(LUA, lua_pcall(LUA, 3, 0, 0));
-//		}
-//		else { lua_pop(LUA, -1); }
-//	};
-//	g_Calls->OnServerPerformanceReport = [](size_t entryCount, const char** descriptions, uint64_t* times) {
-//#ifdef DEBUG_ENABLED
-//		std::cout << "OnServerPerformanceReport" << std::endl;
-//#endif
-//		lua_getglobal(LUA, "onServerPerformanceReport");
-//		if (lua_isfunction(LUA, -1)) {
-//			lua_pushinteger(LUA, (lua_Integer) entryCount);
-//			lua_pushstring(LUA, *descriptions);
-//			lua_pushinteger(LUA, (lua_Integer) entryCount);
-//			VerifyLua(LUA, lua_pcall(LUA, 3, 0, 0));
-//		}
-//		else { lua_pop(LUA, -1); }
-//	};
+	g_Calls->OnEntityPoolChange = [](vcmpEntityPool entityType, int32_t entityId, uint8_t isDeleted) {
+		spdlog::debug("OnEntityPoolChange");
+
+		auto handlers = EventManager::GetHandlers("onEntityPoolChange");
+		if (handlers.size() == 0) return;
+		try {
+			for (auto fn : handlers) {
+				sol::function_result r = fn(entityType, entityId, static_cast<bool>(isDeleted));
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
+	};
+
+	g_Calls->OnServerPerformanceReport = [](size_t entryCount, const char** descriptions, uint64_t* times) {
+		spdlog::debug("OnServerPerformanceReport");
+
+		auto handlers = EventManager::GetHandlers("onServerPerformanceReport");
+		if (handlers.size() == 0) return;
+		try {
+			for (auto fn : handlers) {
+				sol::function_result r = fn(entryCount, descriptions, *times);
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
+	};
 }
