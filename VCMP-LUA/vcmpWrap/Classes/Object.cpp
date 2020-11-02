@@ -245,6 +245,8 @@ void Object::Init(sol::state* L) {
 
 	/*** PROPERTIES ***/
 	userdata["world"] = sol::property(&Object::getWorld, &Object::setWorld);
+	userdata["trackShots"] = sol::property(&Object::getShotReports, &Object::setShotReports);
+	userdata["trackTouch"] = sol::property(&Object::getBumpReports, &Object::setBumpReports);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	userdata["position"] = sol::property(&Object::getPosition, &Object::setPosition);

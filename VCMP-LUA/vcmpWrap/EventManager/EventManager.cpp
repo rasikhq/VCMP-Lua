@@ -43,6 +43,22 @@ std::unordered_map<std::string, std::vector<sol::function>> EventManager::m_Hand
 	{"onVehicleUpdate", {}},
 	{"onVehicleExplode", {}},
 	{"onVehicleRespawn", {}},
+
+	/*** OBJECTS ***/
+	{"onObjectShot", {}},
+	{"onObjectTouch", {}},
+
+	/*** PICKUPS ***/
+	{"onPickupPickAttempt", {}},
+	{"onPickupPicked", {}},
+
+	/*** CHECKPOINTS ***/
+	{"onCheckpointEnter", {}},
+	{"onCheckpointExit", {}},
+
+	/*** MISC ***/
+	{"onEntityPoolChange", {}},
+	{"onServerPerformanceReport", {}},
 };
 
 bool EventManager::m_bWasEventCancelled = false;

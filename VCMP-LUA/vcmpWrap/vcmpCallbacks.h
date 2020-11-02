@@ -1089,7 +1089,6 @@ void RegisterVCMPCallbacks() {
 	};
 
 	/*** CHECKPOINT ***/
-
 	g_Calls->OnCheckpointEntered = [](int32_t checkPointId, int32_t playerId) {
 		spdlog::debug("OnCheckpointEntered");
 
@@ -1118,7 +1117,7 @@ void RegisterVCMPCallbacks() {
 	g_Calls->OnCheckpointExited = [](int32_t checkPointId, int32_t playerId) {
 		spdlog::debug("OnCheckpointExited");
 
-		auto handlers = EventManager::GetHandlers("onCheckpointExi");
+		auto handlers = EventManager::GetHandlers("onCheckpointExit");
 		if (handlers.size() == 0) return;
 		try {
 			Checkpoint* checkpoint = Checkpoint::Get(checkPointId);

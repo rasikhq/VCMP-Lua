@@ -163,6 +163,7 @@ void Checkpoint::Init(sol::state* L) {
 	userdata["world"] = sol::property(&Checkpoint::getWorld, &Checkpoint::setWorld);
 	userdata["radius"] = sol::property(&Checkpoint::getRadius, &Checkpoint::setRadius);
 	userdata["color"] = sol::property(&Checkpoint::getColor, &Checkpoint::setColor);
+	userdata["alpha"] = sol::property(&Checkpoint::getAlpha, &Checkpoint::setAlpha);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	userdata["position"] = sol::property(&Checkpoint::getPosition, &Checkpoint::setPosition);
