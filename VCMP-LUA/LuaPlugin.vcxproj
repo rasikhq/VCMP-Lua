@@ -49,17 +49,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin\Release32-windows-x86\LuaPlugin\</OutDir>
     <IntDir>..\bin\interm\Release32-windows-x86\LuaPlugin\</IntDir>
-    <TargetName>luaplugin_x86</TargetName>
+    <TargetName>LuaPlugin_x86</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin\Release-windows-x86_64\LuaPlugin\</OutDir>
     <IntDir>..\bin\interm\Release-windows-x86_64\LuaPlugin\</IntDir>
-    <TargetName>luaplugin_x64</TargetName>
+    <TargetName>LuaPlugin_x64</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
@@ -68,14 +68,22 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <Optimization>Disabled</Optimization>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>MariaDBClient.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>MariaDBClient32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>modules\mariadb\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ImportLibrary>..\bin\Release32-windows-x86\LuaPlugin\luaplugin_x86.lib</ImportLibrary>
+      <ImportLibrary>..\bin\Release32-windows-x86\LuaPlugin\LuaPlugin_x86.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -99,13 +107,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>MariaDBClient.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>modules\mariadb\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ImportLibrary>..\bin\Release-windows-x86_64\LuaPlugin\luaplugin_x64.lib</ImportLibrary>
+      <ImportLibrary>..\bin\Release-windows-x86_64\LuaPlugin\LuaPlugin_x64.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="vcmpWrap\Classes\Bind.h" />
-    <ClInclude Include="vcmpWrap\Classes\Pickup.h" />
-    <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />
+    <ClInclude Include="vcmpWrap\Modules\Crypto\Hash.h" />
     <ClInclude Include="include\ConvertUTF.h" />
     <ClInclude Include="include\SimpleIni.h" />
     <ClInclude Include="include\utility.h" />
@@ -128,7 +134,10 @@
     <ClInclude Include="modules\mariadb\include\mariadb++\transaction.hpp" />
     <ClInclude Include="modules\mariadb\include\mariadb++\types.hpp" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="vcmpWrap\Classes\Bind.h" />
+    <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />
     <ClInclude Include="vcmpWrap\Classes\Object.h" />
+    <ClInclude Include="vcmpWrap\Classes\Pickup.h" />
     <ClInclude Include="vcmpWrap\Classes\Player.h" />
     <ClInclude Include="vcmpWrap\Classes\Server.h" />
     <ClInclude Include="vcmpWrap\Classes\Stream.h" />
@@ -145,13 +154,14 @@
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="vcmpWrap\Classes\Bind.cpp" />
-    <ClCompile Include="vcmpWrap\Classes\Pickup.cpp" />
-    <ClCompile Include="vcmpWrap\Classes\Checkpoint.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\Crypto\Hash.cpp" />
     <ClCompile Include="include\ConvertUTF.c" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Bind.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Checkpoint.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Object.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Pickup.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Player.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Server.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Stream.cpp" />
@@ -169,6 +179,9 @@
     </ProjectReference>
     <ProjectReference Include="vendor\Lua\Lua.vcxproj">
       <Project>{A705880B-130F-887C-9C8A-9E7C0893937C}</Project>
+    </ProjectReference>
+    <ProjectReference Include="modules\crypto\module-crypto.vcxproj">
+      <Project>{193CBA34-85FC-356B-4E37-7FE8BAB67A47}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

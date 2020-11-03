@@ -9,11 +9,17 @@ includedirs
 	"include/mysql",
 }
 
-configuration "windows"
+filter {"system:windows"}
+	libdirs { "lib" }
+
+filter {"system:windows", "Release32"}
+	links { "MariaDBClient32.lib" }
+
+filter {"system:windows", "Release"}
 	links { "MariaDBClient.lib" }
 
-configuration "linux"
-	filter "configurations:Release32"
-		linkoptions { "-L modules/mariadb/lib/mariadbclient32.a" }
-	filter "configurations:Release"
-		linkoptions { "-L xmodules/mariadb/lib/mariadbclient.a" }
+filter {"system:not windows", "Release32"}
+	linkoptions { "-L modules/mariadb/lib/mariadbclient32.a" }
+
+filter {"system:not windows", "Release"}
+	linkoptions { "-L modules/mariadb/lib/mariadbclient.a" }

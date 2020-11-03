@@ -103,7 +103,16 @@
       <Filter>modules\mariadb\include\mariadb++</Filter>
     </ClInclude>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="vcmpWrap\Classes\Bind.h">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Classes\Checkpoint.h">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClInclude>
     <ClInclude Include="vcmpWrap\Classes\Object.h">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="vcmpWrap\Classes\Pickup.h">
       <Filter>vcmpWrap\Classes</Filter>
     </ClInclude>
     <ClInclude Include="vcmpWrap\Classes\Player.h">
@@ -148,9 +157,7 @@
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h">
       <Filter>vcmpWrap</Filter>
     </ClInclude>
-    <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />
-    <ClInclude Include="vcmpWrap\Classes\Pickup.h" />
-    <ClInclude Include="vcmpWrap\Classes\Bind.h" />
+    <ClInclude Include="vcmpWrap\Modules\Crypto\Hash.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
@@ -158,7 +165,16 @@
       <Filter>include</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Bind.cpp">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Classes\Checkpoint.cpp">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClCompile>
     <ClCompile Include="vcmpWrap\Classes\Object.cpp">
+      <Filter>vcmpWrap\Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="vcmpWrap\Classes\Pickup.cpp">
       <Filter>vcmpWrap\Classes</Filter>
     </ClCompile>
     <ClCompile Include="vcmpWrap\Classes\Player.cpp">
@@ -191,8 +207,6 @@
     <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp">
       <Filter>vcmpWrap\Timer</Filter>
     </ClCompile>
-    <ClCompile Include="vcmpWrap\Classes\Checkpoint.cpp" />
-    <ClCompile Include="vcmpWrap\Classes\Pickup.cpp" />
-    <ClCompile Include="vcmpWrap\Classes\Bind.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\Crypto\Hash.cpp" />
   </ItemGroup>
 </Project>

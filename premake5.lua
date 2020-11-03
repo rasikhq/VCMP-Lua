@@ -11,7 +11,8 @@
 workspace "VCMPLua"
 	architecture "x86_64"
 	startproject "LuaPlugin"
-	targetname "luaplugin"
+
+	targetname "%{prj.name}"
 	targetprefix "" -- Disable prefix
 	targetsuffix "_x64" -- Default architecture
 
@@ -35,13 +36,17 @@ workspace "VCMPLua"
 		runtime "Debug"
 		symbols "on"
 
-	filter "configurations:Release"
+	filter "configurations:Release*"
 		runtime "Release"
 		optimize "on"
 
 	flags { "MultiProcessorCompile"	}
 	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- Vendors
 include "VCMP-LUA/vendor/Lua"
 include "VCMP-LUA/vendor/spdlog"
+-- External Modules
+include "VCMP-LUA/modules/crypto"
+-- Core
 include "VCMP-LUA"

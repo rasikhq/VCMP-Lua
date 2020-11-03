@@ -15,6 +15,7 @@
 #include "Classes/Pickup.h"
 
 #include "Modules/MariaDB/MySQL.h"
+#include "Modules/Crypto/Hash.h"
 
 void InitGlobals(sol::state*);
 
@@ -31,6 +32,7 @@ void RegisterClasses(sol::state* Lua) {
 
 	// Modules
 	MySQL::Init(Lua);
+	Hash::Init(Lua);
 
 	// Wrap
 	Server::Init(Lua);

@@ -5,7 +5,7 @@ project "LuaPlugin"
 	pic "on"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-    	objdir ("%{wks.location}/bin/interm/" .. outputdir .. "/%{prj.name}")
+    objdir ("%{wks.location}/bin/interm/" .. outputdir .. "/%{prj.name}")
     
 	files
 	{
@@ -31,9 +31,19 @@ project "LuaPlugin"
 		"%{wks.location}/VCMP-LUA/vendor/spdlog/include",
 	}
 
-	links { "spdlog", "Lua" }
+	-- Module(s) files and dirs
+	files
+	{
+		"modules/crypto/vcmpWrap/**.h",
+		"modules/crypto/vcmpWrap/**.cpp",
+	}
+	--
 
-	-- Specify modules
+	links { "spdlog", "Lua" }
+	-- Links external modules
+	links { "module-crypto" }
+
+	-- Specify internal modules (Not project based)
 	include "modules/mariadb"
 
 	filter "system:windows"

@@ -51,24 +51,32 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
     <OutDir>..\..\..\bin\Release32-windows-x86\Lua\</OutDir>
     <IntDir>..\..\..\bin\interm\Release32-windows-x86\Lua\</IntDir>
-    <TargetName>luaplugin_x86</TargetName>
+    <TargetName>Lua_x86</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\..\..\bin\Release-windows-x86_64\Lua\</OutDir>
     <IntDir>..\..\..\bin\interm\Release-windows-x86_64\Lua\</IntDir>
-    <TargetName>luaplugin_x64</TargetName>
+    <TargetName>Lua_x64</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

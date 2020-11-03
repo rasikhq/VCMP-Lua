@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaPlugin", "VCMP-LUA\LuaPl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lua", "VCMP-LUA\vendor\Lua\Lua.vcxproj", "{A705880B-130F-887C-9C8A-9E7C0893937C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "module-crypto", "VCMP-LUA\modules\crypto\module-crypto.vcxproj", "{193CBA34-85FC-356B-4E37-7FE8BAB67A47}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spdlog", "VCMP-LUA\vendor\spdlog\spdlog.vcxproj", "{8EAD431C-7A4F-6EF2-630A-82464F4BF542}"
 EndProject
 Global
@@ -33,6 +35,14 @@ Global
 		{A705880B-130F-887C-9C8A-9E7C0893937C}.Release32|Win32.Build.0 = Release32|Win32
 		{A705880B-130F-887C-9C8A-9E7C0893937C}.Release32|x64.ActiveCfg = Release32|x64
 		{A705880B-130F-887C-9C8A-9E7C0893937C}.Release32|x64.Build.0 = Release32|x64
+		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release|Win32.ActiveCfg = Release|Win32
+		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release|Win32.Build.0 = Release|Win32
+		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release|x64.ActiveCfg = Release|x64
+		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release|x64.Build.0 = Release|x64
+		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release32|Win32.ActiveCfg = Release32|Win32
+		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release32|Win32.Build.0 = Release32|Win32
+		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release32|x64.ActiveCfg = Release32|x64
+		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release32|x64.Build.0 = Release32|x64
 		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Release|Win32.ActiveCfg = Release|Win32
 		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Release|Win32.Build.0 = Release|Win32
 		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Release|x64.ActiveCfg = Release|x64
@@ -46,6 +56,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D1153C2A-7DE5-4EBA-BFFC-881FE60A349C}
+		SolutionGuid = {6A350E77-86D3-48C4-809F-16FBDE1EEABF}
 	EndGlobalSection
 EndGlobal
