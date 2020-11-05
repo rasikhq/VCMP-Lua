@@ -54,6 +54,14 @@ bool Player::isPlayerStreamed(Player* player) const {
 	return false;
 }
 
+void Player::setWeapon(int32_t weapon, int32_t ammo) const {
+	g_Funcs->SetPlayerWeapon(m_ID, weapon, ammo);
+}
+
+void Player::giveWeapon(int32_t weapon, int32_t ammo) const {
+	g_Funcs->GivePlayerWeapon(m_ID, weapon, ammo);
+}
+
 /*** PROPERTIES ***/
 int32_t Player::getID() const {
 	return m_ID;
@@ -324,6 +332,8 @@ void Player::Init(sol::state* L) {
 	userdata["getOption"] = &Player::getOption;
 	userdata["setOption"] = &Player::setOption;
 	userdata["isPlayerStreamed"] = &Player::isPlayerStreamed;
+	userdata["setWeapom"] = &Player::setWeapon;
+	userdata["giveWeapon"] = &Player::giveWeapon;
 
 	/*** READ-ONLY ***/
 	userdata.set("getType", &Player::getType);

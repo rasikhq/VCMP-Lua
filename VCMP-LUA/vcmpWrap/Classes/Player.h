@@ -40,6 +40,8 @@ public:
 	bool isCrouching() const;
 	float getFPS() const;
 	void getModules() const;
+	void setWeapon(int32_t, int32_t) const;
+	void giveWeapon(int32_t, int32_t) const;
 
 	/*** PROPERTIES ***/
 	bool getAdmin() const;
