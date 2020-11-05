@@ -28,6 +28,8 @@ script=some/directory/myScript.lua
 ## Windows
 To build on Windows, just download the repository and run the win-build.bat file in the premake folder. You should be getting a Visual Studio 2019 solution file
 
+**NOTE: You can only build x64 of Lua plugin on Windows for now. Why? Cuz I'm too lazy to setup my environment to compile mariadb for x32 :D**
+
 ## Linux
 To build on Linux:
 * Download/Clone the repository
