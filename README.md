@@ -1,0 +1,36 @@
+# VCMP Lua Plugin
+
+As the name suggests, this plugin provides a scripting API for VCMP in Lua (yay!). Please check out the [WIKI](https://github.com/DizzasTeR/VCMP-Lua/wiki) to learn
+about the structure of the plugin (its quite easy!)
+
+## Purpose of this project
+The purpose of this project is mainly that I love Lua, and I also love C++, therefore to keep my practice in C++ I decided to work on this plugin with one of my
+favorite scripting languages (Lua).
+
+# The Lua config file
+In your server directory you should place a **luaconfig.ini** file which will allow you to specify some settings the plugin can use. Some of these settings are
+optional while some (like specifying atleast 1 script file) is compulsory.
+
+The file structure is as of right now very simple:
+```ini
+[config]
+loglevel=0                  # Sets the log level, See the Logger page on Wiki for more information
+logfile=DailyLogs.logs      # Sets the log file. This log file will be used to create daily logs and it will log everything logged by Logger class, regardless of level
+
+[scripts]
+# This is the scripts section, here you can specify all your script files that you want to run.
+
+script=YourScript.lua
+script=some/directory/myScript.lua
+```
+
+# Building the plugin
+## Windows
+To build on Windows, just download the repository and run the win-build.bat file in the premake folder. You should be getting a Visual Studio 2019 solution file
+
+## Linux
+To build on Linux:
+* Download/Clone the repository
+* Download premake and build it
+* Inside the repository, call premake: `path/to/premake5 gmake`
+* Now use `make` with your desired `config`: `make config=release` OR `make config=release32`
