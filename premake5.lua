@@ -28,6 +28,7 @@ workspace "VCMPLua"
 	filter "configurations:*32"
 		architecture "x86"
 		targetsuffix "_x86"
+		defines {"_x32"}
 
 	filter "system:windows"
 		systemversion "latest"
