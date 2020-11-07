@@ -1331,9 +1331,7 @@ void Server::Init(sol::state* L) {
 	);
 
 #ifdef _x32
-	ServerTable["tickCount"] = []() -> uint32_t {
-		return static_cast<uint32_t>(GetCurrentSysTime());
-	};
+	usertype["tick"] = sol::property([]() -> uint32_t { return static_cast<uint32_t>(GetCurrentSysTime()) });
 #else
 	usertype["tick"] = sol::property([]() -> uint64_t { return GetCurrentSysTime(); });
 #endif
