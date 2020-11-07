@@ -2,6 +2,7 @@
 #include "pch.h"
 
 class Vehicle;
+class Object;
 
 class Player {
 public:
@@ -23,8 +24,11 @@ public:
 	bool getOption(vcmpPlayerOption) const;
 	void setOption(vcmpPlayerOption, bool);
 	bool isPlayerStreamed(Player*) const;
+	void playSound(int32_t) const;
+	void playSound3D(int32_t) const; // Player's position
+	void playSound3DEx(int32_t, sol::table) const;
+	void playSound3DEx2(int32_t, float, float, float) const;
 
-	/*** READ-ONLY ***/
 	std::string getIP();
 	std::string getUID();
 	std::string getUID2();
@@ -34,14 +38,40 @@ public:
 	int32_t getUniqueWorld() const;
 	int32_t getClass() const;
 	int32_t getPing() const;
+	int32_t getAction() const;
+	int32_t getAmmo(int32_t) const;
+	int32_t getVehicleSlot() const;
+	int32_t getVehicleStatus() const;
+	int32_t getWeapon() const;
+	sol::as_table_t<std::vector<float>> getAimPos() const;
+	sol::as_table_t<std::vector<float>> getAimDir() const;
+
 	bool isOnline() const;
 	bool isSpawned() const;
 	bool isTyping() const;
 	bool isCrouching() const;
+	bool isCameraLocked() const;
+
+	Object* isStandingOnObject() const;
+	Vehicle* isStandingOnVehicle() const;
+
 	float getFPS() const;
 	void getModules() const;
+
 	void setWeapon(int32_t, int32_t) const;
 	void giveWeapon(int32_t, int32_t) const;
+
+	void setAnimationCompact(int32_t) const;
+	void setAnimation(int32_t, int32_t) const;
+
+	void redirect(const std::string&, uint32_t, const std::string&) const;
+	void restoreCamera() const;
+	void selectClass() const;
+	void eject() const;
+	void setCam(sol::table, sol::table) const;
+
+	void kick() const;
+	void ban() const;
 
 	/*** PROPERTIES ***/
 	bool getAdmin() const;
@@ -58,9 +88,9 @@ public:
 	float getHP() const;
 	float getArmour() const;
 	std::string getName() const;
-	void* getSpectateTarget() const;
+	Player* getSpectateTarget() const;
 	Vehicle* getVehicle() const;
-	
+
 	/***  ***/
 
 	void setAdmin(bool);
@@ -73,12 +103,13 @@ public:
 	void setScore(int32_t);
 	void setWantedLevel(int32_t);
 	void setWeaponSlot(int32_t);
-	void setSpectateTarget(void*);
+	void setSpectateTarget(Player*);
 	void setImmunity(uint32_t);
 	void setHP(float);
 	void setArmour(float);
 	void setName(const std::string&);
-	void setVehicle(void*);
+	void setVehicle(Vehicle*);
+	void setVehicleWithSlot(Vehicle*, int32_t);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	inline const char* getType() { return Player::getStaticType(); }

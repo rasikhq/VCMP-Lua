@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Vehicle.h"
+#include "Object.h"
 
 extern PluginFuncs* g_Funcs;
 extern sol::state Lua;
@@ -54,31 +55,34 @@ bool Player::isPlayerStreamed(Player* player) const {
 	return false;
 }
 
-void Player::setWeapon(int32_t weapon, int32_t ammo) const {
-	g_Funcs->SetPlayerWeapon(m_ID, weapon, ammo);
+void Player::playSound(int32_t sound) const
+{
+	g_Funcs->PlaySound(getWorld(), sound, NAN, NAN, NAN);
 }
 
-void Player::giveWeapon(int32_t weapon, int32_t ammo) const {
-	g_Funcs->GivePlayerWeapon(m_ID, weapon, ammo);
+void Player::playSound3D(int32_t sound) const
+{
+	float x, y, z;
+	g_Funcs->GetPlayerPosition(m_ID, &x, &y, &z);
+	g_Funcs->PlaySound(getWorld(), sound, x, y, z);
 }
 
-/*** PROPERTIES ***/
+void Player::playSound3DEx(int32_t sound, sol::table position) const
+{
+	g_Funcs->PlaySound(getWorld(), sound, position[1], position[2], position[3]);
+}
+
+void Player::playSound3DEx2(int32_t sound, float x, float y, float z) const
+{
+	g_Funcs->PlaySound(getWorld(), sound, x, y, z);
+}
+
 int32_t Player::getID() const {
 	return m_ID;
 }
 
 bool Player::isOnline() const {
 	return static_cast<bool>(g_Funcs->IsPlayerConnected(m_ID));
-}
-
-bool Player::getAdmin() const {
-	return static_cast<bool>(g_Funcs->IsPlayerAdmin(m_ID));
-}
-
-void Player::setAdmin(bool toggle) {
-	if (getAdmin() == toggle)
-		return;
-	g_Funcs->SetPlayerAdmin(m_ID, static_cast<uint8_t>(toggle));
 }
 
 std::string Player::getIP() {
@@ -127,16 +131,140 @@ bool Player::isCrouching() const {
 	return static_cast<bool>(g_Funcs->IsPlayerCrouching(m_ID));
 }
 
+bool Player::isCameraLocked() const
+{
+	return g_Funcs->IsCameraLocked(m_ID);
+}
+
 int32_t Player::getPing() const {
 	return g_Funcs->GetPlayerPing(m_ID);
 }
 
+int32_t Player::getAction() const
+{
+	return g_Funcs->GetPlayerAction(m_ID);
+}
+
+int32_t Player::getAmmo(int32_t slot) const
+{
+	return g_Funcs->GetPlayerAmmoAtSlot(m_ID, slot);
+}
+
+int32_t Player::getVehicleSlot() const
+{
+	return g_Funcs->GetPlayerInVehicleSlot(m_ID);
+}
+
+int32_t Player::getVehicleStatus() const
+{
+	return g_Funcs->GetPlayerInVehicleStatus(m_ID);
+}
+
+int32_t Player::getWeapon() const
+{
+	return g_Funcs->GetPlayerWeapon(m_ID);
+}
+
+sol::as_table_t<std::vector<float>> Player::getAimPos() const
+{
+	float x, y, z;
+	g_Funcs->GetPlayerAimPosition(m_ID, &x, &y, &z);
+	std::vector<float> position = { x, y, z };
+	return sol::as_table(position);
+}
+
+sol::as_table_t<std::vector<float>> Player::getAimDir() const
+{
+	float x, y, z;
+	g_Funcs->GetPlayerAimDirection(m_ID, &x, &y, &z);
+	std::vector<float> direction = { x, y, z };
+	return sol::as_table(direction);
+}
+
+Object* Player::isStandingOnObject() const
+{
+	return Object::Get(g_Funcs->GetPlayerStandingOnObject(m_ID));
+}
+
+Vehicle* Player::isStandingOnVehicle() const
+{
+	return Vehicle::Get(g_Funcs->GetPlayerStandingOnVehicle(m_ID));;
+}
+
 float Player::getFPS() const {
-	return (float) g_Funcs->GetPlayerFPS(m_ID);
+	return (float)g_Funcs->GetPlayerFPS(m_ID);
 }
 
 void Player::getModules() const {
 	g_Funcs->GetPlayerModuleList(m_ID);
+}
+
+void Player::setWeapon(int32_t weapon, int32_t ammo) const {
+	g_Funcs->SetPlayerWeapon(m_ID, weapon, ammo);
+}
+
+void Player::giveWeapon(int32_t weapon, int32_t ammo) const {
+	g_Funcs->GivePlayerWeapon(m_ID, weapon, ammo);
+}
+
+void Player::setAnimationCompact(int32_t animation) const
+{
+	g_Funcs->SetPlayerAnimation(m_ID, 0, animation);
+}
+
+void Player::setAnimation(int32_t group, int32_t animation) const
+{
+	g_Funcs->SetPlayerAnimation(m_ID, group, animation);
+}
+
+void Player::redirect(const std::string& ip, uint32_t port, const std::string& serverPassword) const
+{
+	g_Funcs->RedirectPlayerToServer(m_ID, ip.c_str(), port, getName().c_str(), serverPassword.c_str(), "");
+}
+
+void Player::restoreCamera() const
+{
+	g_Funcs->RestoreCamera(m_ID);
+}
+
+void Player::selectClass() const
+{
+	g_Funcs->ForcePlayerSelect(m_ID);
+}
+
+void Player::eject() const
+{
+	g_Funcs->RemovePlayerFromVehicle(m_ID);
+}
+
+void Player::setCam(sol::table position, sol::table lookAt) const
+{
+	if (position.size() < 3) {
+		spdlog::error("Player::setCam: Invalid position!");
+		return;
+	}
+	g_Funcs->SetCameraPosition(m_ID, position[1], position[2], position[3], lookAt.get_or<float>(1, position[1]), lookAt.get_or<float>(2, position[2]), lookAt.get_or<float>(3, position[3]));
+}
+
+void Player::kick() const 
+{
+	g_Funcs->KickPlayer(m_ID);
+}
+
+void Player::ban() const
+{
+	g_Funcs->BanPlayer(m_ID);
+}
+
+/*** PROPERTIES ***/
+bool Player::getAdmin() const {
+	return static_cast<bool>(g_Funcs->IsPlayerAdmin(m_ID));
+}
+
+void Player::setAdmin(bool toggle) {
+	if (getAdmin() == toggle)
+		return;
+	g_Funcs->SetPlayerAdmin(m_ID, static_cast<uint8_t>(toggle));
 }
 
 int32_t Player::getWorld() const {
@@ -269,8 +397,12 @@ Vehicle* Player::getVehicle() const {
 	return vehicle;
 }
 
-void Player::setVehicle(void* vehicle) {
-	g_Funcs->PutPlayerInVehicle(m_ID, static_cast<Vehicle*>(vehicle)->getID(), 0, 1, 1);
+void Player::setVehicle(Vehicle* vehicle) {
+	g_Funcs->PutPlayerInVehicle(m_ID, vehicle->getID(), 0, 1, 1);
+}
+
+void Player::setVehicleWithSlot(Vehicle* vehicle, int32_t slot) {
+	g_Funcs->PutPlayerInVehicle(m_ID, vehicle->getID(), slot, 1, 1);
 }
 
 int32_t Player::getWeaponSlot() const {
@@ -281,14 +413,13 @@ void Player::setWeaponSlot(int32_t slot) {
 	g_Funcs->SetPlayerWeaponSlot(m_ID, slot);
 }
 
-void* Player::getSpectateTarget() const {
+Player* Player::getSpectateTarget() const {
 	auto id = g_Funcs->GetPlayerSpectateTarget(m_ID);
-	auto player = Player::Get(id);
-	return (Player*)player;
+	return Player::Get(id);
 }
 
-void Player::setSpectateTarget(void* player) {
-	g_Funcs->SetPlayerSpectateTarget(m_ID, static_cast<Player*>(player)->getID());
+void Player::setSpectateTarget(Player* target) {
+	g_Funcs->SetPlayerSpectateTarget(m_ID, target->getID());
 }
 
 /*** COMMON PROPERTIES ***/
@@ -332,8 +463,16 @@ void Player::Init(sol::state* L) {
 	userdata["getOption"] = &Player::getOption;
 	userdata["setOption"] = &Player::setOption;
 	userdata["isPlayerStreamed"] = &Player::isPlayerStreamed;
+	userdata["playSound"] = &Player::playSound;
+	userdata["playSound3D"] = sol::overload(&Player::playSound3D, &Player::playSound3DEx, &Player::playSound3DEx2);
 	userdata["setWeapom"] = &Player::setWeapon;
 	userdata["giveWeapon"] = &Player::giveWeapon;
+	userdata["setVehicle"] = sol::overload(&Player::setVehicle, &Player::setVehicleWithSlot);
+	userdata["redirect"] = &Player::redirect;
+	userdata["restoreCamera"] = &Player::restoreCamera;
+	userdata["selectClass"] = &Player::selectClass;
+	userdata["setAnimation"] = sol::overload(&Player::setAnimationCompact, &Player::setAnimation);
+	userdata["eject"] = &Player::eject;
 
 	/*** READ-ONLY ***/
 	userdata.set("getType", &Player::getType);
@@ -370,6 +509,29 @@ void Player::Init(sol::state* L) {
 	userdata["vehicle"] = sol::property(&Player::getVehicle, &Player::setVehicle);
 	userdata["weaponSlot"] = sol::property(&Player::getWeaponSlot, &Player::setWeaponSlot);
 	userdata["spectateTarget"] = sol::property(&Player::getSpectateTarget, &Player::setSpectateTarget);
+
+	userdata["id"] = sol::property(&Player::getID);
+	userdata["online"] = sol::property(&Player::isOnline);
+	userdata["spawned"] = sol::property(&Player::isSpawned);
+	userdata["typing"] = sol::property(&Player::isTyping);
+	userdata["crouching"] = sol::property(&Player::isCrouching);
+	userdata["cameraLocked"] = sol::property(&Player::isCameraLocked);
+	userdata["ip"] = sol::property(&Player::getIP);
+	userdata["uid"] = sol::property(&Player::getUID);
+	userdata["uid2"] = sol::property(&Player::getUID2);
+	userdata["key"] = sol::property(&Player::getKey);
+	userdata["state"] = sol::property(&Player::getState);
+	userdata["uniqueWorld"] = sol::property(&Player::getUniqueWorld);
+	userdata["class"] = sol::property(&Player::getClass);
+	userdata["ping"] = sol::property(&Player::getPing);
+	userdata["fps"] = sol::property(&Player::getFPS);
+	userdata["action"] = sol::property(&Player::getAction);
+	userdata["ammo"] = sol::property(&Player::getAmmo);
+	userdata["vehicleSlot"] = sol::property(&Player::getVehicleSlot);
+	userdata["vehicleStatus"] = sol::property(&Player::getVehicleStatus);
+	userdata["weapon"] = sol::property(&Player::getWeapon);
+	userdata["aimDirection"] = sol::property(&Player::getAimDir);
+	userdata["aimPosition"] = sol::property(&Player::getAimPos);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	userdata["position"] = sol::property(&Player::getPosition, &Player::setPosition);

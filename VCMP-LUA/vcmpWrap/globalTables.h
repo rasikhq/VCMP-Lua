@@ -170,6 +170,13 @@ void InitGlobals(sol::state* Lua) {
 		"drunkEffects",				vcmpPlayerOption::vcmpPlayerOptionDrunkEffects
 	);
 
+	Lua->new_enum("PlayerVehicle",
+		"outside", vcmpPlayerVehicle::vcmpPlayerVehicleOut,
+		"entering", vcmpPlayerVehicle::vcmpPlayerVehicleEntering,
+		"exiting", vcmpPlayerVehicle::vcmpPlayerVehicleExiting,
+		"inside", vcmpPlayerVehicle::vcmpPlayerVehicleIn
+	);
+
 	/*** VEHICLE CONSTANTS ***/
 	Lua->new_enum("VehicleUpdate",
 		"driverSync",				vcmpVehicleUpdate::vcmpVehicleUpdateDriverSync,
