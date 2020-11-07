@@ -1,7 +1,6 @@
 #pragma once
 #include "pch.h"
 #include <math.h>
-#include <vendor\spdlog\include\spdlog\details\os-inl.h>
 
 static inline void raw_split(const std::string& s, char delim, std::vector<std::string>& elems)
 {
