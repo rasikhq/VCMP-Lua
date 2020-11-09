@@ -18,6 +18,7 @@ public:
 
 	/*** @Lua static ***/
 	static inline const char* getStaticType() { return "Object"; }
+	static sol::table getActive();
 
 	/*** CONSTRUCTORS ***/
 	Object(int32_t, int32_t, float, float, float, int32_t = 255);

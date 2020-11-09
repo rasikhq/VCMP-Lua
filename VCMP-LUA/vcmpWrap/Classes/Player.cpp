@@ -29,6 +29,22 @@ void Player::Unregister(Player* player) {
 	}
 }
 
+sol::table Player::getActive(bool spawned)
+{
+	sol::table entities = Lua.create_table_with();
+	for (const auto& entity : s_Players)
+		if(spawned && g_Funcs->IsPlayerSpawned(entity.getID()))
+			entities[entity.getID()] = &entity;
+		else entities[entity.getID()] = &entity;
+	return entities;
+}
+
+void Player::msgAll(const std::string& msg, sol::variadic_args args)
+{
+	for (auto& player : s_Players)
+		player.msg(msg, args);
+}
+
 Player::Player(int32_t id)
 	: m_ID(id) {
 
@@ -36,8 +52,9 @@ Player::Player(int32_t id)
 }
 
 /*** METHODS ***/
-void Player::msg(const std::string& msg) {
-	g_Funcs->SendClientMessage(m_ID, 0xFFFFFFFF, msg.c_str());
+void Player::msg(const std::string& msg, sol::variadic_args args) {
+	int32_t color = args.size() > 0 ? args[0] : 0xFFFFFFFF;
+	g_Funcs->SendClientMessage(m_ID, color, msg.c_str());
 }
 
 bool Player::getOption(vcmpPlayerOption option) const {
@@ -457,6 +474,8 @@ void Player::Init(sol::state* L) {
 	userdata["type"] = &Player::getStaticType;
 	userdata["findByID"] = &Player::Get;
 	userdata["count"] = []() { return s_Players.size(); };
+	userdata["getActive"] = sol::overload([]() -> sol::table { return Player::getActive(false); }, &Player::getActive);
+	userdata["msgAll"] = &Player::msgAll;
 
 	/*** METHODS ***/
 	userdata["msg"] = &Player::msg;

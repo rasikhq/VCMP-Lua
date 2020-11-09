@@ -66,8 +66,8 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_x32;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -81,7 +81,6 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>MariaDBClient32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>modules\mariadb\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Release32-windows-x86\LuaPlugin\LuaPlugin_x86.lib</ImportLibrary>
     </Link>
@@ -91,7 +90,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -105,13 +104,12 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>MariaDBClient.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcrypto_static.lib;libssl_static.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>modules\mariadb\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Release-windows-x86_64\LuaPlugin\LuaPlugin_x64.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="vcmpWrap\Modules\Crypto\Hash.h" />
     <ClInclude Include="include\ConvertUTF.h" />
     <ClInclude Include="include\SimpleIni.h" />
     <ClInclude Include="include\utility.h" />
@@ -133,6 +131,441 @@
     <ClInclude Include="modules\mariadb\include\mariadb++\time_span.hpp" />
     <ClInclude Include="modules\mariadb\include\mariadb++\transaction.hpp" />
     <ClInclude Include="modules\mariadb\include\mariadb++\types.hpp" />
+    <ClInclude Include="modules\mariadb\include\mysql\errmsg.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\ma_list.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\ma_pvio.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\ma_tls.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mariadb\ma_io.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mariadb_com.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mariadb_ctype.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mariadb_dyncol.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mariadb_rpl.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mariadb_stmt.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mariadb_version.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\my_config.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\my_global.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\my_sys.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mysql.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mysql\client_plugin.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mysql\plugin_auth.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mysql\plugin_auth_common.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mysql_com.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mysql_version.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\mysqld_error.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\big_endian.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\byte_order_generic.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\byte_order_generic_x86.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\byte_order_generic_x86_64.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\decimal.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\errmsg.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\handler_ername.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\handler_state.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\json_lib.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\keycache.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\little_endian.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\m_ctype.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\m_string.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\ma_dyncol.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_alloc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_attribute.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_byteorder.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_compiler.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_config.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_dbug.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_decimal_limits.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_dir.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_getopt.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_global.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_list.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_net.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_pthread.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_sys.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_valgrind.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\my_xml.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\auth_dialog_client.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\client_plugin.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\plugin.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\plugin_audit.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\plugin_auth.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\plugin_auth_common.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\plugin_data_type.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\plugin_encryption.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\plugin_ftparser.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\plugin_function.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\plugin_password_validation.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_file.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_idle.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_mdl.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_memory.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_ps.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_socket.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_sp.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_stage.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_statement.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_table.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_thread.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\mysql_transaction.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\psi.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\psi_abi_v0.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\psi_abi_v1.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\psi_abi_v2.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\psi_base.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\psi\psi_memory.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_base64.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_debug_sync.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_encryption.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_encryption_scheme.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_json.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_kill_statement.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_logger.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_md5.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_my_crypt.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_my_print_error.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_my_snprintf.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_progress_report.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_sha1.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_sha2.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_thd_alloc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_thd_autoinc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_thd_error_context.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_thd_mdl.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_thd_rnd.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_thd_specifics.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_thd_timezone.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_thd_wait.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\service_wsrep.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql\services.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql_com.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql_com_server.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql_embed.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql_time.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysql_version.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysqld_ername.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\mysqld_error.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\pack.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\aria_backup.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\assume_aligned.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\atomic\gcc_builtins.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\atomic\generic-msvc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\atomic\solaris.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\authors.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\backup.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\bounded_queue.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\client_settings.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\compat56.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\config.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\contributors.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\create_options.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\custom_conf.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\datadict.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\debug_sync.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\derived_handler.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\derror.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\des_key_file.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\discover.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\dur_prop.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\event_data_objects.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\event_db_repository.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\event_parse_data.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\event_queue.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\event_scheduler.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\events.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\field.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\field_comp.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\filesort.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\filesort_utils.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\ft_global.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\gcalc_slicescan.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\gcalc_tools.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\grant.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\group_by_handler.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\gstream.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\ha_partition.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\ha_sequence.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\handle_connections_win.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\handler.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\hash.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\hash_filo.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\heap.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\hostname.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\ilist.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\init.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\innodb_priv.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_cmpfunc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_create.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_func.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_geofunc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_jsonfunc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_row.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_strfunc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_subselect.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_sum.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_timefunc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_vers.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_windowfunc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\item_xmlfunc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\key.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\keycaches.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\lex.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\lex_string.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\lex_symbol.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\lf.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\lock.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\log.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\log_event.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\log_event_old.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\log_slow.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\maria.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\mariadb.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\mdl.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\mem_root_array.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\message.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\multi_range_read.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_alarm.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_apc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_atomic.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_atomic_wrapper.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_base.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_bit.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_bitmap.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_check_opt.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_compare.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_context.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_counter.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_cpu.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_crypt.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_decimal.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_default.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_handler_errors.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_json_writer.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_libwrap.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_md5.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_nosys.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_rdtsc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_rnd.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_service_manager.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_stack_alloc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_stacktrace.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_time.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_tree.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_uctype.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\my_user.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\myisam.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\myisamchk.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\myisammrg.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\myisampack.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\mysql_async.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\mysqld.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\mysqld_default_groups.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\mysqld_suffix.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\mysys_err.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\nt_servc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\opt_range.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\opt_subselect.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\opt_trace.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\opt_trace_context.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\parse_file.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\partition_element.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\partition_info.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\password.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_file_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_idle_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_memory_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_metadata_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_socket_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_stage_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_statement_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_table_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_thread_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\pfs_transaction_provider.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\privilege.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\probes_mysql.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\probes_mysql_nodtrace.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\procedure.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\protocol.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\proxy_protocol.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\queues.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\records.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\repl_failsafe.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\replication.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rijndael.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rowid_filter.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_constants.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_filter.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_gtid.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_injector.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_mi.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_parallel.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_record.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_record_old.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_reporting.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_rli.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_tblmap.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\rpl_utility.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\scheduler.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\scope.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\select_handler.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\semisync.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\semisync_master.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\semisync_master_ack_receiver.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\semisync_slave.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\service_versions.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\session_tracker.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\set_var.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\slave.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\source_revision.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sp.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sp_cache.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sp_head.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sp_pcontext.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sp_rcontext.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\span.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\spatial.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_acl.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_admin.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_alloc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_alter.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_analyse.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_analyze_stmt.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_array.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_audit.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_base.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_basic_types.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_binlog.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_bitmap.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_bootstrap.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_cache.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_callback.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_class.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_cmd.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_connect.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_const.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_crypt.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_cte.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_cursor.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_db.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_delete.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_derived.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_digest.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_digest_stream.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_do.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_error.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_explain.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_expression_cache.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_get_diagnostics.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_handler.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_help.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_hset.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_i_s.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_insert.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_join_cache.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_lex.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_lifo_buffer.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_limit.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_list.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_load.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_locale.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_manager.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_mode.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_parse.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_partition.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_partition_admin.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_plist.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_plugin.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_plugin_compat.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_prepare.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_priv.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_profile.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_reload.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_rename.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_repl.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_schema.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_select.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_sequence.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_servers.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_show.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_signal.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_sort.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_statistics.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_string.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_table.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_tablespace.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_test.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_time.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_trigger.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_truncate.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_tvc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_type.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_type_geom.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_type_int.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_type_json.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_type_real.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_type_string.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_udf.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_union.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_update.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_view.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sql_window.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\ssl_compat.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\strfunc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\structs.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\sys_vars_shared.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\t_ctype.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\table.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\table_cache.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\thr_alarm.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\thr_lock.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\thr_malloc.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\thr_timer.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\thread_cache.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\thread_pool_priv.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\threadpool.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\threadpool_generic.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\transaction.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\tzfile.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\tztime.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\uniques.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\unireg.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\vers_string.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\violite.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\waiting_threads.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\welcome_copyright_notice.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\win_tzname_data.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\winservice.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wqueue.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_applier.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_binlog.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_client_service.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_client_state.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_condition_variable.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_high_priority_service.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_mutex.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_mysqld.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_mysqld_c.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_priv.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_schema.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_server_service.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_server_state.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_sst.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_storage_service.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_thd.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_trans_observer.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_types.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_utils.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_var.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\wsrep_xid.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\private\xa.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\sql_common.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\sql_state.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\sslopt-case.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\sslopt-longopts.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\sslopt-vars.h" />
+    <ClInclude Include="modules\mariadb\include\mysql\server\typelib.h" />
+    <ClInclude Include="modules\mariadb\src\private.hpp" />
+    <ClInclude Include="modules\mariadb\src\worker.hpp" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="vcmpWrap\Classes\Bind.h" />
     <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />
@@ -145,9 +578,11 @@
     <ClInclude Include="vcmpWrap\Constants.h" />
     <ClInclude Include="vcmpWrap\EventManager\EventManager.h" />
     <ClInclude Include="vcmpWrap\Log\Logger.h" />
+    <ClInclude Include="vcmpWrap\Modules\Crypto\Hash.h" />
     <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQL.h" />
     <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLAccount.h" />
     <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLConnection.h" />
+    <ClInclude Include="vcmpWrap\Modules\SqLite3\SqLite.h" />
     <ClInclude Include="vcmpWrap\Timer\TimerManager.h" />
     <ClInclude Include="vcmpWrap\Timer\vcmpTimer.h" />
     <ClInclude Include="vcmpWrap\globalTables.h" />
@@ -155,10 +590,25 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
-    <ClCompile Include="vcmpWrap\Modules\Crypto\Hash.cpp" />
     <ClCompile Include="include\ConvertUTF.c" />
+    <ClCompile Include="modules\mariadb\src\account.cpp" />
+    <ClCompile Include="modules\mariadb\src\bind.cpp" />
+    <ClCompile Include="modules\mariadb\src\concurrency.cpp" />
+    <ClCompile Include="modules\mariadb\src\connection.cpp" />
+    <ClCompile Include="modules\mariadb\src\date_time.cpp" />
+    <ClCompile Include="modules\mariadb\src\exceptions.cpp" />
+    <ClCompile Include="modules\mariadb\src\last_error.cpp" />
+    <ClCompile Include="modules\mariadb\src\result_set.cpp" />
+    <ClCompile Include="modules\mariadb\src\save_point.cpp" />
+    <ClCompile Include="modules\mariadb\src\statement.cpp" />
+    <ClCompile Include="modules\mariadb\src\time.cpp" />
+    <ClCompile Include="modules\mariadb\src\time_span.cpp" />
+    <ClCompile Include="modules\mariadb\src\transaction.cpp" />
+    <ClCompile Include="modules\mariadb\src\worker.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="vcmpWrap\Classes\Bind.cpp" />
+    <ClCompile Include="vcmpWrap\Classes\Bind.cpp">
+      <ObjectFileName>$(IntDir)\Bind1.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="vcmpWrap\Classes\Checkpoint.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Object.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Pickup.cpp" />
@@ -167,9 +617,11 @@
     <ClCompile Include="vcmpWrap\Classes\Stream.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Vehicle.cpp" />
     <ClCompile Include="vcmpWrap\EventManager\EventManager.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\Crypto\Hash.cpp" />
     <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQL.cpp" />
     <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLAccount.cpp" />
     <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLConnection.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\SqLite3\SqLite.cpp" />
     <ClCompile Include="vcmpWrap\Timer\TimerManager.cpp" />
     <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp" />
   </ItemGroup>
@@ -182,6 +634,9 @@
     </ProjectReference>
     <ProjectReference Include="modules\crypto\module-crypto.vcxproj">
       <Project>{193CBA34-85FC-356B-4E37-7FE8BAB67A47}</Project>
+    </ProjectReference>
+    <ProjectReference Include="modules\sqlite3\module-sqliteCpp.vcxproj">
+      <Project>{8D2AE635-7923-0588-A255-EA0C8EADE493}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

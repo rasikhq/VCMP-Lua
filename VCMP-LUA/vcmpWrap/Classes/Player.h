@@ -15,12 +15,14 @@ public:
 
 	/*** @Lua static ***/
 	static inline const char* getStaticType() { return "Player"; }
+	static sol::table getActive(bool spawned = false);
+	static void msgAll(const std::string& msg, sol::variadic_args args);
 
 	/*** CONSTRUCTORS ***/
 	Player(int32_t id);
 
 	/*** METHODS ***/
-	void msg(const std::string&);
+	void msg(const std::string&, sol::variadic_args);
 	bool getOption(vcmpPlayerOption) const;
 	void setOption(vcmpPlayerOption, bool);
 	bool isPlayerStreamed(Player*) const;

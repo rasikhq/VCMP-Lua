@@ -34,14 +34,21 @@ project "LuaPlugin"
 	-- Module(s) files and dirs
 	files
 	{
+		-- crypto
 		"modules/crypto/vcmpWrap/**.h",
 		"modules/crypto/vcmpWrap/**.cpp",
+	}
+
+	includedirs
+	{
+		-- sqlite
+		"modules/sqlite3/sqliteCpp/include",
 	}
 	--
 
 	links { "spdlog", "Lua" }
 	-- Links external modules
-	links { "module-crypto" }
+	links { "module-crypto", "module-sqliteCpp" }
 
 	-- Specify internal modules (Not project based)
 	include "modules/mariadb"

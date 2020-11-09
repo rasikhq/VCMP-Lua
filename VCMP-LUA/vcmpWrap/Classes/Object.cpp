@@ -2,6 +2,7 @@
 #include "Player.h"
 
 extern PluginFuncs* g_Funcs;
+extern sol::state Lua;
 
 std::vector<Object*> Object::s_Objects;
 
@@ -24,6 +25,14 @@ void Object::Unregister(Object* Object) {
 			break;
 		}
 	}
+}
+
+sol::table Object::getActive()
+{
+	sol::table entities = Lua.create_table_with();
+	for (auto entity : s_Objects)
+		entities[entity->getID()] = entity;
+	return entities;
 }
 
 Object::Object(int32_t model, int32_t world, float x, float y, float z, int32_t alpha)
@@ -228,6 +237,7 @@ void Object::Init(sol::state* L) {
 	userdata["type"] = &Object::getStaticType;
 	userdata["findByID"] = &Object::Get;
 	userdata["count"] = []() { return s_Objects.size(); };
+	userdata["getActive"] = &Object::getActive;
 
 	/*** METHODS ***/
 	userdata["destroy"] = &Object::destroy;

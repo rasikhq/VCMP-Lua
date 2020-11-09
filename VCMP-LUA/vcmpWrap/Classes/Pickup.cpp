@@ -2,6 +2,7 @@
 #include "Player.h"
 
 extern PluginFuncs* g_Funcs;
+extern sol::state Lua;
 
 std::vector<Pickup*> Pickup::s_Pickups;
 
@@ -24,6 +25,14 @@ void Pickup::Unregister(Pickup* Pickup) {
 			break;
 		}
 	}
+}
+
+sol::table Pickup::getActive()
+{
+	sol::table entities = Lua.create_table_with();
+	for (auto entity : s_Pickups)
+		entities[entity->getID()] = entity;
+	return entities;
 }
 
 Pickup::Pickup(int32_t model, int32_t world, int32_t quantity, sol::table position, int32_t alpha, bool automatic)
@@ -152,6 +161,7 @@ void Pickup::Init(sol::state* L) {
 	userdata["type"] = &Pickup::getStaticType;
 	userdata["findByID"] = &Pickup::Get;
 	userdata["count"] = []() { return s_Pickups.size(); };
+	userdata["getActive"] = &Pickup::getActive;
 
 	/*** METHODS ***/
 	userdata["destroy"] = &Pickup::destroy;

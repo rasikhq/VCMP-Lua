@@ -12,6 +12,7 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/daily_file_sink.h>
+#include <spdlog/sinks/ostream_sink.h>
 
 #include <vcmp.h>
 #include <SimpleIni.h>

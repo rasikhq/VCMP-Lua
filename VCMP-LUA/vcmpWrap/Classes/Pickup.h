@@ -15,6 +15,7 @@ public:
 
 	/*** @Lua static ***/
 	static inline const char* getStaticType() { return "Pickup"; }
+	static sol::table getActive();
 
 	/*** CONSTRUCTORS ***/
 	Pickup(int32_t, int32_t, int32_t, sol::table, int32_t, bool);

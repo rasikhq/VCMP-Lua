@@ -2,6 +2,7 @@
 #include "Player.h"
 
 extern PluginFuncs* g_Funcs;
+extern sol::state Lua;
 
 std::vector<Vehicle*> Vehicle::s_Vehicles;
 
@@ -24,6 +25,14 @@ void Vehicle::Unregister(Vehicle* Vehicle) {
 			break;
 		}
 	}
+}
+
+sol::table Vehicle::getActive()
+{
+	sol::table entities = Lua.create_table_with();
+	for (auto entity : s_Vehicles)
+		entities[entity->getID()] = entity;
+	return entities;
 }
 
 Vehicle::Vehicle(int32_t model, int32_t world, float x, float y, float z, float angle, int32_t primaryColor, int32_t secondaryColor) 
@@ -265,6 +274,7 @@ void Vehicle::Init(sol::state* L) {
 	userdata["type"] = &Vehicle::getStaticType;
 	userdata["findByID"] = &Vehicle::Get;
 	userdata["count"] = []() { return s_Vehicles.size(); };
+	userdata["getActive"] = &Vehicle::getActive;
 
 	/*** METHODS ***/
 	userdata["destroy"] = &Vehicle::destroy;

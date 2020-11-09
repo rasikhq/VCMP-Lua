@@ -92,7 +92,6 @@ sol::table MySQLConnection::query(const std::string& query) {
 		int row_id = 0;
 		while (result_set->next()) {
 			row_id++;
-			auto row_index = result_set->row_index();
 			auto column_count = result_set->column_count();
 			auto row = Lua.create_table();
 			for (mariadb::u32 i = 0; i < column_count; i++) {
@@ -150,7 +149,6 @@ sol::table MySQLConnection::queryPrepare(const std::string& query, sol::table ar
 		int row_id = 0;
 		while (result_set->next()) {
 			row_id++;
-			auto row_index = result_set->row_index();
 			auto column_count = result_set->column_count();
 			auto row = Lua.create_table();
 			for (mariadb::u32 i = 0; i < column_count; i++) {

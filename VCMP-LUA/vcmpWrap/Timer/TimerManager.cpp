@@ -43,9 +43,10 @@ void TimerManager::OnFrame(float elapsedTime) {
 				continue;;
 			}
 
+			timer->get()->setLastTick(currentTick);
+
 			if (repeat > 0) {
 				timer->get()->setRepeat(--repeat);
-				timer->get()->setLastTick(currentTick);
 
 				if (repeat == 0)
 					timer->get()->bIsValid = false;

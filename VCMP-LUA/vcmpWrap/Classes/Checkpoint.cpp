@@ -2,6 +2,7 @@
 #include "Player.h"
 
 extern PluginFuncs* g_Funcs;
+extern sol::state Lua;
 
 std::vector<Checkpoint*> Checkpoint::s_Checkpoints;
 
@@ -24,6 +25,14 @@ void Checkpoint::Unregister(Checkpoint* Checkpoint) {
 			break;
 		}
 	}
+}
+
+sol::table Checkpoint::getActive()
+{
+	sol::table entities = Lua.create_table_with();
+	for (auto entity : s_Checkpoints)
+		entities[entity->getID()] = entity;
+	return entities;
 }
 
 Checkpoint::Checkpoint(Player* player, int32_t world, bool isSphere, sol::table position, sol::table color, float radius)
@@ -149,6 +158,7 @@ void Checkpoint::Init(sol::state* L) {
 	userdata["type"] = &Checkpoint::getStaticType;
 	userdata["findByID"] = &Checkpoint::Get;
 	userdata["count"] = []() { return s_Checkpoints.size(); };
+	userdata["getActive"] = &Checkpoint::getActive;
 
 	/*** METHODS ***/
 	userdata["destroy"] = &Checkpoint::destroy;

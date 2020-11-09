@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\SQLiteCpp">
+      <UniqueIdentifier>{4D6EFB32-B984-F9C8-02FC-84EA6E51CA50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\Assertion.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\Backup.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\Column.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\Database.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\Exception.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\ExecuteMany.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\SQLiteCpp.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\Statement.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\Transaction.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\Utils.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="sqliteCpp\include\SQLiteCpp\VariadicBind.h">
+      <Filter>include\SQLiteCpp</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sqliteCpp\src\Backup.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sqliteCpp\src\Column.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sqliteCpp\src\Database.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sqliteCpp\src\Exception.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sqliteCpp\src\Statement.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sqliteCpp\src\Transaction.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

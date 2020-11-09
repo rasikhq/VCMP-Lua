@@ -16,6 +16,7 @@ public:
 
 	/*** @Lua static ***/
 	static inline const char* getStaticType() { return "Checkpoint"; }
+	static sol::table getActive();
 
 	/*** CONSTRUCTORS ***/
 	Checkpoint(Player*, int32_t, bool, sol::table, sol::table, float);

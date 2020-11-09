@@ -9,6 +9,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lua", "VCMP-LUA\vendor\Lua\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "module-crypto", "VCMP-LUA\modules\crypto\module-crypto.vcxproj", "{193CBA34-85FC-356B-4E37-7FE8BAB67A47}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "module-sqlite3", "VCMP-LUA\modules\sqlite3\module-sqlite3.vcxproj", "{5D4C6198-491A-559E-32AE-C5C41E1B3103}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "module-sqliteCpp", "VCMP-LUA\modules\sqlite3\module-sqliteCpp.vcxproj", "{8D2AE635-7923-0588-A255-EA0C8EADE493}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spdlog", "VCMP-LUA\vendor\spdlog\spdlog.vcxproj", "{8EAD431C-7A4F-6EF2-630A-82464F4BF542}"
 EndProject
 Global
@@ -43,6 +47,22 @@ Global
 		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release32|Win32.Build.0 = Release32|Win32
 		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release32|x64.ActiveCfg = Release32|x64
 		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release32|x64.Build.0 = Release32|x64
+		{5D4C6198-491A-559E-32AE-C5C41E1B3103}.Release|Win32.ActiveCfg = Release|Win32
+		{5D4C6198-491A-559E-32AE-C5C41E1B3103}.Release|Win32.Build.0 = Release|Win32
+		{5D4C6198-491A-559E-32AE-C5C41E1B3103}.Release|x64.ActiveCfg = Release|x64
+		{5D4C6198-491A-559E-32AE-C5C41E1B3103}.Release|x64.Build.0 = Release|x64
+		{5D4C6198-491A-559E-32AE-C5C41E1B3103}.Release32|Win32.ActiveCfg = Release32|Win32
+		{5D4C6198-491A-559E-32AE-C5C41E1B3103}.Release32|Win32.Build.0 = Release32|Win32
+		{5D4C6198-491A-559E-32AE-C5C41E1B3103}.Release32|x64.ActiveCfg = Release32|x64
+		{5D4C6198-491A-559E-32AE-C5C41E1B3103}.Release32|x64.Build.0 = Release32|x64
+		{8D2AE635-7923-0588-A255-EA0C8EADE493}.Release|Win32.ActiveCfg = Release|Win32
+		{8D2AE635-7923-0588-A255-EA0C8EADE493}.Release|Win32.Build.0 = Release|Win32
+		{8D2AE635-7923-0588-A255-EA0C8EADE493}.Release|x64.ActiveCfg = Release|x64
+		{8D2AE635-7923-0588-A255-EA0C8EADE493}.Release|x64.Build.0 = Release|x64
+		{8D2AE635-7923-0588-A255-EA0C8EADE493}.Release32|Win32.ActiveCfg = Release32|Win32
+		{8D2AE635-7923-0588-A255-EA0C8EADE493}.Release32|Win32.Build.0 = Release32|Win32
+		{8D2AE635-7923-0588-A255-EA0C8EADE493}.Release32|x64.ActiveCfg = Release32|x64
+		{8D2AE635-7923-0588-A255-EA0C8EADE493}.Release32|x64.Build.0 = Release32|x64
 		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Release|Win32.ActiveCfg = Release|Win32
 		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Release|Win32.Build.0 = Release|Win32
 		{8EAD431C-7A4F-6EF2-630A-82464F4BF542}.Release|x64.ActiveCfg = Release|x64
@@ -56,6 +76,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {6A350E77-86D3-48C4-809F-16FBDE1EEABF}
+		SolutionGuid = {3064B8BE-DA0A-4ADC-B3C0-47F386F816AE}
 	EndGlobalSection
 EndGlobal

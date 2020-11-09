@@ -17,6 +17,7 @@ public:
 
 	/*** @Lua static ***/
 	static inline const char* getStaticType() { return "Vehicle"; }
+	static sol::table getActive();
 
 	/*** CONSTRUCTORS ***/
 	Vehicle(int32_t, int32_t, float, float, float, float, int32_t = -1, int32_t = -1);

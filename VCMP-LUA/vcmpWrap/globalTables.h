@@ -16,6 +16,7 @@
 
 #include "Modules/MariaDB/MySQL.h"
 #include "Modules/Crypto/Hash.h"
+#include "Modules/SqLite3/SqLite.h"
 
 void InitGlobals(sol::state*);
 
@@ -33,6 +34,7 @@ void RegisterClasses(sol::state* Lua) {
 	// Modules
 	MySQL::Init(Lua);
 	Hash::Init(Lua);
+	SqLite::Init(Lua);
 
 	// Wrap
 	Server::Init(Lua);
