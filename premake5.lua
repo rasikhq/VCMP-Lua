@@ -16,6 +16,8 @@ workspace "VCMPLua"
 	targetprefix "" -- Disable prefix
 	targetsuffix "_x64" -- Default architecture
 
+	pic "On" -- position independent code enabled for every project
+
 	configurations
 	{
 		-- Debug configurations are not used
