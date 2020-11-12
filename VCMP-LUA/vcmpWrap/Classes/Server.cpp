@@ -1075,6 +1075,11 @@ void Server::Init(sol::state* L) {
 	usertype["getPassword"] = &Server::getPassword;
 	usertype["password"] = sol::property(&Server::getPassword, &Server::setPassword);
 
+	usertype["shutdown"] = []()
+	{
+		g_Funcs->ShutdownServer();
+	};
+
 	usertype["setClassPosition"] =
 		sol::overload(
 			[](sol::table position) {
