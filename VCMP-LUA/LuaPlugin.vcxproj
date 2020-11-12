@@ -67,7 +67,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_x32;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\json;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -90,7 +90,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\json;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -638,6 +638,9 @@
     <ProjectReference Include="modules\sqlite3\module-sqliteCpp.vcxproj">
       <Project>{8D2AE635-7923-0588-A255-EA0C8EADE493}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcmpWrap\Modules\JSON\JSON.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

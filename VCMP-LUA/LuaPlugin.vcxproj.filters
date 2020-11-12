@@ -1599,4 +1599,7 @@
       <Filter>vcmpWrap\Timer</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="vcmpWrap\Modules\JSON\JSON.hpp" />
+  </ItemGroup>
 </Project>

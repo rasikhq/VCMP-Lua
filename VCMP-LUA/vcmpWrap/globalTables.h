@@ -18,6 +18,9 @@
 #include "Modules/Crypto/Hash.h"
 #include "Modules/SqLite3/SqLite.h"
 
+// Script modules
+#include "Modules/JSON/JSON.hpp"
+
 void InitGlobals(sol::state*);
 
 void RegisterClasses(sol::state* Lua) {
@@ -43,6 +46,10 @@ void RegisterClasses(sol::state* Lua) {
 	Object::Init(Lua);
 	Checkpoint::Init(Lua);
 	Pickup::Init(Lua);
+
+	// Lua Script-Modules
+	// JSON
+	LoadScriptModule_JSON(Lua);
 
 	Lua->script(R"(
 		function INTERNAL__tostring(x, intend)
