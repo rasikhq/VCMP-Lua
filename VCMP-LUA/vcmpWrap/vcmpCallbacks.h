@@ -733,8 +733,14 @@ void RegisterVCMPCallbacks() {
 			}
 			std::string data(message);
 			std::vector<std::string> args = std::split(data, ' ');
+			std::string command;
+			if (args.size() > 0)
+			{
+				command = args.at(0);
+				args.erase(args.begin());
+			}
 			for (auto fn : handlers) {
-				if (args.size() <= 0) { // No command at all? Pass nil
+				if (command.size() == 0) { // No command at all? Pass nil
 					sol::function_result r = fn(player, sol::lua_nil, sol::lua_nil);
 					if (!r.valid()) {
 						sol::error e = r;
@@ -747,8 +753,6 @@ void RegisterVCMPCallbacks() {
 					}
 				}
 				else {
-					std::string command = args.at(0);
-					args.erase(args.begin());
 					if (args.size() > 0) {
 						sol::function_result r = fn(player, command, sol::as_table_t<std::vector<std::string>>(args));
 						if (!r.valid()) {
