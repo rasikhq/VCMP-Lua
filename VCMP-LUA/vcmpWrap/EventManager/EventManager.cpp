@@ -74,6 +74,26 @@ void EventManager::Init(sol::state* Lua) {
 	userdata["cancel"] = &EventManager::cancel;
 }
 
+void EventManager::Reset() {
+	for (auto& [eventKey, eventHandlers] : m_Handlers)
+		eventHandlers.clear();
+}
+
+void EventManager::Trigger(const std::string& eventName) {
+	// This is used by the plugin itself not by Lua
+	if (eventExists(eventName)) {
+		auto handlers = GetHandlers(eventName);
+		if(handlers.size() > 0)
+			for (auto fn : handlers) {
+				fn();
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+	}
+}
+
 const std::vector<sol::function>& EventManager::GetHandlers(std::string eventName) {
 	return m_Handlers[eventName];
 }

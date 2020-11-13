@@ -4,6 +4,8 @@
 class EventManager {
 public:
 	static void Init(sol::state* Lua);
+	static void Reset();
+	static void Trigger(const std::string& eventName);
 	static const std::vector<sol::function>& GetHandlers(std::string eventName);
 	static bool eventExists(const std::string& eventName);
 	static inline void cancelEvent() { m_bWasEventCancelled = false; }

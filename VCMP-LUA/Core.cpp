@@ -9,6 +9,10 @@ PluginInfo* g_Info;
 
 sol::state Lua;
 
+static std::vector<std::string> s_ScriptFiles;
+
+void reload_scripts();
+
 int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_exception, sol::string_view description) {
 	std::cout << "An exception occurred in a function ";
 	if (maybe_exception) {
@@ -61,6 +65,8 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 	RegisterClasses(&Lua);
 	RegisterVCMPCallbacks();
 
+	bool experimental_mode = false;
+
 	// Load Configuration
 	{
 		std::list<CSimpleIniA::Entry> configOptions;
@@ -78,6 +84,9 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 				else if (strcmp(setting.pItem, "logfile") == 0) {
 					Logger::setFile(conf.GetValue("config", setting.pItem), 0, 0);
 				}
+				else if (strcmp(setting.pItem, "experimental") == 0) {
+					experimental_mode = static_cast<bool>(conf.GetValue("config", setting.pItem));
+				}
 			}
 		}
 		else spdlog::warn("No configuration settings supplied, using defaults");
@@ -89,6 +98,7 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 		if (conf.GetAllValues("scripts", "script", scripts) && scripts.size() > 0) {
 			for (auto it = scripts.begin(); it != scripts.end(); it++) {
 				auto result = Lua.safe_script_file(it->pItem, sol::script_pass_on_error);
+				s_ScriptFiles.emplace_back(it->pItem);
 				if (!result.valid()) {
 					sol::error e = result;
 					spdlog::error("Failed to load script: {}", e.what());
@@ -97,6 +107,34 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 		}
 		else spdlog::error("No Lua scripts specified to load");
 	}
-	
+
+	if (experimental_mode) {
+		spdlog::warn("Experimental features may be really unstable, be very careful when using them.");
+		Lua["__reload_scripts"] = &reload_scripts;
+	}
+
 	return 1;
+}
+
+void reload_scripts()
+{
+	spdlog::warn("Reloading scripts...");
+
+	// Re-trigger some crucial events which simulate a 'restart'
+	EventManager::Trigger("onServerShutdown");
+	// Reset the event handlers to avoid duplication
+	EventManager::Reset();
+
+	for (const auto& scriptFile : s_ScriptFiles)
+	{
+		spdlog::info("Parsing script: {}", scriptFile);
+		auto result = Lua.safe_script_file(scriptFile, sol::script_pass_on_error);
+		if (!result.valid()) {
+			sol::error e = result;
+			spdlog::error("Failed to load script: {}", e.what());
+		}
+	}
+
+	// Re-trigger some crucial events which simulate a 'restart'
+	EventManager::Trigger("onServerInit");
 }
