@@ -164,6 +164,7 @@ void Checkpoint::Init(sol::state* L) {
 	userdata["destroy"] = &Checkpoint::destroy;
 
 	/*** READ-ONLY ***/
+	userdata.set("getType", &Checkpoint::getType);
 	userdata["streamedForPlayer"] = &Checkpoint::isStreamedForPlayer;
 	userdata.set("getID", &Checkpoint::getID);
 	userdata.set("getOwner", &Checkpoint::getOwner);

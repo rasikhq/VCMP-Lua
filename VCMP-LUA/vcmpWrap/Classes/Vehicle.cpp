@@ -238,12 +238,28 @@ sol::as_table_t<std::vector<float>> Vehicle::getPosition() const
 }
 void Vehicle::setPosition(sol::table position) { g_Funcs->SetVehiclePosition(m_ID, position[1], position[2], position[3], 0); }
 
-sol::as_table_t<std::vector<float>> Vehicle::getRotation() const
+sol::table Vehicle::getRotation() const
 {
-	float x, y, z;
+	sol::table rotationTable = Lua.create_table();
+	sol::table rotationTableEuler = Lua.create_table();
+	sol::table rotationTableQuaternion = Lua.create_table();
+
+	float x, y, z, w;
 	g_Funcs->GetVehicleRotationEuler(m_ID, &x, &y, &z);
-	std::vector<float> rotation = { x, y, z };
-	return sol::as_table(rotation);
+	rotationTableEuler[1] = x;
+	rotationTableEuler[2] = y;
+	rotationTableEuler[3] = z;
+
+	g_Funcs->GetVehicleRotation(m_ID, &x, &y, &z, &w);
+	rotationTableQuaternion[1] = x;
+	rotationTableQuaternion[2] = y;
+	rotationTableQuaternion[3] = z;
+	rotationTableQuaternion[4] = w;
+
+	rotationTable["euler"] = rotationTableEuler;
+	rotationTable["quaternion"] = rotationTableQuaternion;
+
+	return rotationTable;
 }
 
 void Vehicle::setRotation(sol::table rotation)
@@ -251,7 +267,24 @@ void Vehicle::setRotation(sol::table rotation)
 	float x = rotation.get_or(1, 0.0f);
 	float y = rotation.get_or(2, 0.0f);
 	float z = rotation.get_or(3, 0.0f);
+	
+	if (rotation.size() > 3)
+	{
+		float w = rotation.get_or(4, 0.0f);
+		g_Funcs->SetVehicleRotation(m_ID, x, y, z, w);
+	}
+	else
+		g_Funcs->SetVehicleRotationEuler(m_ID, x, y, z);
+}
+
+void Vehicle::setRotationEuler(float x, float y, float z)
+{
 	g_Funcs->SetVehicleRotationEuler(m_ID, x, y, z);
+}
+
+void Vehicle::setRotationQuaternion(float x, float y, float z, float w)
+{
+	g_Funcs->SetVehicleRotation(m_ID, x, y, z, w);
 }
 
 /******/
@@ -283,8 +316,11 @@ void Vehicle::Init(sol::state* L) {
 	userdata["setOption"] = &Vehicle::setOption;
 	userdata["getSpeed"] = sol::overload(&Vehicle::getSpeed, &Vehicle::getSpeedEx);
 	userdata["setSpeed"] = sol::overload(&Vehicle::setSpeed, &Vehicle::setSpeedDefault, &Vehicle::setSpeedEx, &Vehicle::setSpeedExDefault);
+	userdata["getRotation"] = &Vehicle::getRotation;
+	userdata["setRotation"] = sol::overload(&Vehicle::setRotation, &Vehicle::setRotationEuler, &Vehicle::setRotationQuaternion);
 
 	/*** READ-ONLY ***/
+	userdata.set("getType", &Vehicle::getType);
 	userdata.set("getID", &Vehicle::getID);
 	userdata.set("getModel", &Vehicle::getModel);
 
@@ -301,4 +337,5 @@ void Vehicle::Init(sol::state* L) {
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	userdata["position"] = sol::property(&Vehicle::getPosition, &Vehicle::setPosition);
 	userdata["angle"] = sol::property(&Vehicle::getRotation, &Vehicle::setRotation);
+	userdata["rotation"] = sol::property(&Vehicle::getRotation, &Vehicle::setRotation);
 }

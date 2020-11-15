@@ -34,6 +34,9 @@ public:
 
 	void setTag(const std::string&);
 
+	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	inline const char* getType() { return Bind::getStaticType(); }
+
 private:
 	int32_t m_ID;
 	std::string m_Tag = "";

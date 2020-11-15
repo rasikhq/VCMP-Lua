@@ -249,6 +249,7 @@ void Object::Init(sol::state* L) {
 	userdata["rotateBy"] = sol::overload(&Object::rotateByDefault, &Object::rotateBy);
 	
 	/*** READ-ONLY ***/
+	userdata.set("getType", &Object::getType);
 	userdata["streamedForPlayer"] = &Object::isStreamedForPlayer;
 	userdata.set("getID", &Object::getID);
 	userdata.set("getModel", &Object::getModel);

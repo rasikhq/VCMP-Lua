@@ -170,6 +170,7 @@ void Pickup::Init(sol::state* L) {
 	userdata["setOption"] = &Pickup::setOption;
 
 	/*** READ-ONLY ***/
+	userdata.set("getType", &Pickup::getType);
 	userdata["streamedForPlayer"] = &Pickup::isStreamedForPlayer;
 	userdata.set("getID", &Pickup::getID);
 

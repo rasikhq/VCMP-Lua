@@ -69,8 +69,10 @@ public:
 	sol::as_table_t<std::vector<float>> getPosition() const;
 	void setPosition(sol::table);
 
-	sol::as_table_t<std::vector<float>> getRotation() const;
+	sol::table getRotation() const;
 	void setRotation(sol::table);
+	void setRotationEuler(float, float, float);
+	void setRotationQuaternion(float, float, float, float);
 	/******/
 private:
 	int32_t m_ID;

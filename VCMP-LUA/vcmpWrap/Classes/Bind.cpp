@@ -98,6 +98,7 @@ void Bind::Init(sol::state* L) {
 	userdata["clearAllBinds"] = &Bind::clearAllBinds;
 
 	/*** METHODS ***/
+	userdata.set("getType", &Bind::getType);
 
 	/*** READ-ONLY ***/
 	userdata.set("getID", &Bind::getID);
