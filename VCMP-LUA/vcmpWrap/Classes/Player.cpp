@@ -263,6 +263,11 @@ void Player::setCam(sol::table position, sol::table lookAt) const
 	g_Funcs->SetCameraPosition(m_ID, position[1], position[2], position[3], lookAt.get_or<float>(1, position[1]), lookAt.get_or<float>(2, position[2]), lookAt.get_or<float>(3, position[3]));
 }
 
+void Player::setCamEx(float camX, float camY, float camZ, float lookX, float lookY, float lookZ) const
+{
+	g_Funcs->SetCameraPosition(m_ID, camX, camY, camZ, lookX, lookY, lookZ);
+}
+
 void Player::kick() const 
 {
 	g_Funcs->KickPlayer(m_ID);
@@ -488,6 +493,7 @@ void Player::Init(sol::state* L) {
 	userdata["giveWeapon"] = &Player::giveWeapon;
 	userdata["setVehicle"] = sol::overload(&Player::setVehicle, &Player::setVehicleWithSlot);
 	userdata["redirect"] = &Player::redirect;
+	userdata["setCamera"] = sol::overload(&Player::setCam, &Player::setCamEx);
 	userdata["restoreCamera"] = &Player::restoreCamera;
 	userdata["selectClass"] = &Player::selectClass;
 	userdata["setAnimation"] = sol::overload(&Player::setAnimationCompact, &Player::setAnimation);

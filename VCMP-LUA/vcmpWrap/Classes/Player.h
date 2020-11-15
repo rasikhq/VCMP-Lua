@@ -71,6 +71,7 @@ public:
 	void selectClass() const;
 	void eject() const;
 	void setCam(sol::table, sol::table) const;
+	void setCamEx(float, float, float, float, float, float) const;
 
 	void kick() const;
 	void ban() const;
