@@ -7,6 +7,7 @@ extern sol::state Lua;
 std::vector<Vehicle*> Vehicle::s_Vehicles;
 
 void Vehicle::Register(Vehicle* inst) {
+	inst->m_LuaData = Lua.create_table();
 	s_Vehicles.push_back(inst);
 }
 
@@ -335,6 +336,7 @@ void Vehicle::Init(sol::state* L) {
 	userdata["damage"] = sol::property(&Vehicle::getDamage, &Vehicle::setDamage);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	userdata["data"] = &Vehicle::m_LuaData;
 	userdata["position"] = sol::property(&Vehicle::getPosition, &Vehicle::setPosition);
 	userdata["angle"] = sol::property(&Vehicle::getRotation, &Vehicle::setRotation);
 	userdata["rotation"] = sol::property(&Vehicle::getRotation, &Vehicle::setRotation);

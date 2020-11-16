@@ -18,6 +18,10 @@ public:
 	static inline const char* getStaticType() { return "Checkpoint"; }
 	static sol::table getActive();
 
+	/*** @Lua meta-functions & extra ***/
+	bool operator==(const Checkpoint& other) { return this->m_ID == other.m_ID; }
+	int32_t operator()() { return this->m_ID; }
+
 	/*** CONSTRUCTORS ***/
 	Checkpoint(Player*, int32_t, bool, sol::table, sol::table, float);
 	Checkpoint(Player*, int32_t, bool, float, float, float, sol::table, float);
@@ -52,4 +56,5 @@ public:
 	void setPosition(sol::table);
 private:
 	int32_t m_ID;
+	sol::table m_LuaData;
 };

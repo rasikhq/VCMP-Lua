@@ -7,6 +7,7 @@ extern sol::state Lua;
 std::vector<Object*> Object::s_Objects;
 
 void Object::Register(Object* inst) {
+	inst->m_LuaData = Lua.create_table();
 	s_Objects.emplace_back(inst);
 }
 
@@ -260,6 +261,7 @@ void Object::Init(sol::state* L) {
 	userdata["trackTouch"] = sol::property(&Object::getBumpReports, &Object::setBumpReports);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	userdata["data"] = &Object::m_LuaData;
 	userdata["position"] = sol::property(&Object::getPosition, &Object::setPosition);
 	userdata["angle"] = sol::property(&Object::getRotation, &Object::setRotation);
 }

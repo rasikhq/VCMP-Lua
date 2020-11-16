@@ -19,6 +19,10 @@ public:
 	static inline const char* getStaticType() { return "Vehicle"; }
 	static sol::table getActive();
 
+	/*** @Lua meta-functions & extra ***/
+	bool operator==(const Vehicle& other) { return this->m_ID == other.m_ID; }
+	int32_t operator()() { return this->m_ID; }
+
 	/*** CONSTRUCTORS ***/
 	Vehicle(int32_t, int32_t, float, float, float, float, int32_t = -1, int32_t = -1);
 	Vehicle(int32_t, int32_t, sol::table, int32_t = -1, int32_t = -1);
@@ -76,4 +80,5 @@ public:
 	/******/
 private:
 	int32_t m_ID;
+	sol::table m_LuaData;
 };

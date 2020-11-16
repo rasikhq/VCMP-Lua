@@ -17,6 +17,10 @@ public:
 	static inline const char* getStaticType() { return "Player"; }
 	static sol::table getActive(bool spawned = false);
 	static void msgAll(const std::string& msg, sol::variadic_args args);
+	
+	/*** @Lua meta-functions & extra ***/
+	bool operator==(const Player& other) { return this->m_ID == other.m_ID; }
+	int32_t operator()() { return this->m_ID; }
 
 	/*** CONSTRUCTORS ***/
 	Player(int32_t id);
@@ -127,4 +131,5 @@ public:
 private:
 	int32_t m_ID;
 	char m_Name[24];
+	sol::table m_LuaData;
 };

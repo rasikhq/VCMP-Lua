@@ -20,6 +20,10 @@ public:
 	static inline const char* getStaticType() { return "Object"; }
 	static sol::table getActive();
 
+	/*** @Lua meta-functions & extra ***/
+	bool operator==(const Object& other) { return this->m_ID == other.m_ID; }
+	int32_t operator()() { return this->m_ID; }
+
 	/*** CONSTRUCTORS ***/
 	Object(int32_t, int32_t, float, float, float, int32_t = 255);
 	Object(int32_t, int32_t, sol::table);
@@ -73,5 +77,6 @@ public:
 	/******/
 private:
 	int32_t m_ID;
+	sol::table m_LuaData;
 };
 

@@ -46,7 +46,7 @@ void Player::msgAll(const std::string& msg, sol::variadic_args args)
 }
 
 Player::Player(int32_t id)
-	: m_ID(id) {
+	: m_ID(id), m_LuaData(Lua.create_table()) {
 
 	g_Funcs->GetPlayerName(id, m_Name, sizeof(m_Name));
 }
@@ -559,6 +559,7 @@ void Player::Init(sol::state* L) {
 	userdata["aimPosition"] = sol::property(&Player::getAimPos);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	userdata["data"] = &Player::m_LuaData;
 	userdata["position"] = sol::property(&Player::getPosition, &Player::setPosition);
 	userdata["angle"] = sol::property(&Player::getRotation, &Player::setRotation);
 }

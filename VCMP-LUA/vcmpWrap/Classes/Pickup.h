@@ -17,6 +17,10 @@ public:
 	static inline const char* getStaticType() { return "Pickup"; }
 	static sol::table getActive();
 
+	/*** @Lua meta-functions & extra ***/
+	bool operator==(const Pickup& other) { return this->m_ID == other.m_ID; }
+	int32_t operator()() { return this->m_ID; }
+
 	/*** CONSTRUCTORS ***/
 	Pickup(int32_t, int32_t, int32_t, sol::table, int32_t, bool);
 	Pickup(int32_t, int32_t, int32_t, float, float, float, int32_t, bool);
@@ -53,4 +57,5 @@ public:
 	void setPosition(sol::table);
 private:
 	int32_t m_ID;
+	sol::table m_LuaData;
 };

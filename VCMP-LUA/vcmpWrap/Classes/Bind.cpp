@@ -11,6 +11,7 @@ void Bind::clearAllBinds() {
 }
 
 void Bind::Register(Bind* bind) {
+	bind->m_LuaData = Lua.create_table();
 	s_Binds.emplace_back(bind);
 }
 
@@ -106,4 +107,7 @@ void Bind::Init(sol::state* L) {
 
 	/*** PROPERTIES ***/
 	userdata["tag"] = sol::property(&Bind::getTag, &Bind::setTag);
+
+	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	userdata["data"] = &Bind::m_LuaData;
 }

@@ -16,6 +16,10 @@ public:
 	static inline const char* getStaticType() { return "Bind"; }
 	static void clearAllBinds();
 
+	/*** @Lua meta-functions & extra ***/
+	bool operator==(const Bind& other) { return this->m_ID == other.m_ID; }
+	int32_t operator()() { return this->m_ID; }
+
 	/*** CONSTRUCTORS ***/
 	Bind(bool, int32_t, int32_t = 0, int32_t = 0);
 
@@ -40,4 +44,5 @@ public:
 private:
 	int32_t m_ID;
 	std::string m_Tag = "";
+	sol::table m_LuaData;
 };

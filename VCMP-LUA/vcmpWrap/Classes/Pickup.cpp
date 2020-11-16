@@ -7,6 +7,7 @@ extern sol::state Lua;
 std::vector<Pickup*> Pickup::s_Pickups;
 
 void Pickup::Register(Pickup* inst) {
+	inst->m_LuaData = Lua.create_table();
 	s_Pickups.emplace_back(inst);
 }
 
@@ -181,5 +182,6 @@ void Pickup::Init(sol::state* L) {
 	userdata["autoTimer"] = sol::property(&Pickup::getAutoTimer, &Pickup::setAutoTimer);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	userdata["data"] = &Pickup::m_LuaData;
 	userdata["position"] = sol::property(&Pickup::getPosition, &Pickup::setPosition);
 }

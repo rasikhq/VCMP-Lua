@@ -7,6 +7,7 @@ extern sol::state Lua;
 std::vector<Checkpoint*> Checkpoint::s_Checkpoints;
 
 void Checkpoint::Register(Checkpoint* inst) {
+	inst->m_LuaData = Lua.create_table();
 	s_Checkpoints.emplace_back(inst);
 }
 
@@ -177,5 +178,6 @@ void Checkpoint::Init(sol::state* L) {
 	userdata["alpha"] = sol::property(&Checkpoint::getAlpha, &Checkpoint::setAlpha);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+	userdata["data"] = &Checkpoint::m_LuaData;
 	userdata["position"] = sol::property(&Checkpoint::getPosition, &Checkpoint::setPosition);
 }
