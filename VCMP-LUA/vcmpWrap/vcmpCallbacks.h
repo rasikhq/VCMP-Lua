@@ -349,6 +349,7 @@ void RegisterVCMPCallbacks() {
 					spdlog::error(e.what());
 				}
 			}
+			return;
 		}
 
 		auto handlers = EventManager::GetHandlers("onPlayerKill");
@@ -1077,6 +1078,30 @@ void RegisterVCMPCallbacks() {
 			Player* player = Player::Get(playerId);
 			for (auto fn : handlers) {
 				sol::function_result r = fn(pickup, player);
+				if (!r.valid()) {
+					sol::error e = r;
+					spdlog::error("Event callback error: {}", e.what());
+				}
+				if (EventManager::m_bWasEventCancelled) {
+					EventManager::cancelEvent();
+					break;
+				}
+			}
+		}
+		catch (sol::error e) {
+			spdlog::error(e.what());
+		}
+	};
+
+	g_Calls->OnPickupRespawn = [](int32_t pickupId) {
+		spdlog::debug("OnPickupRespawn");
+
+		auto handlers = EventManager::GetHandlers("onPickupRespawn");
+		if (handlers.size() == 0) return;
+		try {
+			Pickup* pickup = Pickup::Get(pickupId);
+			for (auto fn : handlers) {
+				sol::function_result r = fn(pickup);
 				if (!r.valid()) {
 					sol::error e = r;
 					spdlog::error("Event callback error: {}", e.what());
