@@ -1,0 +1,12 @@
+[submodule "VCMP-LUA/modules/SQLiteCPP"]
+	path = VCMP-LUA/modules/SQLiteCPP
+	url = https://github.com/SRombauts/SQLiteCpp.git
+[submodule "VCMP-LUA/modules/mariadbpp"]
+	path = VCMP-LUA/modules/mariadbpp
+	url = https://github.com/viaduck/mariadbpp.git
+[submodule "VCMP-LUA/modules/cpr"]
+	path = VCMP-LUA/modules/cpr
+	url = https://github.com/whoshuu/cpr.git
+[submodule "VCMP-LUA/vendor/spdlog"]
+	path = VCMP-LUA/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
