@@ -52,5 +52,6 @@ include "VCMP-LUA/vendor/spdlog"
 -- External Modules
 include "VCMP-LUA/modules/crypto"
 include "VCMP-LUA/modules/sqlite3"
+include "VCMP-LUA/modules/requests"
 -- Core
 include "VCMP-LUA"

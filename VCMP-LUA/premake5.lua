@@ -43,12 +43,14 @@ project "LuaPlugin"
 	{
 		-- sqlite
 		"modules/sqlite3/sqliteCpp/include",
+		-- cpr
+		"modules/requests/cpr/include"
 	}
 	--
 
 	links { "spdlog", "Lua" }
 	-- Links external modules
-	links { "module-crypto", "module-sqliteCpp" }
+	links { "module-crypto", "module-sqliteCpp", "module-cpr" }
 
 	-- Specify internal modules (Not project based)
 	include "modules/mariadb"

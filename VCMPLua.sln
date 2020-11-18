@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaPlugin", "VCMP-LUA\LuaPl
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lua", "VCMP-LUA\vendor\Lua\Lua.vcxproj", "{A705880B-130F-887C-9C8A-9E7C0893937C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "module-cpr", "VCMP-LUA\modules\requests\module-cpr.vcxproj", "{BDC562EB-A97D-A438-1285-7D94FE5B3F29}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "module-crypto", "VCMP-LUA\modules\crypto\module-crypto.vcxproj", "{193CBA34-85FC-356B-4E37-7FE8BAB67A47}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "module-sqlite3", "VCMP-LUA\modules\sqlite3\module-sqlite3.vcxproj", "{5D4C6198-491A-559E-32AE-C5C41E1B3103}"
@@ -39,6 +41,14 @@ Global
 		{A705880B-130F-887C-9C8A-9E7C0893937C}.Release32|Win32.Build.0 = Release32|Win32
 		{A705880B-130F-887C-9C8A-9E7C0893937C}.Release32|x64.ActiveCfg = Release32|x64
 		{A705880B-130F-887C-9C8A-9E7C0893937C}.Release32|x64.Build.0 = Release32|x64
+		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release|Win32.ActiveCfg = Release|Win32
+		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release|Win32.Build.0 = Release|Win32
+		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release|x64.ActiveCfg = Release|x64
+		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release|x64.Build.0 = Release|x64
+		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release32|Win32.ActiveCfg = Release32|Win32
+		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release32|Win32.Build.0 = Release32|Win32
+		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release32|x64.ActiveCfg = Release32|x64
+		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release32|x64.Build.0 = Release32|x64
 		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release|Win32.ActiveCfg = Release|Win32
 		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release|Win32.Build.0 = Release|Win32
 		{193CBA34-85FC-356B-4E37-7FE8BAB67A47}.Release|x64.ActiveCfg = Release|x64
@@ -76,6 +86,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {860F20D1-F095-4E02-AD7B-E1E2F982800B}
+		SolutionGuid = {E012EB5E-9636-4924-929B-8C8903396648}
 	EndGlobalSection
 EndGlobal

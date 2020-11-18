@@ -58,6 +58,9 @@
     <Filter Include="vcmpWrap\Modules">
       <UniqueIdentifier>{FD85E18C-E97E-00DF-12B1-E563FE08E0EA}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vcmpWrap\Modules\CPR">
+      <UniqueIdentifier>{F129198E-DDB8-A257-86D7-B6527245B3FD}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vcmpWrap\Modules\Crypto">
       <UniqueIdentifier>{0D40F79C-7977-3F34-8281-A357EE37662D}</UniqueIdentifier>
     </Filter>
@@ -1474,6 +1477,9 @@
     <ClInclude Include="vcmpWrap\Log\Logger.h">
       <Filter>vcmpWrap\Log</Filter>
     </ClInclude>
+    <ClInclude Include="vcmpWrap\Modules\CPR\Remote.h">
+      <Filter>vcmpWrap\Modules\CPR</Filter>
+    </ClInclude>
     <ClInclude Include="vcmpWrap\Modules\Crypto\Hash.h">
       <Filter>vcmpWrap\Modules\Crypto</Filter>
     </ClInclude>
@@ -1577,6 +1583,9 @@
     <ClCompile Include="vcmpWrap\EventManager\EventManager.cpp">
       <Filter>vcmpWrap\EventManager</Filter>
     </ClCompile>
+    <ClCompile Include="vcmpWrap\Modules\CPR\Remote.cpp">
+      <Filter>vcmpWrap\Modules\CPR</Filter>
+    </ClCompile>
     <ClCompile Include="vcmpWrap\Modules\Crypto\Hash.cpp">
       <Filter>vcmpWrap\Modules\Crypto</Filter>
     </ClCompile>
@@ -1598,8 +1607,5 @@
     <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp">
       <Filter>vcmpWrap\Timer</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="vcmpWrap\Modules\JSON\JSON.hpp" />
   </ItemGroup>
 </Project>

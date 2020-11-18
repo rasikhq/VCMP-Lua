@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cpr">
+      <UniqueIdentifier>{DDC5C031-497B-3927-D26F-33FE3E24302B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\curl">
+      <UniqueIdentifier>{2E97D969-1AFA-680E-C37F-A1C4AFC13491}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cpr\include\cpr\api.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\auth.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\bearer.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\body.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\callback.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\connect_timeout.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\cookies.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\cpr.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\cprtypes.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\curl_container.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\curlholder.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\digest.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\error.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\limit_rate.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\low_speed.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\max_redirects.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\multipart.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\ntlm.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\parameters.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\payload.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\proxies.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\response.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\session.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\ssl_options.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\status_codes.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\timeout.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\unix_socket.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\user_agent.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\util.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\cpr\verbose.h">
+      <Filter>include\cpr</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\curl\curl.h">
+      <Filter>include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\curl\curlver.h">
+      <Filter>include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\curl\easy.h">
+      <Filter>include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\curl\mprintf.h">
+      <Filter>include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\curl\multi.h">
+      <Filter>include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\curl\stdcheaders.h">
+      <Filter>include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\curl\system.h">
+      <Filter>include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\curl\typecheck-gcc.h">
+      <Filter>include\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="cpr\include\curl\urlapi.h">
+      <Filter>include\curl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cpr\src\auth.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\bearer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\cookies.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\cprtypes.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\curl_container.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\curlholder.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\error.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\multipart.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\parameters.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\payload.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\proxies.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\response.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\session.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\timeout.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\unix_socket.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="cpr\src\util.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -67,7 +67,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_x32;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\json;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\requests\cpr\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -90,7 +90,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\json;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\requests\cpr\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -578,6 +578,7 @@
     <ClInclude Include="vcmpWrap\Constants.h" />
     <ClInclude Include="vcmpWrap\EventManager\EventManager.h" />
     <ClInclude Include="vcmpWrap\Log\Logger.h" />
+    <ClInclude Include="vcmpWrap\Modules\CPR\Remote.h" />
     <ClInclude Include="vcmpWrap\Modules\Crypto\Hash.h" />
     <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQL.h" />
     <ClInclude Include="vcmpWrap\Modules\MariaDB\MySQLAccount.h" />
@@ -617,6 +618,7 @@
     <ClCompile Include="vcmpWrap\Classes\Stream.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Vehicle.cpp" />
     <ClCompile Include="vcmpWrap\EventManager\EventManager.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\CPR\Remote.cpp" />
     <ClCompile Include="vcmpWrap\Modules\Crypto\Hash.cpp" />
     <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQL.cpp" />
     <ClCompile Include="vcmpWrap\Modules\MariaDB\MySQLAccount.cpp" />
@@ -638,9 +640,9 @@
     <ProjectReference Include="modules\sqlite3\module-sqliteCpp.vcxproj">
       <Project>{8D2AE635-7923-0588-A255-EA0C8EADE493}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="vcmpWrap\Modules\JSON\JSON.hpp" />
+    <ProjectReference Include="modules\requests\module-cpr.vcxproj">
+      <Project>{BDC562EB-A97D-A438-1285-7D94FE5B3F29}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
