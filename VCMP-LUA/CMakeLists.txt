@@ -68,7 +68,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
     modules/crypto/include
 
+    vendor
     vendor/sol
+    vendor/spdlog
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
