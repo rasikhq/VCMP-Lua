@@ -104,7 +104,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libcrypto_static.lib;libssl_static.lib;mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mysqlclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>modules\mariadb\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Release-windows-x86_64\LuaPlugin\LuaPlugin_x64.lib</ImportLibrary>
     </Link>

@@ -20,7 +20,7 @@ filter {"system:windows"}
 
 filter {"system:windows", "Release"}
 	-- MySQL cancer crap keeps depending on dynamic libssl and libcrypto so even though I link with the static versions, it first looks for the DLLs causing an Error 126 /facepalm
-	links { "libcrypto_static.lib", "libssl_static.lib", "mysqlclient.lib" }
+	links { "mysqlclient.lib" }
 
 filter {"system:not windows", "Release32"}
 	linkoptions { "-L modules/mariadb/lib/mariadbclient32.a" }

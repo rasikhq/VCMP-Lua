@@ -25,4 +25,4 @@ project "module-cpr"
 
 	defines "CURL_STATICLIB"
 
-	links {"cpr.lib", "mongoose.lib"}
+	links {"cpr.lib", "mongoose.lib", "libcurl.lib"}

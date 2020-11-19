@@ -81,7 +81,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>cpr.lib;mongoose.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cpr.lib;mongoose.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>cpr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
@@ -106,7 +106,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>cpr.lib;mongoose.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cpr.lib;mongoose.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>cpr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
