@@ -6,6 +6,8 @@
 #include "Classes/Vehicle.h"
 #include "Classes/Bind.h"
 
+#include "Modules/CPR/Remote.h"
+
 extern PluginFuncs* g_Funcs;
 extern PluginCallbacks* g_Calls;
 extern sol::state Lua;
@@ -15,7 +17,7 @@ void RegisterVCMPCallbacks() {
 	g_Calls->OnServerInitialise = [] () -> uint8_t {
 		spdlog::debug("onServerinitialise");
 		
-		 auto handlers = EventManager::GetHandlers("onServerInit");
+		auto handlers = EventManager::GetHandlers("onServerInit");
 		if (handlers.size() == 0) return 1;
 		uint8_t ret = 1;
 		try {
@@ -64,6 +66,7 @@ void RegisterVCMPCallbacks() {
 	g_Calls->OnServerFrame = [](float elapsedTime) -> void {
 		//spdlog::debug("OnServerFrame");
 
+		Remote::Process(elapsedTime);
 		TimerManager::OnFrame(elapsedTime);
 		auto handlers = EventManager::GetHandlers("onServerFrame");
 		if (handlers.size() == 0) return;
