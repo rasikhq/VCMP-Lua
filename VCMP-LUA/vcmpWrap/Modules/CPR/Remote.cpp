@@ -134,7 +134,7 @@ void Remote::Process(float elapsedTime)
 	if (s_Container.size() == 0) return;
 	using namespace std::chrono_literals;
 
-	for (auto& it = s_Container.begin(); it != s_Container.end(); it++)
+	for (auto it = s_Container.begin(); it != s_Container.end(); it++)
 	{
 		if (it->future.wait_for(0s) == std::future_status::ready)
 		{
