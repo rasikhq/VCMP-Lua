@@ -66,8 +66,9 @@ void RegisterVCMPCallbacks() {
 	g_Calls->OnServerFrame = [](float elapsedTime) -> void {
 		//spdlog::debug("OnServerFrame");
 
-		Remote::Process(elapsedTime);
 		TimerManager::OnFrame(elapsedTime);
+		Remote::Process(elapsedTime);
+
 		auto handlers = EventManager::GetHandlers("onServerFrame");
 		if (handlers.size() == 0) return;
 		try {

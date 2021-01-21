@@ -49,6 +49,7 @@ workspace "VCMPLua"
 -- Vendors
 include "VCMP-LUA/vendor/Lua"
 include "VCMP-LUA/vendor/spdlog"
+include "VCMP-LUA/vendor/asyncplusplus"
 -- External Modules
 include "VCMP-LUA/modules/crypto"
 include "VCMP-LUA/modules/sqlite3"

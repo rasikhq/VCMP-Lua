@@ -66,8 +66,8 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_x32;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\requests\cpr\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_x32;LIBASYNC_STATIC;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;vendor\asyncplusplus\include;modules\sqlite3\sqliteCpp\include;modules\requests\cpr\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -89,8 +89,8 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;modules\sqlite3\sqliteCpp\include;modules\requests\cpr\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LIBASYNC_STATIC;WIN32;_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;include;vcmpWrap;vendor;vendor\Lua;vendor\sol;vendor\spdlog\include;vendor\asyncplusplus\include;modules\sqlite3\sqliteCpp\include;modules\requests\cpr\include;modules\mariadb\include;modules\mariadb\include\mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -567,6 +567,7 @@
     <ClInclude Include="modules\mariadb\src\private.hpp" />
     <ClInclude Include="modules\mariadb\src\worker.hpp" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="vcmpWrap\Modules\Thread\Thread.h" />
     <ClInclude Include="vcmpWrap\Classes\Bind.h" />
     <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />
     <ClInclude Include="vcmpWrap\Classes\Object.h" />
@@ -607,6 +608,7 @@
     <ClCompile Include="modules\mariadb\src\transaction.cpp" />
     <ClCompile Include="modules\mariadb\src\worker.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="vcmpWrap\Modules\Thread\Thread.cpp" />
     <ClCompile Include="vcmpWrap\Classes\Bind.cpp">
       <ObjectFileName>$(IntDir)\Bind1.obj</ObjectFileName>
     </ClCompile>
@@ -633,6 +635,9 @@
     </ProjectReference>
     <ProjectReference Include="vendor\Lua\Lua.vcxproj">
       <Project>{A705880B-130F-887C-9C8A-9E7C0893937C}</Project>
+    </ProjectReference>
+    <ProjectReference Include="vendor\asyncplusplus\asyncplusplus.vcxproj">
+      <Project>{AB39773E-17FA-F274-E034-3CF24CB43751}</Project>
     </ProjectReference>
     <ProjectReference Include="modules\crypto\module-crypto.vcxproj">
       <Project>{193CBA34-85FC-356B-4E37-7FE8BAB67A47}</Project>

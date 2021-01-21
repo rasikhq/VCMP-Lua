@@ -1507,6 +1507,7 @@
     <ClInclude Include="vcmpWrap\vcmpCallbacks.h">
       <Filter>vcmpWrap</Filter>
     </ClInclude>
+    <ClInclude Include="vcmpWrap\Modules\Thread\Thread.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
@@ -1607,5 +1608,6 @@
     <ClCompile Include="vcmpWrap\Timer\vcmpTimer.cpp">
       <Filter>vcmpWrap\Timer</Filter>
     </ClCompile>
+    <ClCompile Include="vcmpWrap\Modules\Thread\Thread.cpp" />
   </ItemGroup>
 </Project>

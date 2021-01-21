@@ -109,6 +109,7 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 	}
 
 	if (experimental_mode) {
+		Lua["__experimental__"] = true;
 		spdlog::warn("Experimental features may be really unstable, be very careful when using them.");
 		Lua["__reload_scripts"] = &reload_scripts;
 	}

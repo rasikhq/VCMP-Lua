@@ -18,6 +18,7 @@
 #include "Modules/Crypto/Hash.h"
 #include "Modules/SqLite3/SqLite.h"
 #include "Modules/CPR/Remote.h"
+#include "Modules/Thread/Thread.h"
 
 // Script modules
 #include "Modules/JSON/JSON.hpp"
@@ -40,6 +41,7 @@ void RegisterClasses(sol::state* Lua) {
 	Hash::Init(Lua);
 	SqLite::Init(Lua);
 	Remote::Init(Lua);
+	Thread::Init(Lua);
 
 	// Wrap
 	Server::Init(Lua);

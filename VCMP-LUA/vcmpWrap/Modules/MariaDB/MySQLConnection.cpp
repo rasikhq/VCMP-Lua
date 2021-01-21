@@ -5,9 +5,9 @@ extern sol::state Lua;
 void MySQLConnection::Init(sol::state* Lua) {
 	sol::usertype<MySQLConnection> userdata = Lua->new_usertype<MySQLConnection>("__INTERNAL__MYSQLCONNECTION");
 
-	userdata["execute"]	= sol::overload(&MySQLConnection::execute, &MySQLConnection::executeCallback, &MySQLConnection::executePrepare, &MySQLConnection::executePrepareCallback);
-	userdata["query"]	= sol::overload(&MySQLConnection::query, &MySQLConnection::queryCallback, &MySQLConnection::queryPrepare, &MySQLConnection::queryPrepareCallback);
-	userdata["insert"]	= sol::overload(&MySQLConnection::insert, &MySQLConnection::insertCallback, &MySQLConnection::insertPrepare, &MySQLConnection::insertPrepareCallback);
+	userdata["execute"] = sol::overload(&MySQLConnection::execute, &MySQLConnection::executeCallback, &MySQLConnection::executePrepare, &MySQLConnection::executePrepareCallback);
+	userdata["query"] = sol::overload(&MySQLConnection::query, &MySQLConnection::queryCallback, &MySQLConnection::queryPrepare, &MySQLConnection::queryPrepareCallback);
+	userdata["insert"] = sol::overload(&MySQLConnection::insert, &MySQLConnection::insertCallback, &MySQLConnection::insertPrepare, &MySQLConnection::insertPrepareCallback);
 }
 
 std::variant<bool, mariadb::u64> MySQLConnection::execute(const std::string& query) {
@@ -28,9 +28,17 @@ std::variant<bool, mariadb::u64> MySQLConnection::execute(const std::string& que
 
 void MySQLConnection::executeCallback(const sol::function& callback, const std::string& query) {
 	try {
+		if (!Lua.get_or("__experimental__", false))
+		{
+			spdlog::critical("Experimental feature call while experimental mode is off");
+			return;
+		}
+
 		if (callback.valid()) {
-			auto result = this->execute(query);
-			callback.call(result);
+			async::spawn([this, callback, query] {
+				auto result = this->execute(query);
+				callback.call(result);
+			});
 		}
 	}
 	catch (std::exception e) {
@@ -46,16 +54,16 @@ std::variant<bool, mariadb::u64> MySQLConnection::executePrepare(const std::stri
 			int key = pair.first.as<int>();
 			sol::object value = pair.second;
 			switch (value.get_type()) {
-				case sol::type::string:
-					statement->set_string(key-1, value.as<std::string>());
-					break;
-				case sol::type::number:
-					statement->set_float(key-1, value.as<float>());
-					break;
-				case sol::type::nil:
-				default:
-					statement->set_null(key-1);
-					break;
+			case sol::type::string:
+				statement->set_string(key - 1, value.as<std::string>());
+				break;
+			case sol::type::number:
+				statement->set_float(key - 1, value.as<float>());
+				break;
+			case sol::type::nil:
+			default:
+				statement->set_null(key - 1);
+				break;
 			}
 		}
 		auto rows_affected = statement->execute();
@@ -74,9 +82,17 @@ std::variant<bool, mariadb::u64> MySQLConnection::executePrepare(const std::stri
 
 void MySQLConnection::executePrepareCallback(const sol::function& callback, const std::string& query, sol::table args) {
 	try {
+		if (!Lua.get_or("__experimental__", false))
+		{
+			spdlog::critical("Experimental feature call while experimental mode is off");
+			return;
+		}
+
 		if (callback.valid()) {
-			auto result = this->executePrepare(query, args);
-			callback.call(result);
+			async::spawn([this, callback, query, args] {
+				auto result = this->executePrepare(query, args);
+				callback.call(result);
+			});
 		}
 	}
 	catch (std::exception e) {
@@ -111,9 +127,17 @@ sol::table MySQLConnection::query(const std::string& query) {
 
 void MySQLConnection::queryCallback(const sol::function& callback, const std::string& query) {
 	try {
+		if (!Lua.get_or("__experimental__", false))
+		{
+			spdlog::critical("Experimental feature call while experimental mode is off");
+			return;
+		}
+
 		if (callback.valid()) {
-			auto result = this->query(query);
-			callback.call(result);
+			async::spawn([&, callback, query] {
+				auto result = this->query(query);
+				callback.call(result);
+			});
 		}
 	}
 	catch (std::exception e) {
@@ -142,7 +166,7 @@ sol::table MySQLConnection::queryPrepare(const std::string& query, sol::table ar
 				break;
 			}
 		}
-		
+
 		// Query it
 		mariadb::result_set_ref result_set = statement->query();
 		sol::table result = Lua.create_table();
@@ -168,9 +192,17 @@ sol::table MySQLConnection::queryPrepare(const std::string& query, sol::table ar
 
 void MySQLConnection::queryPrepareCallback(const sol::function& callback, const std::string& query, sol::table args) {
 	try {
+		if (!Lua.get_or("__experimental__", false))
+		{
+			spdlog::critical("Experimental feature call while experimental mode is off");
+			return;
+		}
+
 		if (callback.valid()) {
-			auto result = this->queryPrepare(query, args);
-			callback.call(result);
+			async::spawn([this, callback, query, args] {
+				auto result = this->queryPrepare(query, args);
+				callback.call(result);
+			});
 		}
 	}
 	catch (std::exception e) {
@@ -196,9 +228,17 @@ std::variant<bool, mariadb::u64> MySQLConnection::insert(const std::string& quer
 
 void MySQLConnection::insertCallback(const sol::function& callback, const std::string& query) {
 	try {
+		if (!Lua.get_or("__experimental__", false))
+		{
+			spdlog::critical("Experimental feature call while experimental mode is off");
+			return;
+		}
+
 		if (callback.valid()) {
-			auto result = this->insert(query);
-			callback.call(result);
+			async::spawn([this, callback, query] {
+				auto result = this->insert(query);
+				callback.call(result);
+			});
 		}
 	}
 	catch (std::exception e) {
@@ -242,9 +282,17 @@ std::variant<bool, mariadb::u64> MySQLConnection::insertPrepare(const std::strin
 
 void MySQLConnection::insertPrepareCallback(const sol::function& callback, const std::string& query, sol::table args) {
 	try {
+		if (!Lua.get_or("__experimental__", false))
+		{
+			spdlog::critical("Experimental feature call while experimental mode is off");
+			return;
+		}
+
 		if (callback.valid()) {
-			auto result = this->insertPrepare(query, args);
-			callback.call(result);
+			async::spawn([&] {
+				auto result = this->insertPrepare(query, args);
+				callback.call(result);
+			});
 		}
 	}
 	catch (std::exception e) {

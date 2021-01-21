@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "MySQLAccount.h"
+#include <async++.h>
 
 class MySQLConnection {
 public:
@@ -16,9 +17,11 @@ public:
 	{
 		m_Connection = mariadb::connection::create(m_AccountHandle->getRef());
 	}
+
 private:
 	MySQLAccount* m_AccountHandle = nullptr;
 	mariadb::connection_ref m_Connection = nullptr;
+	bool m_ReadyForTask = true;
 
 public:
 	/*** METHODS ***/
@@ -42,41 +45,41 @@ private:
 		std::variant<int, float, std::string, sol::lua_nil_t> data;
 		switch (result_set->column_type(index))
 		{
-			case value::signed8:
-				data = int(result_set->get_signed8(index));
-				return std::get<int>(data);
-			case value::unsigned8:
-				data = int(result_set->get_unsigned8(index));
-				return std::get<int>(data);
-			case value::signed16:
-				data = int(result_set->get_signed16(index));
-				return std::get<int>(data);
-			case value::unsigned16:
-				data = int(result_set->get_unsigned16(index));
-				return std::get<int>(data);
-			case value::signed32:
-				data = int(result_set->get_signed32(index));
-				return std::get<int>(data);
-			case value::unsigned32:
-				data = int(result_set->get_unsigned32(index));
-				return std::get<int>(data);
-			case value::signed64:
-				data = int(result_set->get_signed64(index));
-				return std::get<int>(data);
-			case value::unsigned64:
-				data = int(result_set->get_unsigned64(index));
-				return std::get<int>(data);
-			case value::float32:
-				data = float(result_set->get_float(index));
-				return std::get<float>(data);
-			case value::blob:
-			case value::string:
-			case value::data:
-				data = result_set->get_string(index);
-				return std::get<std::string>(data);
-			default:
-				data = sol::nil;
-				return std::get<sol::lua_nil_t>(data);
+		case value::signed8:
+			data = int(result_set->get_signed8(index));
+			return std::get<int>(data);
+		case value::unsigned8:
+			data = int(result_set->get_unsigned8(index));
+			return std::get<int>(data);
+		case value::signed16:
+			data = int(result_set->get_signed16(index));
+			return std::get<int>(data);
+		case value::unsigned16:
+			data = int(result_set->get_unsigned16(index));
+			return std::get<int>(data);
+		case value::signed32:
+			data = int(result_set->get_signed32(index));
+			return std::get<int>(data);
+		case value::unsigned32:
+			data = int(result_set->get_unsigned32(index));
+			return std::get<int>(data);
+		case value::signed64:
+			data = int(result_set->get_signed64(index));
+			return std::get<int>(data);
+		case value::unsigned64:
+			data = int(result_set->get_unsigned64(index));
+			return std::get<int>(data);
+		case value::float32:
+			data = float(result_set->get_float(index));
+			return std::get<float>(data);
+		case value::blob:
+		case value::string:
+		case value::data:
+			data = result_set->get_string(index);
+			return std::get<std::string>(data);
+		default:
+			data = sol::nil;
+			return std::get<sol::lua_nil_t>(data);
 		}
 	}
 };

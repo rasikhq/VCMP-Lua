@@ -29,6 +29,7 @@ project "LuaPlugin"
 		"%{wks.location}/VCMP-LUA/vendor/Lua",
 		"%{wks.location}/VCMP-LUA/vendor/sol",
 		"%{wks.location}/VCMP-LUA/vendor/spdlog/include",
+		"%{wks.location}/VCMP-LUA/vendor/asyncplusplus/include",
 	}
 
 	-- Module(s) files and dirs
@@ -48,7 +49,9 @@ project "LuaPlugin"
 	}
 	--
 
-	links { "spdlog", "Lua" }
+	defines { "LIBASYNC_STATIC" }
+
+	links { "spdlog", "Lua", "asyncplusplus" }
 	-- Links external modules
 	links { "module-crypto", "module-sqliteCpp", "module-cpr" }
 

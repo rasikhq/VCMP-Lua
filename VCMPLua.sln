@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.30523.141
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaPlugin", "VCMP-LUA\LuaPlugin.vcxproj", "{165C766E-82C6-2AE5-CB04-DC8A37AE083A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lua", "VCMP-LUA\vendor\Lua\Lua.vcxproj", "{A705880B-130F-887C-9C8A-9E7C0893937C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "asyncplusplus", "VCMP-LUA\vendor\asyncplusplus\asyncplusplus.vcxproj", "{AB39773E-17FA-F274-E034-3CF24CB43751}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "module-cpr", "VCMP-LUA\modules\requests\module-cpr.vcxproj", "{BDC562EB-A97D-A438-1285-7D94FE5B3F29}"
 EndProject
@@ -41,6 +43,14 @@ Global
 		{A705880B-130F-887C-9C8A-9E7C0893937C}.Release32|Win32.Build.0 = Release32|Win32
 		{A705880B-130F-887C-9C8A-9E7C0893937C}.Release32|x64.ActiveCfg = Release32|x64
 		{A705880B-130F-887C-9C8A-9E7C0893937C}.Release32|x64.Build.0 = Release32|x64
+		{AB39773E-17FA-F274-E034-3CF24CB43751}.Release|Win32.ActiveCfg = Release|Win32
+		{AB39773E-17FA-F274-E034-3CF24CB43751}.Release|Win32.Build.0 = Release|Win32
+		{AB39773E-17FA-F274-E034-3CF24CB43751}.Release|x64.ActiveCfg = Release|x64
+		{AB39773E-17FA-F274-E034-3CF24CB43751}.Release|x64.Build.0 = Release|x64
+		{AB39773E-17FA-F274-E034-3CF24CB43751}.Release32|Win32.ActiveCfg = Release32|Win32
+		{AB39773E-17FA-F274-E034-3CF24CB43751}.Release32|Win32.Build.0 = Release32|Win32
+		{AB39773E-17FA-F274-E034-3CF24CB43751}.Release32|x64.ActiveCfg = Release32|x64
+		{AB39773E-17FA-F274-E034-3CF24CB43751}.Release32|x64.Build.0 = Release32|x64
 		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release|Win32.ActiveCfg = Release|Win32
 		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release|Win32.Build.0 = Release|Win32
 		{BDC562EB-A97D-A438-1285-7D94FE5B3F29}.Release|x64.ActiveCfg = Release|x64
@@ -86,6 +96,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {847E9F64-D3D0-46F3-8316-9988DB249AB9}
+		SolutionGuid = {44B705E9-35BA-4DD6-B794-4E3F62906A23}
 	EndGlobalSection
 EndGlobal
