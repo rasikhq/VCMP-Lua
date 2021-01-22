@@ -19,7 +19,5 @@ private:
 	bool isReady();
 
 private:
-	sol::function* workerFunction = nullptr;
 	async::task<sol::object> task;
-	bool isCompleted = false;
 };

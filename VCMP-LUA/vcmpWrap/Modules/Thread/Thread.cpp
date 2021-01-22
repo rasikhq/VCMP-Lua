@@ -1,7 +1,12 @@
 #include "Thread.h"
 
+extern sol::state Lua;
+
 void Thread::Init(sol::state* Lua)
 {
+	if (!::Lua.get_or("__experimental__", false)) // Thread class is experimental only for now
+		return;
+
 	sol::usertype<Thread> userdata = Lua->new_usertype<Thread>("Thread", sol::constructors<Thread()>());
 
 	userdata["run"] = &Thread::run;
@@ -16,8 +21,6 @@ Thread::Thread()
 
 void Thread::run(sol::function f)
 {
-	isCompleted = false;
-
 	task = async::spawn([f]() -> sol::object {
 		if (f.valid())
 		{
@@ -63,7 +66,6 @@ sol::object Thread::get()
 	}
 
 	auto value = task.get();
-	isCompleted = true;
 
 	return value;
 }
