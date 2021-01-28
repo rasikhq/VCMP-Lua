@@ -62,9 +62,6 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 	Lua.open_libraries();
 	Lua.set_exception_handler(&my_exception_handler);
 
-	RegisterClasses(&Lua);
-	RegisterVCMPCallbacks();
-
 	bool experimental_mode = false;
 
 	// Load Configuration
@@ -91,7 +88,16 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 		}
 		else spdlog::warn("No configuration settings supplied, using defaults");
 	}
-	
+
+	if (experimental_mode) {
+		Lua["__experimental__"] = true;
+		spdlog::warn("Experimental features may be really unstable, be very careful when using them.");
+		Lua["__reload_scripts"] = &reload_scripts;
+	}
+
+	RegisterClasses(&Lua);
+	RegisterVCMPCallbacks();
+
 	// Load Scripts
 	{
 		std::list<CSimpleIniA::Entry> scripts;
@@ -106,12 +112,6 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 			}
 		}
 		else spdlog::error("No Lua scripts specified to load");
-	}
-
-	if (experimental_mode) {
-		Lua["__experimental__"] = true;
-		spdlog::warn("Experimental features may be really unstable, be very careful when using them.");
-		Lua["__reload_scripts"] = &reload_scripts;
 	}
 
 	return 1;

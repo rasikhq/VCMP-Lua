@@ -3,6 +3,13 @@
 extern sol::state Lua;
 
 std::vector<RemoteRequest> Remote::s_Container = {};
+std::string Remote::certificates = "";
+
+bool Remote::setSSLCerts(const std::string& bundle)
+{
+	certificates.assign(bundle);
+	return true;
+}
 
 /*** Lua ***/
 sol::table Remote::fetchHTTP(const std::string& url, sol::table params, sol::table auth)
@@ -10,10 +17,15 @@ sol::table Remote::fetchHTTP(const std::string& url, sol::table params, sol::tab
 	cpr::Parameters cprParams = GetParameters(params);
 	cpr::Authentication cprAuth = GetAuthentication(auth);
 
+	cpr::ssl::CaInfo Certs(certificates.c_str());
+	cpr::SslOptions opts;
+	opts.SetOption(Certs);
+
 	cpr::Response r = cpr::Get(
 		cpr::Url(url),
 		cprParams,
-		cprAuth
+		cprAuth,
+		opts
 	);
 
 	sol::table resultTable = Lua.create_table();
@@ -27,9 +39,13 @@ sol::table Remote::fetchHTTP(const std::string& url, sol::table params, sol::tab
 
 void Remote::fetchHTTPAsync(sol::function handler, const std::string& url, sol::table params, sol::table auth)
 {
+	cpr::ssl::CaInfo Certs(certificates.c_str());
+	cpr::SslOptions opts;
+	opts.SetOption(Certs);
+
 	cpr::Parameters cprParams = GetParameters(params);
 	cpr::Authentication cprAuth = GetAuthentication(auth);
-	s_Container.emplace_back(handler, RemoteRequestType::GET, url, cprParams, cpr::Header{}, cpr::Body(""), cpr::Payload{}, cprAuth);
+	s_Container.emplace_back(handler, RemoteRequestType::GET, url, cprParams, cpr::Header{}, cpr::Body(""), cpr::Payload{}, cprAuth, opts);
 }
 
 sol::table Remote::postHTTP(const std::string& url, sol::table data)
@@ -65,12 +81,17 @@ sol::table Remote::postHTTP(const std::string& url, sol::table data)
 		}
 	}
 
+	cpr::ssl::CaInfo Certs(certificates.c_str());
+	cpr::SslOptions opts;
+	opts.SetOption(Certs);
+
 	cpr::Response r = cpr::Post(
 		cpr::Url(url),
 		cprHeader,
 		cprBody,
 		cprParams,
-		cprPayload
+		cprPayload,
+		opts
 	);
 
 	sol::table resultTable = Lua.create_table();
@@ -115,7 +136,11 @@ void Remote::postHTTPAsync(sol::function handler, const std::string& url, sol::t
 		}
 	}
 
-	s_Container.emplace_back(handler, RemoteRequestType::POST, url, cprParams, cprHeader, cprBody, cprPayload, cpr::Authentication("", ""));
+	cpr::ssl::CaInfo Certs(certificates.c_str());
+	cpr::SslOptions opts;
+	opts.SetOption(Certs);
+
+	s_Container.emplace_back(handler, RemoteRequestType::POST, url, cprParams, cprHeader, cprBody, cprPayload, cpr::Authentication("", ""), opts);
 }
 
 /*** Internal ***/
@@ -125,6 +150,7 @@ void Remote::Init(sol::state* Lua)
 
 	sol::usertype<Remote> userdata = Lua->new_usertype<Remote>("Remote");
 
+	userdata["setSSLCerts"] = &Remote::setSSLCerts;
 	userdata["fetch"] = sol::overload(&Remote::fetchHTTP, &Remote::fetchHTTPAsync);
 	userdata["post"] = sol::overload(&Remote::postHTTP, &Remote::postHTTPAsync);
 }

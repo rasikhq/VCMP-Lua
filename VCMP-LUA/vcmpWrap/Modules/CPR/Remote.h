@@ -18,14 +18,16 @@ struct RemoteRequest
 				cpr::Header cprHeader, 
 				cpr::Body cprBody, 
 				cpr::Payload cprPayload, 
-				cpr::Authentication cprAuth
+				cpr::Authentication cprAuth,
+				cpr::SslOptions opts
 	)
 		: handler(luaHandler)
 	{
 		if (requestType == RemoteRequestType::GET)
 			future = cpr::GetAsync(cpr::Url(url),
 				cprParams,
-				cprAuth
+				cprAuth,
+				opts
 			);
 		else if (requestType == RemoteRequestType::POST)
 			future = cpr::PostAsync(cpr::Url(url),
@@ -33,7 +35,8 @@ struct RemoteRequest
 				cprHeader,
 				cprBody,
 				cprPayload,
-				cprAuth
+				cprAuth,
+				opts
 			);
 	}
 
@@ -54,6 +57,10 @@ public:
 	static cpr::Authentication GetAuthentication(sol::table& auth);
 
 	/*** Lua ***/
+	static std::string certificates;
+
+	static bool setSSLCerts(const std::string& bundle);
+
 	static sol::table fetchHTTP(const std::string& url, sol::table params, sol::table auth);
 	static void fetchHTTPAsync(sol::function handler, const std::string& url, sol::table params, sol::table auth);
 
