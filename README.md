@@ -14,15 +14,17 @@ optional while some (like specifying atleast 1 script file) is compulsory.
 The file structure is as of right now very simple:
 ```ini
 [config]
-#experimental=1             # Sets experimental mode ON (1) or OFF (0) | Intended for beta-testing and development only. Do not rely for stability
-loglevel=0                  # Sets the log level, See the Logger page on Wiki for more information
-logfile=DailyLogs.logs      # Sets the log file. This log file will be used to create daily logs and it will log everything logged by Logger class, regardless of level
+# Sets experimental mode ON (1) or OFF (0) | Intended for beta-testing and development only. Do not rely for stability
+#experimental=1
+# Sets the log level, See the Logger page on Wiki for more information
+loglevel=0
+# Sets the log file. This log file will be used to create daily logs and it will log everything logged by Logger class, regardless of level
+logfile=DailyLogs.logs
 
 [scripts]
 # This is the scripts section, here you can specify all your script files that you want to run.
 
-script=YourScript.lua
-script=some/directory/myScript.lua
+script=lua/script.lua
 ```
 
 # Building the plugin
