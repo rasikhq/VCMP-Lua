@@ -11,13 +11,17 @@ public:
 
 public:
 	Thread();
+	~Thread();
 
 private:
 	void run(sol::function f);
 	bool wait();
 	sol::object get();
 	bool isReady();
+	bool isCancelled();
+	void destroy();
 
 private:
+	async::cancellation_token c;
 	async::task<sol::object> task;
 };
