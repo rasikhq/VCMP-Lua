@@ -14,11 +14,12 @@ void TimerManager::OnFrame(float elapsedTime)
 	{
 		const int64_t currentTick = GetCurrentSysTime();
 
-		if (!timer->bIsValid) 
+		while (!timer->bIsValid) 
 		{
 			timer = m_vcmpTimers.erase(timer);
 			if (timer == m_vcmpTimers.end())
-				break;
+				return;
+			break;
 		}
 
 		int64_t lastTick = timer->getLastTick();
