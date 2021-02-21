@@ -7,4 +7,7 @@ vcmpTimer::vcmpTimer(sol::function callback, unsigned int interval, int32_t repe
 	this->bIsValid = true;
 }
 
-void vcmpTimer::Init(sol::state* Lua) {}
+void vcmpTimer::Init(sol::state* Lua)
+{
+	sol::usertype<vcmpTimer> userdata = Lua->new_usertype<vcmpTimer>("vcmpTimer");
+}

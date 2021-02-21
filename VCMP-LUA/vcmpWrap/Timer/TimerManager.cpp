@@ -1,61 +1,65 @@
 #include "TimerManager.h"
 
 extern sol::state Lua;
-std::vector<std::unique_ptr<vcmpTimer>> TimerManager::m_vcmpTimers;
+std::vector<vcmpTimer> TimerManager::m_vcmpTimers;
 
 #define DEBUG_TIMERMANAGER 1
 #undef DEBUG_TIMERMANAGER
 
-void TimerManager::OnFrame(float elapsedTime) {
-	size_t size = m_vcmpTimers.size();
-	if (size == 0) return;
+void TimerManager::OnFrame(float elapsedTime) 
+{
+	if(m_vcmpTimers.empty()) return;
 
-	for (auto timer = m_vcmpTimers.begin(); timer != m_vcmpTimers.end(); timer++) {
+	for (auto timer = m_vcmpTimers.begin(); timer != m_vcmpTimers.end(); timer++) 
+	{
 		const int64_t currentTick = GetCurrentSysTime();
 
-		if (!timer->get()->bIsValid) {
-			timer->reset();
+		if (!timer->bIsValid) 
+		{
 			timer = m_vcmpTimers.erase(timer);
 			if (timer == m_vcmpTimers.end())
 				break;
 		}
 
-		int64_t lastTick = timer->get()->getLastTick();
-		int32_t repeat = timer->get()->getRepeat();
+		int64_t lastTick = timer->getLastTick();
+		int32_t repeat = timer->getRepeat();
 
 		// Calculate the elapsed time
 		const auto delta = int64_t((currentTick - lastTick) / 1000L);
 
-		if (delta > timer->get()->getInterval() && repeat != 0) {
-			const sol::function& fn = timer->get()->getCallback();
-			if (fn.valid()) {
-				Lua["thisTimer"] = timer->get();
-				const std::vector<sol::object>& args = timer->get()->getArgs();
+		if (delta > timer->getInterval() && repeat != 0) 
+		{
+			const sol::function& fn = timer->getCallback();
+			if (fn.valid()) 
+			{
+				Lua["thisTimer"] = &(*timer);
+				const std::vector<sol::object>& args = timer->getArgs();
 				sol::function_result result = fn(sol::as_args(args));
 				Lua["thisTimer"] = sol::nil;
-				if (!result.valid()) {
+				if (!result.valid()) 
+				{
 					sol::error e = result;
 					spdlog::error("Timer handler failed: {}", e.what());
 				}
 			}
-			else {
-				timer->get()->bIsValid = false;
-				continue;;
+			else 
+			{
+				timer->bIsValid = false;
+				continue;
 			}
 
-			timer->get()->setLastTick(currentTick);
+			timer->setLastTick(currentTick);
 
-			if (repeat > 0) {
-				timer->get()->setRepeat(--repeat);
-
-				if (repeat == 0)
-					timer->get()->bIsValid = false;
-			}
+			if (repeat > 0)
+				timer->setRepeat(--repeat);
+			else
+				timer->bIsValid = false;
 		}
 	}
 }
 
-vcmpTimer* TimerManager::createTimer(sol::function callback, unsigned int interval, int32_t repeat, sol::variadic_args args) {
+vcmpTimer* TimerManager::createTimer(sol::function callback, unsigned int interval, int32_t repeat, sol::variadic_args args) 
+{
 	if (m_vcmpTimers.size() >= m_vcmpTimers.capacity()) {
 		spdlog::error("Timer object limit of {} reached!", MAX_TIMERS);
 		throw("Timers limit reached1");
@@ -74,22 +78,16 @@ vcmpTimer* TimerManager::createTimer(sol::function callback, unsigned int interv
 	spdlog::debug("createTimer :: Received VA of size: {}", args.size());
 #endif
 
-	m_vcmpTimers.push_back(std::make_unique<vcmpTimer>(callback, interval, repeat, largs));
-	return m_vcmpTimers.back().get();
+	return &m_vcmpTimers.emplace_back(callback, interval, repeat, largs);
 }
 
-void TimerManager::destroyTimer(vcmpTimer* reference) {
-	/*for (auto it = m_vcmpTimers.begin(); it != m_vcmpTimers.end(); it++) {
-		if (it->get() == reference) {
-			it = m_vcmpTimers.erase(it);
-			if(it == m_vcmpTimers.end())
-				break;
-		}
-	}*/
+void TimerManager::destroyTimer(vcmpTimer* reference) 
+{
 	reference->bIsValid = false;
 }
 
-void TimerManager::Init(sol::state* Lua) {
+void TimerManager::Init(sol::state* Lua) 
+{
 	m_vcmpTimers.reserve(MAX_TIMERS);
 
 	sol::usertype<TimerManager> userdata = Lua->new_usertype<TimerManager>("Timer");
