@@ -48,6 +48,18 @@ void Server::setName(const std::string& newName)
 	g_Funcs->SetServerName(newName.c_str());
 }
 
+std::string Server::getGamemode()
+{
+	char buffer[512];
+	g_Funcs->GetGameModeText(buffer, sizeof(buffer));
+	return std::string(buffer);
+}
+
+void Server::setGamemode(const std::string& newGamemode)
+{
+	g_Funcs->SetGameModeText(newGamemode.c_str());
+}
+
 std::string Server::getPassword()
 {
 	char buffer[512];
@@ -58,6 +70,41 @@ std::string Server::getPassword()
 void Server::setPassword(const std::string& newPassword)
 {
 	g_Funcs->SetServerPassword(newPassword.c_str());
+}
+
+void Server::addClass(int32_t teamId, uint32_t colour, int32_t modelIndex, float x, float y, float z, float angle, int32_t weaponOne, int32_t weaponOneAmmo, int32_t weaponTwo, int32_t weaponTwoAmmo, int32_t weaponThree, int32_t weaponThreeAmmo)
+{
+	g_Funcs->AddPlayerClass(teamId, colour, modelIndex, x, y, z, angle, weaponOne, weaponOneAmmo, weaponTwo, weaponTwoAmmo, weaponThree, weaponThreeAmmo);
+}
+
+void Server::addClassEx(int32_t teamId, uint32_t colour, int32_t modelIndex, sol::table spawnPosition, float angle, sol::variadic_args vargs)
+{
+	if (spawnPosition.size() < 3)
+	{
+		spdlog::error("Server.addClass :: invalid spawn position table");
+		return;
+	}
+
+	int32_t 
+		wep1 = vargs.size() > 0 ? vargs[1] : 0, 
+		wep1Ammo = vargs.size() > 1 ? vargs[2] : 0,
+		wep2 = vargs.size() > 2 ? vargs[3] : 0,
+		wep2Ammo = vargs.size() > 3 ? vargs[4] : 0,
+		wep3 = vargs.size() > 4 ? vargs[5] : 0,
+		wep3Ammo = vargs.size() > 5 ? vargs[6] : 0;
+
+	addClass(teamId, colour, modelIndex, spawnPosition[1], spawnPosition[2], spawnPosition[3], angle, wep1, wep1Ammo, wep2, wep2Ammo, wep3, wep3Ammo);
+}
+
+void Server::addClassEx2(int32_t teamId, uint32_t colour, int32_t modelIndex, sol::table spawnPositionAngle, sol::variadic_args vargs)
+{
+	if (spawnPositionAngle.size() < 4)
+	{
+		spdlog::error("Server.addClass :: invalid spawn position table");
+		return;
+	}
+
+	addClassEx(teamId, colour, modelIndex, spawnPositionAngle, spawnPositionAngle[4], vargs);
 }
 
 uint16_t Server::getFallTimer()
@@ -1070,6 +1117,12 @@ void Server::Init(sol::state* L) {
 	usertype["setName"] = &Server::setName;
 	usertype["getName"] = &Server::getName;
 	usertype["name"] = sol::property(&Server::getName, &Server::setName);
+
+	usertype["setGame"] = &Server::setGamemode;
+	usertype["getGame"] = &Server::getGamemode;
+	usertype["gamemode"] = sol::property(&Server::getGamemode, &Server::setGamemode);
+
+	usertype["addClass"] = sol::overload(&Server::addClass, &Server::addClassEx, &Server::addClassEx2);
 
 	usertype["setPassword"] = &Server::setPassword;
 	usertype["getPassword"] = &Server::getPassword;

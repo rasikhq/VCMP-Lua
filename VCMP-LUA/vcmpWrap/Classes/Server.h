@@ -13,8 +13,15 @@ public:
 	static std::string getName();
 	static void setName(const std::string&);
 
+	static std::string getGamemode();
+	static void setGamemode(const std::string&);
+
 	static std::string getPassword();
 	static void setPassword(const std::string&);
+
+	static void addClass(int32_t teamId, uint32_t colour, int32_t modelIndex, float x, float y, float z, float angle, int32_t weaponOne, int32_t weaponOneAmmo, int32_t weaponTwo, int32_t weaponTwoAmmo, int32_t weaponThree, int32_t weaponThreeAmmo);
+	static void addClassEx(int32_t teamId, uint32_t colour, int32_t modelIndex, sol::table spawnPosition, float angle, sol::variadic_args vargs);
+	static void addClassEx2(int32_t teamId, uint32_t colour, int32_t modelIndex, sol::table spawnPositionAngle, sol::variadic_args vargs);
 
 	static uint16_t getFallTimer();
 	static int32_t getTimeRate();
