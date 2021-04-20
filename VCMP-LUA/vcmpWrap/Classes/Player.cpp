@@ -72,6 +72,11 @@ bool Player::isPlayerStreamed(Player* player) const {
 	return false;
 }
 
+void Player::forceSpawn() const
+{
+	g_Funcs->ForcePlayerSpawn(m_ID);
+}
+
 void Player::playSound(int32_t sound) const
 {
 	g_Funcs->PlaySound(getWorld(), sound, NAN, NAN, NAN);
@@ -487,6 +492,7 @@ void Player::Init(sol::state* L) {
 	userdata["getOption"] = &Player::getOption;
 	userdata["setOption"] = &Player::setOption;
 	userdata["isPlayerStreamed"] = &Player::isPlayerStreamed;
+	userdata["forceSpawn"] = &Player::forceSpawn;
 	userdata["playSound"] = &Player::playSound;
 	userdata["playSound3D"] = sol::overload(&Player::playSound3D, &Player::playSound3DEx, &Player::playSound3DEx2);
 	userdata["setWeapom"] = &Player::setWeapon;

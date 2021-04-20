@@ -30,6 +30,7 @@ public:
 	bool getOption(vcmpPlayerOption) const;
 	void setOption(vcmpPlayerOption, bool);
 	bool isPlayerStreamed(Player*) const;
+	void forceSpawn() const;
 	void playSound(int32_t) const;
 	void playSound3D(int32_t) const; // Player's position
 	void playSound3DEx(int32_t, sol::table) const;
