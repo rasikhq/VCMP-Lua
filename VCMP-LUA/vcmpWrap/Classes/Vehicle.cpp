@@ -302,7 +302,9 @@ void Vehicle::Init(sol::state* L) {
 			Vehicle(int32_t, int32_t, sol::table),
 			Vehicle(int32_t, int32_t, sol::table, int32_t),
 			Vehicle(int32_t, int32_t, sol::table, int32_t, int32_t)
-		>()
+		>(),
+		sol::meta_function::type, &Vehicle::getStaticType,
+		sol::meta_function::type_info, &Vehicle::getStaticType
 	);
 
 	userdata["type"] = &Vehicle::getStaticType;
@@ -341,3 +343,5 @@ void Vehicle::Init(sol::state* L) {
 	userdata["angle"] = sol::property(&Vehicle::getRotation, &Vehicle::setRotation);
 	userdata["rotation"] = sol::property(&Vehicle::getRotation, &Vehicle::setRotation);
 }
+
+std::ostream& operator<<(std::ostream& os, const Vehicle& e) { os << e.getStaticType(); return os; }

@@ -181,3 +181,5 @@ void Checkpoint::Init(sol::state* L) {
 	userdata["data"] = &Checkpoint::m_LuaData;
 	userdata["position"] = sol::property(&Checkpoint::getPosition, &Checkpoint::setPosition);
 }
+
+std::ostream& operator<<(std::ostream& os, const Checkpoint& e) { os << e.getStaticType(); return os; }

@@ -22,6 +22,8 @@
 
 // Script modules
 #include "Modules/JSON/JSON.hpp"
+#include "Modules/Misc/Inspect.hpp"
+#include "Modules/Misc/Debugger.hpp"
 
 void InitGlobals(sol::state*);
 
@@ -54,8 +56,10 @@ void RegisterClasses(sol::state* Lua) {
 	// Lua Script-Modules
 	// JSON
 	LoadScriptModule_JSON(Lua);
+	LoadScriptModule_Inspect(Lua);
+	dbg_setup(Lua->lua_state(), "debugger", "dbg", NULL, NULL);
 
-	Lua->script(R"(
+	/*Lua->script(R"(
 		function INTERNAL__tostring(x, intend)
 		intend = tonumber(intend) or 1
 		local s
@@ -93,7 +97,7 @@ void RegisterClasses(sol::state* Lua) {
 			print(arg[i]..(i ~= #arg and ',' or ''))
 		end
 	end
-	)");
+	)");*/
 }
 
 void InitGlobals(sol::state* Lua) {

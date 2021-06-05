@@ -60,7 +60,7 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 	}
 
 	Lua.open_libraries();
-	Lua.set_exception_handler(&my_exception_handler);
+	//Lua.set_exception_handler(&my_exception_handler);
 
 	bool experimental_mode = false;
 

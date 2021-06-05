@@ -3,7 +3,19 @@
 
 class Server {
 public:
+	Server() = default;
+	~Server() = default;
+
 	static void Init(sol::state*);
+
+	/*** @Lua static ***/
+	static constexpr const char* s_TYPE = "Server";
+	static inline const char* getStaticType() { return s_TYPE; }
+
+	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
+
+	/*** METHODS ***/
+
 	static int GetSkinID(const char*);
 
 	static bool getOption(vcmpServerOption option);

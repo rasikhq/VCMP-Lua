@@ -111,3 +111,5 @@ void Bind::Init(sol::state* L) {
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	userdata["data"] = &Bind::m_LuaData;
 }
+
+std::ostream& operator<<(std::ostream& os, const Bind& e) { os << e.getStaticType(); return os; }

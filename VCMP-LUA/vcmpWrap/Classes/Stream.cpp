@@ -1,9 +1,6 @@
 #include "Stream.h"
 #include "utility.h"
 
-#define DEBUG_STREAM
-#undef DEBUG_STREAM
-
 extern PluginFuncs* g_Funcs;
 
 Stream::Stream()
@@ -29,9 +26,7 @@ Stream::~Stream()
 uint8_t Stream::ReadByte()
 {
 	size_t dataSize = sizeof(uint8_t);
-#ifdef DEBUG_STREAM
-	std::cout << "Stream :: ReadByte :: [" << m_ReadCursor << "] " << dataSize << std::endl;
-#endif
+	spdlog::debug("Stream :: ReadByte :: [{}] {}", m_ReadCursor, dataSize);
 
 	if (m_ReadCursor >= m_WriteCursor) {
 		spdlog::error("Stream :: Not enough 'bytes' to read!");
@@ -53,9 +48,7 @@ int Stream::ReadNumber()
 	}
 
 	size_t dataSize = sizeof(int);
-#ifdef DEBUG_STREAM
-	std::cout << "Stream :: ReadNumber :: [" << m_ReadCursor << "] " << dataSize << std::endl;
-#endif
+	spdlog::debug("Stream :: ReadNumber :: [{}] {}", m_ReadCursor, dataSize);
 
 	int data;
 	std::memcpy(&data, &m_Data[m_ReadCursor], dataSize);
@@ -72,9 +65,7 @@ float Stream::ReadFloat()
 	}
 
 	size_t dataSize = sizeof(float);
-#ifdef DEBUG_STREAM
-	std::cout << "Stream :: ReadFloat :: [" << m_ReadCursor << "] " << dataSize << std::endl;
-#endif
+	spdlog::debug("Stream :: ReadFloat :: [{}] {}", m_ReadCursor, dataSize);
 
 	float data;
 	std::memcpy(&data, &m_Data[m_ReadCursor], dataSize);
@@ -85,9 +76,7 @@ float Stream::ReadFloat()
 
 std::string Stream::ReadString()
 {
-#ifdef DEBUG_STREAM
-	std::cout << "Stream :: ReadString :: [" << m_ReadCursor << "] " << std::endl;
-#endif
+	spdlog::debug("Stream :: ReadString :: {}", m_ReadCursor);
 
 	if (m_ReadCursor >= m_WriteCursor) {
 		spdlog::error("Stream :: Not enough 'String' to read!");
@@ -201,3 +190,5 @@ void Stream::Init(sol::state* L) {
 	userdata["send"] = &Stream::Send;
 	userdata["clear"] = &Stream::Clear;
 }
+
+std::ostream& operator<<(std::ostream& os, const Stream& e) { os << "StreamBuffer"; return os; }

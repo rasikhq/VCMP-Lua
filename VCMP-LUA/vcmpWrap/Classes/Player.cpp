@@ -479,7 +479,10 @@ void Player::setRotation(float angle)
 void Player::Init(sol::state* L) {
 	s_Players.reserve(MAX_PLAYERS);
 
-	sol::usertype<Player> userdata = L->new_usertype<Player>("Player");
+	sol::usertype<Player> userdata = L->new_usertype<Player>("Player",
+		sol::meta_function::type, &Player::getStaticType,
+		sol::meta_function::type_info, &Player::getStaticType
+	);
 
 	userdata["type"] = &Player::getStaticType;
 	userdata["findByID"] = &Player::Get;
@@ -569,3 +572,5 @@ void Player::Init(sol::state* L) {
 	userdata["position"] = sol::property(&Player::getPosition, &Player::setPosition);
 	userdata["angle"] = sol::property(&Player::getRotation, &Player::setRotation);
 }
+
+std::ostream& operator<<(std::ostream& os, const Player& e) { os << e.getStaticType(); return os; }

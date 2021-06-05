@@ -587,6 +587,8 @@
     <ClInclude Include="modules\mariadb\src\private.hpp" />
     <ClInclude Include="modules\mariadb\src\worker.hpp" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="vcmpWrap\Modules\Misc\Debugger.hpp" />
+    <ClInclude Include="vcmpWrap\Modules\Misc\Inspect.hpp" />
     <ClInclude Include="vcmpWrap\Modules\Thread\Thread.h" />
     <ClInclude Include="vcmpWrap\Classes\Bind.h" />
     <ClInclude Include="vcmpWrap\Classes\Checkpoint.h" />

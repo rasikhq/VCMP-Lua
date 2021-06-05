@@ -265,3 +265,5 @@ void Object::Init(sol::state* L) {
 	userdata["position"] = sol::property(&Object::getPosition, &Object::setPosition);
 	userdata["angle"] = sol::property(&Object::getRotation, &Object::setRotation);
 }
+
+std::ostream& operator<<(std::ostream& os, const Object& e) { os << e.getStaticType(); return os; }

@@ -1110,7 +1110,16 @@ int Server::GetSkinID(const char* name) {
 }
 
 void Server::Init(sol::state* L) {
-	sol::usertype<Server> usertype = L->new_usertype<Server>("Server");
+	sol::usertype<Server> usertype = L->new_usertype<Server>("Server",
+		sol::meta_function::type, &Server::getStaticType,
+		sol::meta_function::type_info, &Server::getStaticType
+	);
+
+	usertype["type"] = &Server::getStaticType;
+
+	/*** READ-ONLY ***/
+
+	/*** METHODS & PROPERTIES ***/
 	usertype["getOption"] = &Server::getOption;
 	usertype["setOption"] = &Server::setOption;
 

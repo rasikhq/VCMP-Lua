@@ -185,3 +185,5 @@ void Pickup::Init(sol::state* L) {
 	userdata["data"] = &Pickup::m_LuaData;
 	userdata["position"] = sol::property(&Pickup::getPosition, &Pickup::setPosition);
 }
+
+std::ostream& operator<<(std::ostream& os, const Pickup& e) { os << e.getStaticType(); return os; }
