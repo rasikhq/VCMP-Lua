@@ -38,4 +38,4 @@ jobs:
       - name: Run a multi-line script
         run: |
           premake5 gmake
-          make config=Release
+          make config=release
