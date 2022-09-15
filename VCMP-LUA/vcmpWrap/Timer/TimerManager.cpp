@@ -53,8 +53,6 @@ void TimerManager::OnFrame(float elapsedTime)
 
 			if (repeat > 0)
 				timer->setRepeat(--repeat);
-			else
-				timer->bIsValid = false;
 		}
 	}
 }
@@ -71,6 +69,10 @@ vcmpTimer* TimerManager::createTimer(sol::function callback, unsigned int interv
 	}
 	else if (interval < 50) {
 		spdlog::error("Interval cannot be less than 50ms!");
+		return nullptr;
+	}
+	else if(repeat == 0) {
+		spdlog::error("Repeat can either be -1 (infinite) or greater than 0!");
 		return nullptr;
 	}
 	std::vector<sol::object> largs(args.begin(), args.end());
