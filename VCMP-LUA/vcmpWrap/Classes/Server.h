@@ -45,6 +45,8 @@ public:
 	static float getGameSpeed();
 	static float getFlightAltitude();
 	static float getVehicleRespawnHeight();
+	static sol::object getWastedSettings();
+	static int32_t getKillDelay();
 
 	static void setFallTimer(uint16_t);
 	static void setTimeRate(int32_t);
@@ -56,6 +58,8 @@ public:
 	static void setGameSpeed(float);
 	static void setFlightAltitude(float);
 	static void setVehicleRespawnHeight(float);
+	static void setWastedSettings(sol::table);
+	static void setKillDelay(int32_t);
 
 	/*** PLAYER ***/
 	static bool banIP(char*);

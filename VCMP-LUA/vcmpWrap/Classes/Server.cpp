@@ -157,6 +157,30 @@ float Server::getVehicleRespawnHeight()
 	return g_Funcs->GetVehiclesForcedRespawnHeight();
 }
 
+sol::object Server::getWastedSettings() 
+{
+	sol::table settings = Lua.create_table();
+
+	uint32_t deathTimer, fadeTimer, fadeColour, corpseFadeStart, corpseFadeTime;
+	float fadeInSpeed, fadeOutSpeed;
+
+	g_Funcs->GetWastedSettings(&deathTimer, &fadeTimer, &fadeInSpeed, &fadeOutSpeed, &fadeColour, &corpseFadeStart, &corpseFadeTime);
+	settings["deathTimer"] = deathTimer;
+	settings["fadeTimer"] = fadeTimer;
+	settings["fadeInSpeed"] = fadeInSpeed;
+	settings["fadeOutSpeed"] = fadeOutSpeed;
+	settings["fadeColour"] = fadeColour;
+	settings["corpseFadeStart"] = corpseFadeStart;
+	settings["corpseFadeTime"] = corpseFadeTime;
+
+	return settings;
+}
+
+int32_t Server::getKillDelay() 
+{
+	return g_Funcs->GetKillCommandDelay();
+}
+
 void Server::setFallTimer(uint16_t value)
 {
 	g_Funcs->SetFallTimer(value);
@@ -205,6 +229,24 @@ void Server::setFlightAltitude(float value)
 void Server::setVehicleRespawnHeight(float value)
 {
 	g_Funcs->SetVehiclesForcedRespawnHeight(value);
+}
+
+void Server::setWastedSettings(sol::table settings) 
+{
+	g_Funcs->SetWastedSettings(
+		settings.get_or("deathTimer", 0),
+		settings.get_or("fadeTimer", 0),
+		settings.get_or("fadeInSpeed", .0f),
+		settings.get_or("fadeOutSpeed", .0f),
+		settings.get_or("fadeColour", 0),
+		settings.get_or("corpseFadeStart", 0),
+		settings.get_or("corpseFadeTime", 0)
+	);
+}
+
+void Server::setKillDelay(int32_t delay)
+{
+	g_Funcs->SetKillCommandDelay(delay);
 }
 
 bool Server::banIP(char* ip)
@@ -1182,6 +1224,8 @@ void Server::Init(sol::state* L) {
 	usertype["gameSpeed"] = sol::property(&Server::getGameSpeed, &Server::setGameSpeed);
 	usertype["flightAltitude"] = sol::property(&Server::getFlightAltitude, &Server::setFlightAltitude);
 	usertype["vehicleRespawnHeight"] = sol::property(&Server::getVehicleRespawnHeight, &Server::setVehicleRespawnHeight);
+	usertype["wastedSettings"] = sol::property(&Server::getWastedSettings, &Server::setWastedSettings);
+	usertype["killDelay"] = sol::property(&Server::getKillDelay, &Server::setKillDelay);
 
 	usertype["getSkinID"] = [](std::string name) -> int {
 		return GetSkinID(name.c_str());
@@ -1412,6 +1456,7 @@ void Server::Init(sol::state* L) {
 }
 
 /*****************************************************************************************************/
+
 std::string Map::GetDistrictName(float x, float y) {
 	if (x > -1613.03f && y > 413.218f && x < -213.73f && y < 1677.32f)
 		return "Downtown Vice City";

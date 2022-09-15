@@ -45,6 +45,12 @@ void Player::msgAll(const std::string& msg, sol::variadic_args args)
 		player.msg(msg, args);
 }
 
+void Player::announceAll(const std::string& msg, sol::variadic_args args) 
+{
+	for(auto& player : s_Players)
+		player.announce(msg, args);
+}
+
 Player::Player(int32_t id)
 	: m_ID(id), m_LuaData(Lua.create_table()) {
 
@@ -55,6 +61,12 @@ Player::Player(int32_t id)
 void Player::msg(const std::string& msg, sol::variadic_args args) {
 	int32_t color = args.size() > 0 ? args[0] : 0xFFFFFFFF;
 	g_Funcs->SendClientMessage(m_ID, color, msg.c_str());
+}
+
+void Player::announce(const std::string& msg, sol::variadic_args args) 
+{
+	int32_t type = args.size() > 0 ? args[0] : 0;
+	g_Funcs->SendGameMessage(m_ID, type, msg.c_str());
 }
 
 bool Player::getOption(vcmpPlayerOption option) const {
@@ -489,9 +501,11 @@ void Player::Init(sol::state* L) {
 	userdata["count"] = []() { return s_Players.size(); };
 	userdata["getActive"] = sol::overload([]() -> sol::table { return Player::getActive(false); }, &Player::getActive);
 	userdata["msgAll"] = &Player::msgAll;
+	userdata["announceAll"] = &Player::announceAll;
 
 	/*** METHODS ***/
 	userdata["msg"] = &Player::msg;
+	userdata["announce"] = &Player::announce;
 	userdata["getOption"] = &Player::getOption;
 	userdata["setOption"] = &Player::setOption;
 	userdata["isPlayerStreamed"] = &Player::isPlayerStreamed;

@@ -17,6 +17,7 @@ public:
 	static inline const char* getStaticType() { return "Player"; }
 	static sol::table getActive(bool spawned = false);
 	static void msgAll(const std::string& msg, sol::variadic_args args);
+	static void announceAll(const std::string& msg, sol::variadic_args args);
 	
 	/*** @Lua meta-functions & extra ***/
 	bool operator==(const Player& other) { return this->m_ID == other.m_ID; }
@@ -27,6 +28,8 @@ public:
 
 	/*** METHODS ***/
 	void msg(const std::string&, sol::variadic_args);
+	void announce
+	(const std::string&, sol::variadic_args);
 	bool getOption(vcmpPlayerOption) const;
 	void setOption(vcmpPlayerOption, bool);
 	bool isPlayerStreamed(Player*) const;

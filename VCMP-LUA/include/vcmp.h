@@ -39,9 +39,6 @@ typedef struct {
 	uint32_t flags;
 } ServerSettings;
 
-#define PLUGIN_API_MAJOR 2
-#define PLUGIN_API_MINOR 0
-
 typedef struct {
 	uint32_t structSize;
 	uint32_t pluginId;

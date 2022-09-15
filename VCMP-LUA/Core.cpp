@@ -33,7 +33,7 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 	g_Calls = pluginCalls;
 	g_Info = pluginInfo;
 
-	pluginInfo->pluginVersion = 0x1001;
+	pluginInfo->pluginVersion = 0x2401;
 	pluginInfo->apiMajorVersion = PLUGIN_API_MAJOR;
 	pluginInfo->apiMinorVersion = PLUGIN_API_MINOR;
 
