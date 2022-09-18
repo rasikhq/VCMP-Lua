@@ -157,7 +157,7 @@ float Server::getVehicleRespawnHeight()
 	return g_Funcs->GetVehiclesForcedRespawnHeight();
 }
 
-sol::object Server::getWastedSettings() 
+sol::table Server::getWastedSettings() 
 {
 	sol::table settings = Lua.create_table();
 
@@ -1164,6 +1164,7 @@ void Server::Init(sol::state* L) {
 	/*** METHODS & PROPERTIES ***/
 	usertype["getOption"] = &Server::getOption;
 	usertype["setOption"] = &Server::setOption;
+	usertype["getSettings"] = &Server::getSettings;
 
 	usertype["setName"] = &Server::setName;
 	usertype["getName"] = &Server::getName;
@@ -1503,19 +1504,22 @@ void Map::Init(sol::state* L) {
 		return bounds;
 	};
 
-	usertype["hideObject"] = [](int32_t model, int16_t x, int16_t y, int16_t z) -> void {
+	usertype["hideObject"] = [](int32_t model, float x, float y, float z) -> void {
 		int16_t x2 = (int16_t)(floor(x * 10.0f) + 0.5f);
 		int16_t y2 = (int16_t)(floor(y * 10.0f) + 0.5f);
 		int16_t z2 = (int16_t)(floor(z * 10.0f) + 0.5f);
+		g_Funcs->HideMapObject(model, x2, y2, z2);
+	};
+
+	usertype["hideObjectRaw"] = [](int32_t model, int x, int y, int z) -> void {
 		g_Funcs->HideMapObject(model, x, y, z);
 	};
 
-	usertype["hideObjectRaw"] = [](int32_t model, int16_t x, int16_t y, int16_t z) -> void {
-		g_Funcs->HideMapObject(model, x, y, z);
-	};
-
-	usertype["showMapObject"] = [](int32_t model, int16_t x, int16_t y, int16_t z) -> void {
-		g_Funcs->ShowMapObject(model, x, y, z);
+	usertype["showMapObject"] = [](int32_t model, float x, float y, float z) -> void {
+		int16_t x2 = (int16_t) (floor(x * 10.0f) + 0.5f);
+		int16_t y2 = (int16_t) (floor(y * 10.0f) + 0.5f);
+		int16_t z2 = (int16_t) (floor(z * 10.0f) + 0.5f);
+		g_Funcs->ShowMapObject(model, x2, y2, z2);
 	};
 
 	usertype["showAllObjects"] = []() -> void {

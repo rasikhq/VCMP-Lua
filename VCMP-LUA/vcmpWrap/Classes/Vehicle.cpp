@@ -36,6 +36,36 @@ sol::table Vehicle::getActive()
 	return entities;
 }
 
+void Vehicle::resetAllHandlings() 
+{
+	g_Funcs->ResetAllVehicleHandlings();
+}
+
+uint8_t Vehicle::modelHandlingRuleExists(int32_t modelIndex, int32_t ruleIndex) 
+{
+	return g_Funcs->ExistsHandlingRule(modelIndex, ruleIndex);
+}
+
+void Vehicle::resetModelHandlingRule(int32_t modelIndex, int32_t ruleIndex) 
+{
+	g_Funcs->ResetHandlingRule(modelIndex, ruleIndex);
+}
+
+void Vehicle::resetModelHandlingRules(int32_t modelIndex) 
+{
+	g_Funcs->ResetHandling(modelIndex);
+}
+
+double Vehicle::getModelHandlingRule(int32_t modelIndex, int32_t ruleIndex) 
+{
+	return g_Funcs->GetHandlingRule(modelIndex, ruleIndex);
+}
+
+void Vehicle::setModelHandlingRule(int32_t modelIndex, int32_t ruleIndex, double value) 
+{
+	g_Funcs->SetHandlingRule(modelIndex, ruleIndex, value);
+}
+
 Vehicle::Vehicle(int32_t model, int32_t world, float x, float y, float z, float angle, int32_t primaryColor, int32_t secondaryColor) 
 {
 	if (s_Vehicles.size() >= s_Vehicles.capacity()) {
@@ -137,6 +167,41 @@ void Vehicle::setSpeedEx(vcmpVehicleSpeed type, sol::table values, bool bAddSpee
 
 void Vehicle::setSpeedExDefault(sol::table values, bool bAddSpeed) {
 	setSpeedEx(vcmpVehicleSpeed::Normal, values, bAddSpeed);
+}
+
+void Vehicle::resetHandling() 
+{
+	g_Funcs->ResetInstHandling(m_ID);
+}
+
+void Vehicle::resetHandlingRule(int32_t ruleIndex) 
+{
+	g_Funcs->ResetInstHandlingRule(m_ID, ruleIndex);
+}
+
+void Vehicle::resetHandlingRuleEx(sol::table ruleIndexes) 
+{
+	ruleIndexes.for_each([this] (const sol::object& key, const sol::object& value) {
+		if(value.is<int32_t>()) {
+			int32_t ruleIndex = value.as<int32_t>();
+			this->resetHandlingRule(ruleIndex);
+		}
+	});
+}
+
+uint8_t Vehicle::hasHandlingRule(int32_t ruleIndex) 
+{
+	return g_Funcs->ExistsInstHandlingRule(m_ID, ruleIndex);
+}
+
+void Vehicle::setHandlingRule(int32_t ruleIndex, double value) 
+{
+	g_Funcs->SetInstHandlingRule(m_ID, ruleIndex, value);
+}
+
+double Vehicle::getHandlingRule(int32_t ruleIndex) 
+{
+	return g_Funcs->GetInstHandlingRule(m_ID, ruleIndex);
 }
 
 /*** PROPERTIES ***/
@@ -311,6 +376,12 @@ void Vehicle::Init(sol::state* L) {
 	userdata["findByID"] = &Vehicle::Get;
 	userdata["count"] = []() { return s_Vehicles.size(); };
 	userdata["getActive"] = &Vehicle::getActive;
+	userdata["resetAllHandlings"] = &Vehicle::resetAllHandlings;
+	userdata["modelHandlingRuleExists"] = &Vehicle::modelHandlingRuleExists;
+	userdata["resetModelHandlingRule"] = &Vehicle::resetModelHandlingRule;
+	userdata["resetModelHandlingRules"] = &Vehicle::resetModelHandlingRules;
+	userdata["getModelHandlingRule"] = &Vehicle::getModelHandlingRule;
+	userdata["setModelHandlingRule"] = &Vehicle::setModelHandlingRule;
 
 	/*** METHODS ***/
 	userdata["destroy"] = &Vehicle::destroy;
@@ -321,6 +392,11 @@ void Vehicle::Init(sol::state* L) {
 	userdata["setSpeed"] = sol::overload(&Vehicle::setSpeed, &Vehicle::setSpeedDefault, &Vehicle::setSpeedEx, &Vehicle::setSpeedExDefault);
 	userdata["getRotation"] = &Vehicle::getRotation;
 	userdata["setRotation"] = sol::overload(&Vehicle::setRotation, &Vehicle::setRotationEuler, &Vehicle::setRotationQuaternion);
+	userdata["resetHandling"] = &Vehicle::resetHandling;
+	userdata["resetHandlingRule"] = sol::overload(&Vehicle::resetHandlingRule, &Vehicle::resetHandlingRuleEx);
+	userdata["hasHandlingRule"] = &Vehicle::hasHandlingRule;
+	userdata["getHandlingRule"] = &Vehicle::getHandlingRule;
+	userdata["setHandlingRule"] = &Vehicle::setHandlingRule;
 
 	/*** READ-ONLY ***/
 	userdata.set("getType", &Vehicle::getType);

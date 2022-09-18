@@ -1,3 +1,6 @@
 .vs/*
 backup/*
 bin/*
+*.vcxproj
+*.vcxproj.filters
+*.sln

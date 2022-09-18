@@ -45,7 +45,7 @@ public:
 	static float getGameSpeed();
 	static float getFlightAltitude();
 	static float getVehicleRespawnHeight();
-	static sol::object getWastedSettings();
+	static sol::table getWastedSettings();
 	static int32_t getKillDelay();
 
 	static void setFallTimer(uint16_t);

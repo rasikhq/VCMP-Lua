@@ -19,6 +19,13 @@ public:
 	static inline const char* getStaticType() { return "Vehicle"; }
 	static sol::table getActive();
 
+	static void resetAllHandlings();
+	static uint8_t modelHandlingRuleExists(int32_t, int32_t);
+	static void resetModelHandlingRule(int32_t, int32_t);
+	static void resetModelHandlingRules(int32_t);
+	static double getModelHandlingRule(int32_t, int32_t);
+	static void setModelHandlingRule(int32_t, int32_t, double);
+
 	/*** @Lua meta-functions & extra ***/
 	bool operator==(const Vehicle& other) { return this->m_ID == other.m_ID; }
 	int32_t operator()() { return this->m_ID; }
@@ -41,6 +48,12 @@ public:
 	void setSpeedDefault(float, float, float, bool);
 	void setSpeedEx(vcmpVehicleSpeed, sol::table, bool);
 	void setSpeedExDefault(sol::table, bool);
+	void resetHandling();
+	void resetHandlingRule(int32_t);
+	void resetHandlingRuleEx(sol::table);
+	uint8_t hasHandlingRule(int32_t);
+	void setHandlingRule(int32_t, double);
+	double getHandlingRule(int32_t);
 
 	/*** READ-ONLY ***/
 	int32_t getID() const;
