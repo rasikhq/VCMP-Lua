@@ -170,6 +170,10 @@ bool Player::isCameraLocked() const
 	return g_Funcs->IsCameraLocked(m_ID);
 }
 
+bool Player::isAway() const {
+	return g_Funcs->IsPlayerAway(m_ID);
+}
+
 int32_t Player::getPing() const {
 	return g_Funcs->GetPlayerPing(m_ID);
 }
@@ -241,6 +245,10 @@ void Player::giveWeapon(int32_t weapon, int32_t ammo) const {
 	g_Funcs->GivePlayerWeapon(m_ID, weapon, ammo);
 }
 
+void Player::removeWeapon(int32_t weapon) const {
+	g_Funcs->RemovePlayerWeapon(m_ID, weapon);
+}
+
 void Player::setAnimationCompact(int32_t animation) const
 {
 	g_Funcs->SetPlayerAnimation(m_ID, 0, animation);
@@ -269,6 +277,11 @@ void Player::selectClass() const
 void Player::eject() const
 {
 	g_Funcs->RemovePlayerFromVehicle(m_ID);
+}
+
+void Player::disarm() const 
+{
+	g_Funcs->RemoveAllWeapons(m_ID);
 }
 
 void Player::setCam(sol::table position, sol::table lookAt) const
@@ -514,10 +527,14 @@ void Player::Init(sol::state* L) {
 	userdata["playSound3D"] = sol::overload(&Player::playSound3D, &Player::playSound3DEx, &Player::playSound3DEx2);
 	userdata["setWeapom"] = &Player::setWeapon;
 	userdata["giveWeapon"] = &Player::giveWeapon;
+	userdata["removeWeapon"] = &Player::removeWeapon;
+	userdata["disarm"] = &Player::disarm;
 	userdata["setVehicle"] = sol::overload(&Player::setVehicle, &Player::setVehicleWithSlot);
 	userdata["redirect"] = &Player::redirect;
 	userdata["setCamera"] = sol::overload(&Player::setCam, &Player::setCamEx);
 	userdata["restoreCamera"] = &Player::restoreCamera;
+	userdata["kick"] = &Player::kick;
+	userdata["ban"] = &Player::ban;
 	userdata["selectClass"] = &Player::selectClass;
 	userdata["setAnimation"] = sol::overload(&Player::setAnimationCompact, &Player::setAnimation);
 	userdata["eject"] = &Player::eject;

@@ -30,7 +30,6 @@ void InitGlobals(sol::state*);
 void RegisterClasses(sol::state* Lua) {
 	sol::state& state = *Lua;
 
-	Logger::Init(Lua, spdlog::level::info); // Set level to info to avoid debug messages or trace to get internal debug messages
 	InitGlobals(Lua);
 
 	EventManager::Init(Lua);

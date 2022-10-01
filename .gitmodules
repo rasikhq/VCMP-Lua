@@ -1,0 +1,3 @@
+[submodule "VCMP-LUA/vendor/lanes"]
+	path = VCMP-LUA/vendor/lanes
+	url = git@github.com:LuaLanes/lanes.git

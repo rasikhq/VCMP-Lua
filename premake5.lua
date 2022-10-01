@@ -17,7 +17,7 @@ workspace "VCMPLua"
 	targetsuffix "_x64" -- Default architecture
 
 	pic "On" -- position independent code enabled for every project
-
+	
 	configurations
 	{
 		-- Debug configurations are not used
@@ -46,10 +46,13 @@ workspace "VCMPLua"
 	flags { "MultiProcessorCompile"	}
 	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+filter {}
+
 -- Vendors
 include "VCMP-LUA/vendor/Lua"
 include "VCMP-LUA/vendor/spdlog"
 include "VCMP-LUA/vendor/asyncplusplus"
+include "VCMP-LUA/vendor/lanes"
 -- External Modules
 include "VCMP-LUA/modules/crypto"
 include "VCMP-LUA/modules/sqlite3"

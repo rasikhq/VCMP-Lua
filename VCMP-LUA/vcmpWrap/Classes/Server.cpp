@@ -1180,6 +1180,10 @@ void Server::Init(sol::state* L) {
 	usertype["getPassword"] = &Server::getPassword;
 	usertype["password"] = sol::property(&Server::getPassword, &Server::setPassword);
 
+	usertype["banIP"] = &Server::banIP;
+	usertype["unbanIP"] = &Server::unbanIP;
+	usertype["isIPBanned"] = &Server::isIPBanned;
+
 	usertype["shutdown"] = []()
 	{
 		g_Funcs->ShutdownServer();

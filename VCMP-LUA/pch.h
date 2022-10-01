@@ -23,6 +23,11 @@
 
 #include <sol/sol.hpp>
 
+extern "C" 
+{
+	#include <lanes.h>
+}
+
 #include <mariadb++/connection.hpp>
 
 #ifdef WIN32

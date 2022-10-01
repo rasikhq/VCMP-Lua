@@ -27,3 +27,5 @@ filter {"system:not windows", "Release32"}
 
 filter {"system:not windows", "Release"}
 	linkoptions { "-L modules/mariadb/lib/mariadbclient.a" }
+	
+filter {}

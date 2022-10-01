@@ -61,6 +61,7 @@ public:
 	bool isTyping() const;
 	bool isCrouching() const;
 	bool isCameraLocked() const;
+	bool isAway() const;
 
 	Object* isStandingOnObject() const;
 	Vehicle* isStandingOnVehicle() const;
@@ -70,6 +71,8 @@ public:
 
 	void setWeapon(int32_t, int32_t) const;
 	void giveWeapon(int32_t, int32_t) const;
+	void removeWeapon(int32_t) const;
+	void disarm() const;
 
 	void setAnimationCompact(int32_t) const;
 	void setAnimation(int32_t, int32_t) const;

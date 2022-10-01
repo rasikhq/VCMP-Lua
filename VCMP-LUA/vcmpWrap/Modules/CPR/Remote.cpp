@@ -157,7 +157,7 @@ void Remote::Init(sol::state* Lua)
 
 void Remote::Process(float elapsedTime)
 {
-	if (s_Container.size() == 0) return;
+	if (s_Container.empty()) return;
 	using namespace std::chrono_literals;
 
 	for (auto it = s_Container.begin(); it != s_Container.end(); it++)

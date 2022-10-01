@@ -10,15 +10,15 @@ project "LuaPlugin"
 	files
 	{
 		"pch.h",
-        	"pch.cpp",
-        	"Core.cpp",
+        "pch.cpp",
+        "Core.cpp",
 
-        	"include/**.h",
-        	"include/**.c",
+        "include/**.h",
+        "include/**.c",
         
-        	"vcmpWrap/**.h",
+        "vcmpWrap/**.h",
 		"vcmpWrap/**.cpp",
-    	}
+    }
     
 	includedirs
 	{
@@ -30,6 +30,7 @@ project "LuaPlugin"
 		"%{wks.location}/VCMP-LUA/vendor/sol",
 		"%{wks.location}/VCMP-LUA/vendor/spdlog/include",
 		"%{wks.location}/VCMP-LUA/vendor/asyncplusplus/include",
+		"%{wks.location}/VCMP-LUA/vendor/lanes/src",
 	}
 
 	-- Module(s) files and dirs
@@ -51,9 +52,13 @@ project "LuaPlugin"
 
 	defines { "LIBASYNC_STATIC" }
 
-	links { "spdlog", "Lua", "asyncplusplus" }
-	-- Links external modules
-	links { "module-crypto", "module-sqliteCpp", "module-cpr" }
+	filter {}
+		internalLinks = { "spdlog", "Lua", "asyncplusplus", "LuaLanes" }
+		-- Links external modules
+		externalLinks = { "module-crypto", "module-sqliteCpp", "module-cpr" }
+		
+		local linksTbl = table.join(internalLinks, externalLinks)
+		links(linksTbl)
 
 	-- Specify internal modules (Not project based)
 	include "modules/mariadb"
