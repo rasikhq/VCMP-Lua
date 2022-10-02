@@ -8,10 +8,9 @@ Stream::Stream()
 {}
 
 Stream::Stream(const uint8_t* data, size_t size)
-	: m_ReadCursor(0), m_WriteCursor(0)
+	: m_ReadCursor(0), m_WriteCursor(size)
 {
 	std::memcpy(m_Data, data, size);
-	m_WriteCursor += size;
 	spdlog::debug("Stream instantiated with size: {}", size);
 }
 
@@ -26,7 +25,7 @@ Stream::~Stream()
 uint8_t Stream::ReadByte()
 {
 	size_t dataSize = sizeof(uint8_t);
-	spdlog::debug("Stream :: ReadByte :: [{}] {}", m_ReadCursor, dataSize);
+	spdlog::debug("Stream :: ReadByte :: [{} / {}] {}", m_ReadCursor, m_WriteCursor, dataSize);
 
 	if (m_ReadCursor >= m_WriteCursor) {
 		spdlog::error("Stream :: Not enough 'bytes' to read!");
@@ -48,7 +47,7 @@ int Stream::ReadNumber()
 	}
 
 	size_t dataSize = sizeof(int);
-	spdlog::debug("Stream :: ReadNumber :: [{}] {}", m_ReadCursor, dataSize);
+	spdlog::debug("Stream :: ReadNumber :: [{} / {}] {}", m_ReadCursor, m_WriteCursor, dataSize);
 
 	int data;
 	std::memcpy(&data, &m_Data[m_ReadCursor], dataSize);
@@ -65,7 +64,7 @@ float Stream::ReadFloat()
 	}
 
 	size_t dataSize = sizeof(float);
-	spdlog::debug("Stream :: ReadFloat :: [{}] {}", m_ReadCursor, dataSize);
+	spdlog::debug("Stream :: ReadFloat :: [{} / {}] {}", m_ReadCursor, m_WriteCursor, dataSize);
 
 	float data;
 	std::memcpy(&data, &m_Data[m_ReadCursor], dataSize);
@@ -76,7 +75,7 @@ float Stream::ReadFloat()
 
 std::string Stream::ReadString()
 {
-	spdlog::debug("Stream :: ReadString :: {}", m_ReadCursor);
+	spdlog::debug("Stream :: ReadString :: {} / {}", m_ReadCursor, m_WriteCursor);
 
 	if (m_ReadCursor >= m_WriteCursor) {
 		spdlog::error("Stream :: Not enough 'String' to read!");
@@ -89,7 +88,7 @@ std::string Stream::ReadString()
 	std::memcpy(&length, &m_Data[m_ReadCursor], dataSize);
 	m_ReadCursor += dataSize;
 
-	length = ((length >> 8) & 0xFF) | ((length & 0xFF) << 8);
+	length = static_cast<uint16_t>(((length >> 8) & 0xFF) | ((length & 0xFF) << 8));
 
 	spdlog::debug("m_ReadCursor: {0}\nm_WriteCursor: {1}\ndataSize: {2}\nlength: {3}", m_ReadCursor, m_WriteCursor, dataSize, length);
 
@@ -98,11 +97,10 @@ std::string Stream::ReadString()
 		return std::string();
 	}
 
-	static char data[MAX_STREAM_DATA];
-	std::memcpy(&data, &m_Data[m_ReadCursor], length);
+	std::string result(&m_Data[m_ReadCursor], &m_Data[m_ReadCursor + length]);
 	
 	m_ReadCursor += length;
-	return std::string(data);
+	return result;
 }
 
 /*******************************************************************************/

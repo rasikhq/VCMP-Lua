@@ -61,7 +61,7 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 
 	Lua.open_libraries();
 
-	Logger::Init(&Lua, spdlog::level::info); // Set level to info to avoid debug messages or trace to get internal debug messages
+	Logger::Init(&Lua, spdlog::level::debug); // Set level to info to avoid debug messages or trace to get internal debug messages
 
 	luaopen_lanes_embedded(Lua.lua_state(), NULL);
 	//Lua.set_exception_handler(&my_exception_handler);

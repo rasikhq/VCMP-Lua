@@ -15,7 +15,7 @@ extern sol::state Lua;
 void RegisterVCMPCallbacks() {
 	/*** SERVER ***/
 	g_Calls->OnServerInitialise = [] () -> uint8_t {
-		spdlog::debug("onServerinitialise");
+		spdlog::trace("onServerinitialise");
 		
 		auto handlers = EventManager::GetHandlers("onServerInit");
 		if (handlers.size() == 0) return 1;
@@ -41,7 +41,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnServerShutdown = []() -> void {
-		spdlog::debug("OnServerShutdown");
+		spdlog::trace("OnServerShutdown");
 
 		auto handlers = EventManager::GetHandlers("onServerShutdown");
 		if (handlers.size() == 0) return;
@@ -64,7 +64,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnServerFrame = [](float elapsedTime) -> void {
-		//spdlog::debug("OnServerFrame");
+		//spdlog::trace("OnServerFrame");
 
 		TimerManager::OnFrame(elapsedTime);
 		Remote::Process(elapsedTime);
@@ -90,7 +90,7 @@ void RegisterVCMPCallbacks() {
 	};
 	
 	g_Calls->OnPluginCommand = [](uint32_t commandIdentifier, const char* message) -> uint8_t {
-		spdlog::debug("OnPluginCommand");
+		spdlog::trace("OnPluginCommand");
 
 		auto handlers = EventManager::GetHandlers("onPluginCommand");
 		if (handlers.size() == 0) return 1;
@@ -117,7 +117,7 @@ void RegisterVCMPCallbacks() {
 
 	/*** PLAYER ***/
 	g_Calls->OnIncomingConnection = [](char* playerName, size_t nameBufferSize, const char* userPassword, const char* ipAddress) -> uint8_t {
-		spdlog::debug("OnIncomingConnection");
+		spdlog::trace("OnIncomingConnection");
 
 		auto handlers = EventManager::GetHandlers("onPlayerConnection");
 		if (handlers.size() == 0) return 1;
@@ -143,7 +143,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnClientScriptData = [](int32_t playerId, const uint8_t* data, size_t size) {
-		spdlog::debug("OnClientScriptData");
+		spdlog::trace("OnClientScriptData");
 
 		auto handlers = EventManager::GetHandlers("onClientData");
 		if (handlers.size() == 0) return;
@@ -168,7 +168,7 @@ void RegisterVCMPCallbacks() {
 	};
 	
 	g_Calls->OnPlayerConnect = [](int32_t playerId) {
-		spdlog::debug("OnPlayerConnect");
+		spdlog::trace("OnPlayerConnect");
 		auto handlers = EventManager::GetHandlers("onPlayerConnect");
 
 		Player* player = Player::Register(playerId);
@@ -192,7 +192,7 @@ void RegisterVCMPCallbacks() {
 	};
 	
 	g_Calls->OnPlayerDisconnect = [](int32_t playerId, vcmpDisconnectReason reason) {
-		spdlog::debug("OnPlayerDisconnect");
+		spdlog::trace("OnPlayerDisconnect");
 		auto handlers = EventManager::GetHandlers("onPlayerDisconnect");
 		
 		Player* player = Player::Get(playerId);
@@ -219,7 +219,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerModuleList = [](int32_t playerId, const char* list) {
-		spdlog::debug("OnPlayerModuleList");
+		spdlog::trace("OnPlayerModuleList");
 
 		auto handlers = EventManager::GetHandlers("onPlayerModuleList");
 		if (handlers.size() == 0) return;
@@ -244,7 +244,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerRequestClass = [](int32_t playerId, int32_t offset) -> uint8_t {
-		spdlog::debug("OnPlayerRequestClass");
+		spdlog::trace("OnPlayerRequestClass");
 
 		auto handlers = EventManager::GetHandlers("onPlayerRequestClass");
 		if (handlers.size() == 0) return 1;
@@ -271,7 +271,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerRequestSpawn = [](int32_t playerId) -> uint8_t {
-		spdlog::debug("OnPlayerRequestSpawn");
+		spdlog::trace("OnPlayerRequestSpawn");
 
 		auto handlers = EventManager::GetHandlers("onPlayerRequestSpawn");
 		if (handlers.size() == 0) return 1;
@@ -298,7 +298,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerSpawn = [](int32_t playerId) {
-		spdlog::debug("OnPlayerSpawn");
+		spdlog::trace("OnPlayerSpawn");
 
 		auto handlers = EventManager::GetHandlers("onPlayerSpawn");
 		if (handlers.size() == 0) return;
@@ -322,7 +322,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerDeath = [](int32_t playerId, int32_t killerId, int32_t reason, vcmpBodyPart bodyPart) {
-		spdlog::debug("OnPlayerDeath");
+		spdlog::trace("OnPlayerDeath");
 
 		if (!g_Funcs->IsPlayerConnected(killerId)) {
 			auto handlers = EventManager::GetHandlers("onPlayerWasted");
@@ -379,7 +379,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerUpdate = [](int32_t playerId, vcmpPlayerUpdate updateType) {
-		//spdlog::debug("OnPlayerUpdate");
+		//spdlog::trace("OnPlayerUpdate");
 
 		auto handlers = EventManager::GetHandlers("onPlayerUpdate");
 		if (handlers.size() == 0) return;
@@ -403,7 +403,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerRequestEnterVehicle = [](int32_t playerId, int32_t vehicleId, int32_t slotIndex) -> uint8_t {
-		spdlog::debug("OnPlayerRequestEnterVehicle");
+		spdlog::trace("OnPlayerRequestEnterVehicle");
 
 		auto handlers = EventManager::GetHandlers("onPlayerRequestEnterVehicle");
 		if (handlers.size() == 0) return 1;
@@ -431,7 +431,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerEnterVehicle = [](int32_t playerId, int32_t vehicleId, int32_t slotIndex) {
-		spdlog::debug("OnPlayerEnterVehicle");
+		spdlog::trace("OnPlayerEnterVehicle");
 
 		auto handlers = EventManager::GetHandlers("onPlayerEnterVehicle");
 		if (handlers.size() == 0) return;
@@ -456,7 +456,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerExitVehicle = [](int32_t playerId, int32_t vehicleId) {
-		spdlog::debug("OnPlayerExitVehicle");
+		spdlog::trace("OnPlayerExitVehicle");
 
 		auto handlers = EventManager::GetHandlers("onPlayerExitVehicle");
 		if (handlers.size() == 0) return;
@@ -481,7 +481,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerNameChange = [](int32_t playerId, const char* oldName, const char* newName) {
-		spdlog::debug("OnPlayerNameChange");
+		spdlog::trace("OnPlayerNameChange");
 
 		auto handlers = EventManager::GetHandlers("onPlayerNameChange");
 		if (handlers.size() == 0) return;
@@ -505,7 +505,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerStateChange = [](int32_t playerId, vcmpPlayerState oldState, vcmpPlayerState newState) {
-		//spdlog::debug("OnPlayerStateChange");
+		//spdlog::trace("OnPlayerStateChange");
 
 		auto handlers = EventManager::GetHandlers("onPlayerStateChange");
 		if (handlers.size() == 0 || newState == oldState) return;
@@ -529,7 +529,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerActionChange = [](int32_t playerId, int32_t oldAction, int32_t newAction) {
-		spdlog::debug("OnPlayerActionChange");
+		spdlog::trace("OnPlayerActionChange");
 
 		auto handlers = EventManager::GetHandlers("onPlayerActionChange");
 		if (handlers.size() == 0 || newAction == oldAction) return;
@@ -553,7 +553,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerOnFireChange = [](int32_t playerId, uint8_t isOnFire) {
-		spdlog::debug("OnPlayerOnFireChange");
+		spdlog::trace("OnPlayerOnFireChange");
 
 		auto handlers = EventManager::GetHandlers("onPlayerFireChange");
 		if (handlers.size() == 0) return;
@@ -577,7 +577,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerCrouchChange = [](int32_t playerId, uint8_t isCrouching) {
-		spdlog::debug("OnPlayerCrouchChange");
+		spdlog::trace("OnPlayerCrouchChange");
 
 		auto handlers = EventManager::GetHandlers("onPlayerCrouchChange");
 		if (handlers.size() == 0) return;
@@ -601,7 +601,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerGameKeysChange = [](int32_t playerId, uint32_t oldKeys, uint32_t newKeys) {
-		//spdlog::debug("OnPlayerGameKeysChange");
+		//spdlog::trace("OnPlayerGameKeysChange");
 
 		auto handlers = EventManager::GetHandlers("onPlayerGameKeysChange");
 		if (handlers.size() == 0) return;
@@ -625,7 +625,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerBeginTyping = [](int32_t playerId) {
-		spdlog::debug("OnPlayerBeginTyping");
+		spdlog::trace("OnPlayerBeginTyping");
 
 		auto handlers = EventManager::GetHandlers("onPlayerBeginTyping");
 		if (handlers.size() == 0) return;
@@ -649,7 +649,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerEndTyping = [](int32_t playerId) {
-		spdlog::debug("OnPlayerEndTyping");
+		spdlog::trace("OnPlayerEndTyping");
 
 		auto handlers = EventManager::GetHandlers("onPlayerFinishTyping");
 		if (handlers.size() == 0) return;
@@ -673,7 +673,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerAwayChange = [](int32_t playerId, uint8_t isAway) {
-		spdlog::debug("OnPlayerAwayChange");
+		spdlog::trace("OnPlayerAwayChange");
 
 		auto handlers = EventManager::GetHandlers("onPlayerAwayChange");
 		if (handlers.size() == 0) return;
@@ -697,7 +697,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerMessage = [](int32_t playerId, const char* message) -> uint8_t {
-		spdlog::debug("OnPlayerMessage");
+		spdlog::trace("OnPlayerMessage");
 
 		auto handlers = EventManager::GetHandlers("onPlayerMessage");
 		if (handlers.size() == 0) return 1;
@@ -724,7 +724,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerCommand = [](int32_t playerId, const char* message) -> uint8_t {
-		spdlog::debug("OnPlayerCommand");
+		spdlog::trace("OnPlayerCommand");
 
 		auto handlers = EventManager::GetHandlers("onPlayerCommand");
 		if (handlers.size() == 0) return 1;
@@ -792,7 +792,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerPrivateMessage = [](int32_t playerId, int32_t targetPlayerId, const char* message) -> uint8_t {
-		spdlog::debug("OnPlayerPrivateMessage");
+		spdlog::trace("OnPlayerPrivateMessage");
 
 		auto handlers = EventManager::GetHandlers("onPlayerPM");
 		if (handlers.size() == 0) return 1;
@@ -820,7 +820,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerKeyBindDown = [](int32_t playerId, int32_t bindId) {
-		spdlog::debug("OnPlayerKeyBindDown");
+		spdlog::trace("OnPlayerKeyBindDown");
 
 		auto handlers = EventManager::GetHandlers("onPlayerKeyDown");
 		if (handlers.size() == 0) return;
@@ -846,7 +846,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerKeyBindUp = [](int32_t playerId, int32_t bindId) {
-		spdlog::debug("OnPlayerKeyBindUp");
+		spdlog::trace("OnPlayerKeyBindUp");
 
 		auto handlers = EventManager::GetHandlers("onPlayerKeyUp");
 		if (handlers.size() == 0) return;
@@ -871,7 +871,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerSpectate = [](int32_t playerId, int32_t targetPlayerId) {
-		spdlog::debug("OnPlayerSpectate");
+		spdlog::trace("OnPlayerSpectate");
 
 		auto handlers = EventManager::GetHandlers("onPlayerSpectate");
 		if (handlers.size() == 0) return;
@@ -896,7 +896,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPlayerCrashReport = [](int32_t playerId, const char* report) {
-		spdlog::debug("OnPlayerCrashReport");
+		spdlog::trace("OnPlayerCrashReport");
 
 		auto handlers = EventManager::GetHandlers("onPlayerCrashReport");
 		if (handlers.size() == 0) return;
@@ -921,7 +921,7 @@ void RegisterVCMPCallbacks() {
 	
 	/*** VEHICLE ***/
 	g_Calls->OnVehicleUpdate = [](int32_t vehicleId, vcmpVehicleUpdate updateType) {
-		//spdlog::debug("OnVehicleUpdate");
+		//spdlog::trace("OnVehicleUpdate");
 
 		auto handlers = EventManager::GetHandlers("onVehicleUpdate");
 		if (handlers.size() == 0) return;
@@ -945,7 +945,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnVehicleExplode = [](int32_t vehicleId) {
-		spdlog::debug("OnVehicleExplode");
+		spdlog::trace("OnVehicleExplode");
 
 		auto handlers = EventManager::GetHandlers("onVehicleExplode");
 		if (handlers.size() == 0) return;
@@ -969,7 +969,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnVehicleRespawn = [](int32_t vehicleId) {
-		spdlog::debug("OnVehicleRespawn");
+		spdlog::trace("OnVehicleRespawn");
 
 		auto handlers = EventManager::GetHandlers("onVehicleRespawn");
 		if (handlers.size() == 0) return;
@@ -994,7 +994,7 @@ void RegisterVCMPCallbacks() {
 
 	/*** OBJECT ***/
 	g_Calls->OnObjectShot = [](int32_t objectId, int32_t playerId, int32_t weaponId) {
-		spdlog::debug("OnObjectShot");
+		spdlog::trace("OnObjectShot");
 
 		auto handlers = EventManager::GetHandlers("onObjectShot");
 		if (handlers.size() == 0) return;
@@ -1019,7 +1019,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnObjectTouched = [](int32_t objectId, int32_t playerId) {
-		spdlog::debug("OnObjectTouched");
+		spdlog::trace("OnObjectTouched");
 
 		auto handlers = EventManager::GetHandlers("onObjectTouch");
 		if (handlers.size() == 0) return;
@@ -1045,7 +1045,7 @@ void RegisterVCMPCallbacks() {
 
 	/*** PICKUP ***/
 	g_Calls->OnPickupPickAttempt = [](int32_t pickupId, int32_t playerId) -> uint8_t {
-		spdlog::debug("OnPickupPickAttempt");
+		spdlog::trace("OnPickupPickAttempt");
 
 		auto handlers = EventManager::GetHandlers("onPickupPickAttempt");
 		if (handlers.size() == 0) return 1;
@@ -1073,7 +1073,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPickupPicked = [](int32_t pickupId, int32_t playerId) {
-		spdlog::debug("OnPickupPicked");
+		spdlog::trace("OnPickupPicked");
 
 		auto handlers = EventManager::GetHandlers("onPickupPicked");
 		if (handlers.size() == 0) return;
@@ -1098,7 +1098,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnPickupRespawn = [](int32_t pickupId) {
-		spdlog::debug("OnPickupRespawn");
+		spdlog::trace("OnPickupRespawn");
 
 		auto handlers = EventManager::GetHandlers("onPickupRespawn");
 		if (handlers.size() == 0) return;
@@ -1123,7 +1123,7 @@ void RegisterVCMPCallbacks() {
 
 	/*** CHECKPOINT ***/
 	g_Calls->OnCheckpointEntered = [](int32_t checkPointId, int32_t playerId) {
-		spdlog::debug("OnCheckpointEntered");
+		spdlog::trace("OnCheckpointEntered");
 
 		auto handlers = EventManager::GetHandlers("onCheckpointEnter");
 		if (handlers.size() == 0) return;
@@ -1148,7 +1148,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnCheckpointExited = [](int32_t checkPointId, int32_t playerId) {
-		spdlog::debug("OnCheckpointExited");
+		spdlog::trace("OnCheckpointExited");
 
 		auto handlers = EventManager::GetHandlers("onCheckpointExit");
 		if (handlers.size() == 0) return;
@@ -1174,7 +1174,7 @@ void RegisterVCMPCallbacks() {
 
 	/*** MISC ***/
 	g_Calls->OnEntityPoolChange = [](vcmpEntityPool entityType, int32_t entityId, uint8_t isDeleted) {
-		spdlog::debug("OnEntityPoolChange");
+		spdlog::trace("OnEntityPoolChange");
 
 		auto handlers = EventManager::GetHandlers("onEntityPoolChange");
 		if (handlers.size() == 0) return;
@@ -1197,7 +1197,7 @@ void RegisterVCMPCallbacks() {
 	};
 
 	g_Calls->OnServerPerformanceReport = [](size_t entryCount, const char** descriptions, uint64_t* times) {
-		spdlog::debug("OnServerPerformanceReport");
+		spdlog::trace("OnServerPerformanceReport");
 
 		auto handlers = EventManager::GetHandlers("onServerPerformanceReport");
 		if (handlers.size() == 0) return;
