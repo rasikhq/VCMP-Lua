@@ -65,6 +65,7 @@ public:
 	uint32_t getIdleRespawnTime() const;
 	uint32_t getLightsData() const;
 	uint32_t getDamage() const;
+	uint32_t getImmunity() const;
 	float getHealth() const;
 	sol::as_table_t<std::vector<float>> getSpawnPosition() const;
 	sol::as_table_t<std::vector<float>> getSpawnRotation() const;
@@ -75,6 +76,7 @@ public:
 	void setIdleRespawnTime(uint32_t);
 	void setLightsData(uint32_t);
 	void setDamage(uint32_t);
+	void setImmunity(uint32_t);
 	void setHealth(float);
 	void setSpawnPosition(sol::table);
 	void setSpawnRotation(sol::table);

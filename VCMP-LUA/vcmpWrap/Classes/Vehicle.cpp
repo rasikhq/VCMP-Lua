@@ -287,11 +287,22 @@ void Vehicle::setRadio(int32_t radioID) {
 	g_Funcs->SetVehicleRadio(m_ID, radioID);
 }
 
-uint32_t Vehicle::getDamage() const { return g_Funcs->GetVehicleDamageData(m_ID); }
+uint32_t Vehicle::getDamage() const { 
+	return g_Funcs->GetVehicleDamageData(m_ID);
+}
+
+uint32_t Vehicle::getImmunity() const {
+	return g_Funcs->GetVehicleImmunityFlags(m_ID);
+}
+
 void Vehicle::setDamage(uint32_t data) { 
 	if (getDamage() == data)
 		return;
 	g_Funcs->SetVehicleDamageData(m_ID, data); 
+}
+
+void Vehicle::setImmunity(uint32_t flags) {
+	g_Funcs->SetVehicleImmunityFlags(m_ID, flags);
 }
 
 /*** COMMON PROPERTIES ***/
@@ -412,6 +423,7 @@ void Vehicle::Init(sol::state* L) {
 	userdata["color"] = sol::property(&Vehicle::getColor, &Vehicle::setColor);
 	userdata["radio"] = sol::property(&Vehicle::getRadio, &Vehicle::setRadio);
 	userdata["damage"] = sol::property(&Vehicle::getDamage, &Vehicle::setDamage);
+	userdata["immunity"] = sol::property(&Vehicle::getImmunity, &Vehicle::setImmunity);
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	userdata["data"] = &Vehicle::m_LuaData;

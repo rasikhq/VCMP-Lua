@@ -28,8 +28,9 @@ public:
 
 	/*** METHODS ***/
 	void msg(const std::string&, sol::variadic_args);
-	void announce
-	(const std::string&, sol::variadic_args);
+	void announce(const std::string&, sol::variadic_args);
+	int32_t getAlpha() const;
+	void setAlpha(int32_t, uint32_t);
 	bool getOption(vcmpPlayerOption) const;
 	void setOption(vcmpPlayerOption, bool);
 	bool isPlayerStreamed(Player*) const;

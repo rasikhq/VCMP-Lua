@@ -69,6 +69,14 @@ void Player::announce(const std::string& msg, sol::variadic_args args)
 	g_Funcs->SendGameMessage(m_ID, type, msg.c_str());
 }
 
+int32_t Player::getAlpha() const {
+	return g_Funcs->GetPlayerAlpha(m_ID);
+}
+
+void Player::setAlpha(int32_t alpha, uint32_t fadeTime) {
+	g_Funcs->SetPlayerAlpha(m_ID, alpha, fadeTime);
+}
+
 bool Player::getOption(vcmpPlayerOption option) const {
 	return g_Funcs->GetPlayerOption(m_ID, option);
 }
@@ -519,6 +527,8 @@ void Player::Init(sol::state* L) {
 	/*** METHODS ***/
 	userdata["msg"] = &Player::msg;
 	userdata["announce"] = &Player::announce;
+	userdata["getAlpha"] = &Player::getAlpha;
+	userdata["setAlpha"] = &Player::setAlpha;
 	userdata["getOption"] = &Player::getOption;
 	userdata["setOption"] = &Player::setOption;
 	userdata["isPlayerStreamed"] = &Player::isPlayerStreamed;
@@ -553,6 +563,7 @@ void Player::Init(sol::state* L) {
 	userdata.set("isSpawned", &Player::isSpawned);
 	userdata.set("isTyping", &Player::isTyping);
 	userdata.set("isCrouching", &Player::isCrouching);
+	userdata.set("isAway", &Player::isAway);
 	userdata.set("getPing", &Player::getPing);
 	userdata.set("getFPS", &Player::getFPS);
 	userdata.set("getModules", &Player::getModules);

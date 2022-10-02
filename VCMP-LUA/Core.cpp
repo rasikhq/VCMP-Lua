@@ -12,6 +12,7 @@ sol::state Lua;
 static std::vector<std::string> s_ScriptFiles;
 
 void reload_scripts();
+void LoadLuaModule(std::string);
 
 int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_exception, sol::string_view description) {
 	std::cout << "An exception occurred in a function ";
@@ -33,7 +34,7 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 	g_Calls = pluginCalls;
 	g_Info = pluginInfo;
 
-	pluginInfo->pluginVersion = 0x2300;
+	pluginInfo->pluginVersion = 0x2400;
 	pluginInfo->apiMajorVersion = PLUGIN_API_MAJOR;
 	pluginInfo->apiMinorVersion = PLUGIN_API_MINOR;
 
@@ -61,9 +62,10 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 
 	Lua.open_libraries();
 
-	Logger::Init(&Lua, spdlog::level::debug); // Set level to info to avoid debug messages or trace to get internal debug messages
+	Logger::Init(&Lua, spdlog::level::info); // Set level to info to avoid debug messages or trace to get internal debug messages
 
-	luaopen_lanes_embedded(Lua.lua_state(), NULL);
+	//luaopen_lanes_embedded(Lua.lua_state(), NULL);
+
 	//Lua.set_exception_handler(&my_exception_handler);
 
 	bool experimental_mode = false;
@@ -101,6 +103,17 @@ extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginC
 
 	RegisterClasses(&Lua);
 	RegisterVCMPCallbacks();
+
+	// Load Modules
+	{
+		std::list<CSimpleIniA::Entry> modules;
+		if(conf.GetAllKeys("modules", modules) && modules.size() > 0) {
+			for(const auto& module : modules)
+				if(std::string(conf.GetValue("modules", module.pItem)) == "true")
+					LoadLuaModule(module.pItem);
+		}
+		else spdlog::info("No lua modules defined");
+	}
 
 	// Load Scripts
 	{
@@ -142,4 +155,25 @@ void reload_scripts()
 
 	// Re-trigger some crucial events which simulate a 'restart'
 	EventManager::Trigger("onServerInit");
+}
+
+enum LuaModules {
+	Invalid = 0,
+	Lanes
+};
+
+static std::unordered_map<std::string, LuaModules> s_LuaModules = {
+	{"lanes", LuaModules::Lanes}
+};
+
+void LoadLuaModule(std::string name) {
+	LuaModules module = s_LuaModules.find(name) != s_LuaModules.end() ? s_LuaModules[name] : LuaModules::Invalid;
+	
+	spdlog::info("Loading Lua module: {}", name);
+
+	switch(module) {
+		case Lanes:
+		luaopen_lanes_embedded(Lua.lua_state(), NULL);
+		break;
+	}
 }
