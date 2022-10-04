@@ -535,7 +535,7 @@ void Player::Init(sol::state* L) {
 	userdata["forceSpawn"] = &Player::forceSpawn;
 	userdata["playSound"] = &Player::playSound;
 	userdata["playSound3D"] = sol::overload(&Player::playSound3D, &Player::playSound3DEx, &Player::playSound3DEx2);
-	userdata["setWeapom"] = &Player::setWeapon;
+	userdata["setWeapon"] = &Player::setWeapon;
 	userdata["giveWeapon"] = &Player::giveWeapon;
 	userdata["removeWeapon"] = &Player::removeWeapon;
 	userdata["disarm"] = &Player::disarm;
