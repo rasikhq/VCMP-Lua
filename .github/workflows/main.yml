@@ -70,7 +70,7 @@ jobs:
             # Runs a set of commands using the runners shell
             - name: Run a multi-line script
               run: |
-                  start premake5/win-build.bat
+                  premaake5 vs2022
                   devenv VCMPLua.sln /Build
 
             - uses: actions/upload-artifact@v3
