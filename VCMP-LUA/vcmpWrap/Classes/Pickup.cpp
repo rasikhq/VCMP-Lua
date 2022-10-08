@@ -86,6 +86,10 @@ bool Pickup::isStreamedForPlayer(Player* player) const { return (g_Funcs->IsPick
 int32_t Pickup::getID() const { return m_ID; }
 int32_t Pickup::getQuantity() const { return g_Funcs->GetPickupQuantity(m_ID); }
 
+int32_t Pickup::getModel() const {
+	return g_Funcs->GetPickupModel(m_ID);
+}
+
 /*** PROPERTIES ***/
 
 int32_t Pickup::getWorld() const
@@ -171,9 +175,10 @@ void Pickup::Init(sol::state* L) {
 	userdata["setOption"] = &Pickup::setOption;
 
 	/*** READ-ONLY ***/
-	userdata.set("getType", &Pickup::getType);
+	userdata["getType"] = &Pickup::getType;
 	userdata["streamedForPlayer"] = &Pickup::isStreamedForPlayer;
-	userdata.set("getID", &Pickup::getID);
+	userdata["getID"] = &Pickup::getID;
+	userdata["getModel"] = &Pickup::getModel;
 
 	/*** PROPERTIES ***/
 	userdata["world"] = sol::property(&Pickup::getWorld, &Pickup::setWorld);

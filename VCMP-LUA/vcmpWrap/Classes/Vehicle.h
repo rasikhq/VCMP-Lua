@@ -39,9 +39,15 @@ public:
 
 	/*** METHODS ***/
 	bool destroy();
+	void respawn();
+	void repair();
 	bool isStreamedForPlayer(Player*);
 	bool getOption(vcmpVehicleOption) const;
 	void setOption(vcmpVehicleOption, bool);
+	int32_t getPartStatus(int32_t) const;
+	void setPartStatus(int32_t, int32_t);
+	int32_t getTyreStatus(int32_t) const;
+	void setTyreStatus(int32_t, int32_t);
 	sol::as_table_t<std::vector<float>> getSpeed(vcmpVehicleSpeed type = vcmpVehicleSpeed::Normal) const;
 	sol::as_table_t<std::vector<float>> getSpeedEx() const;
 	void setSpeed(vcmpVehicleSpeed, float, float, float, bool);
@@ -58,6 +64,8 @@ public:
 	/*** READ-ONLY ***/
 	int32_t getID() const;
 	int32_t getModel() const;
+	Player* getOccupant(int32_t) const;
+	std::tuple<float, float> getTurretRotation() const;
 	
 	/*** PROPERTIES ***/
 	int32_t getWorld() const;
@@ -67,10 +75,11 @@ public:
 	uint32_t getDamage() const;
 	uint32_t getImmunity() const;
 	float getHealth() const;
+	bool getTaxiLight() const;
 	sol::as_table_t<std::vector<float>> getSpawnPosition() const;
 	sol::as_table_t<std::vector<float>> getSpawnRotation() const;
 	sol::as_table_t<std::vector<int32_t>> getColor() const;
-
+	
 	void setWorld(int32_t);
 	void setRadio(int32_t);
 	void setIdleRespawnTime(uint32_t);
@@ -78,6 +87,7 @@ public:
 	void setDamage(uint32_t);
 	void setImmunity(uint32_t);
 	void setHealth(float);
+	void setTaxiLight(bool);
 	void setSpawnPosition(sol::table);
 	void setSpawnRotation(sol::table);
 	void setColor(sol::table);

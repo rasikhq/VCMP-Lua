@@ -98,10 +98,39 @@ bool Vehicle::destroy() {
 	return bDestroyed;
 }
 
+void Vehicle::respawn() {
+	g_Funcs->RespawnVehicle(m_ID);
+}
+
+void Vehicle::repair() {
+	g_Funcs->SetVehicleHealth(m_ID, 1000);
+	g_Funcs->SetVehicleDamageData(m_ID, 0);
+
+	uint32_t dwLightsData = g_Funcs->GetVehicleLightsData(m_ID);
+	dwLightsData &= 0xFFFFFF00;
+	g_Funcs->SetVehicleLightsData(m_ID, dwLightsData);
+}
+
 bool Vehicle::isStreamedForPlayer(Player* player) { return g_Funcs->IsVehicleStreamedForPlayer(m_ID, player->getID()); }
 
 bool Vehicle::getOption(vcmpVehicleOption option) const { return g_Funcs->GetVehicleOption(m_ID, option); }
 void Vehicle::setOption(vcmpVehicleOption option, bool status) { g_Funcs->SetVehicleOption(m_ID, option, static_cast<uint8_t>(status)); }
+
+int32_t Vehicle::getPartStatus(int32_t part) const {
+	return g_Funcs->GetVehiclePartStatus(m_ID, part);
+}
+
+void Vehicle::setPartStatus(int32_t part, int32_t status) {
+	g_Funcs->SetVehiclePartStatus(m_ID, part, status);
+}
+
+int32_t Vehicle::getTyreStatus(int32_t tyre) const {
+	return g_Funcs->GetVehicleTyreStatus(m_ID, tyre);
+}
+
+void Vehicle::setTyreStatus(int32_t tyre, int32_t status) {
+	g_Funcs->SetVehicleTyreStatus(m_ID, tyre, status);
+}
 
 sol::as_table_t<std::vector<float>> Vehicle::getSpeed(vcmpVehicleSpeed type) const {
 	float vx, vy, vz;
@@ -208,9 +237,18 @@ double Vehicle::getHandlingRule(int32_t ruleIndex)
 int32_t Vehicle::getID() const { return m_ID; }
 int32_t Vehicle::getModel() const { return g_Funcs->GetVehicleModel(m_ID); }
 
+Player* Vehicle::getOccupant(int32_t slot) const {
+	int32_t id = g_Funcs->GetVehicleOccupant(m_ID, slot);
+	if(g_Funcs->GetLastError() != vcmpError::vcmpErrorNone)
+		return nullptr;
+
+	return Player::Get(id);
+}
+
 int32_t Vehicle::getWorld() const {
 	return g_Funcs->GetVehicleWorld(m_ID); 
 }
+
 void Vehicle::setWorld(int32_t world) {
 	if (getWorld() == world)
 		return;
@@ -227,10 +265,29 @@ void Vehicle::setIdleRespawnTime(uint32_t time) {
 float Vehicle::getHealth() const {
 	return g_Funcs->GetVehicleHealth(m_ID); 
 }
+
+bool Vehicle::getTaxiLight() const {
+	return (g_Funcs->GetVehicleLightsData(m_ID) & (1 << 8)) != 0;
+}
+
 void Vehicle::setHealth(float health) {
 	if (getHealth() == health)
 		return;
 	g_Funcs->SetVehicleHealth(m_ID, health); 
+}
+
+void Vehicle::setTaxiLight(bool state) {
+	if((getTaxiLight() != 0) == state)
+		return;
+
+	uint32_t dwLightsData = g_Funcs->GetVehicleLightsData(m_ID);
+
+	if(state)
+		dwLightsData |= (1 << 8);
+	else
+		dwLightsData &= ~(1 << 8);
+
+	g_Funcs->SetVehicleLightsData(m_ID, dwLightsData);
 }
 
 sol::as_table_t<std::vector<float>> Vehicle::getSpawnPosition() const {
@@ -265,6 +322,13 @@ sol::as_table_t<std::vector<int32_t>> Vehicle::getColor() const {
 	g_Funcs->GetVehicleColour(m_ID, &primary, &secondary);
 	std::vector<int32_t> color = { primary, secondary };
 	return sol::as_table(color);
+}
+
+std::tuple<float, float> Vehicle::getTurretRotation() const {
+	float horizontal, vertical;
+	g_Funcs->GetVehicleTurretRotation(m_ID, &horizontal, &vertical);
+
+	return std::make_tuple(horizontal, vertical);
 }
 
 void Vehicle::setColor(sol::table colors) {
@@ -396,9 +460,16 @@ void Vehicle::Init(sol::state* L) {
 
 	/*** METHODS ***/
 	userdata["destroy"] = &Vehicle::destroy;
+	userdata["respawn"] = &Vehicle::respawn;
+	userdata["repair"] = &Vehicle::repair;
+	userdata["fix"] = &Vehicle::repair; // Alias for repair
 	userdata["streamedForPlayer"] = &Vehicle::isStreamedForPlayer;
 	userdata["getOption"] = &Vehicle::getOption;
 	userdata["setOption"] = &Vehicle::setOption;
+	userdata["getPartStatus"] = &Vehicle::getPartStatus;
+	userdata["setPartStatus"] = &Vehicle::setPartStatus;
+	userdata["getTyreStatus"] = &Vehicle::getTyreStatus;
+	userdata["setTyreStatus"] = &Vehicle::setTyreStatus;
 	userdata["getSpeed"] = sol::overload(&Vehicle::getSpeed, &Vehicle::getSpeedEx);
 	userdata["setSpeed"] = sol::overload(&Vehicle::setSpeed, &Vehicle::setSpeedDefault, &Vehicle::setSpeedEx, &Vehicle::setSpeedExDefault);
 	userdata["getRotation"] = &Vehicle::getRotation;
@@ -413,10 +484,13 @@ void Vehicle::Init(sol::state* L) {
 	userdata.set("getType", &Vehicle::getType);
 	userdata.set("getID", &Vehicle::getID);
 	userdata.set("getModel", &Vehicle::getModel);
+	userdata.set("getOccupant", &Vehicle::getOccupant);
+	userdata.set("getTurretRotation", &Vehicle::getTurretRotation);
 
 	/*** PROPERTIES ***/
 	userdata["world"] = sol::property(&Vehicle::getWorld, &Vehicle::setWorld);
 	userdata["health"] = sol::property(&Vehicle::getHealth, &Vehicle::setHealth);
+	userdata["taxiLight"] = sol::property(&Vehicle::getTaxiLight, &Vehicle::setTaxiLight);
 	userdata["idleRespawnTime"] = sol::property(&Vehicle::getIdleRespawnTime, &Vehicle::setIdleRespawnTime);
 	userdata["spawnPosition"] = sol::property(&Vehicle::getSpawnPosition, &Vehicle::setSpawnPosition);
 	userdata["spawnRotation"] = sol::property(&Vehicle::getSpawnRotation, &Vehicle::setSpawnRotation);

@@ -445,6 +445,8 @@ void Player::setName(const std::string& name) {
 	if (getName() == name)
 		return;
 	strcpy(m_Name, name.c_str());
+
+	g_Funcs->SetPlayerName(m_ID, m_Name);
 }
 
 Vehicle* Player::getVehicle() const {

@@ -38,6 +38,7 @@ public:
 	bool isStreamedForPlayer(Player*) const;
 	int32_t getID() const;
 	int32_t getQuantity() const;
+	int32_t getModel() const;
 
 	/*** PROPERTIES ***/
 	int32_t getWorld() const;
