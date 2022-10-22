@@ -99,24 +99,24 @@ void Player::forceSpawn() const
 
 void Player::playSound(int32_t sound) const
 {
-	g_Funcs->PlaySound(getWorld(), sound, NAN, NAN, NAN);
+	g_Funcs->PlaySound(getUniqueWorld(), sound, NAN, NAN, NAN);
 }
 
 void Player::playSound3D(int32_t sound) const
 {
 	float x, y, z;
 	g_Funcs->GetPlayerPosition(m_ID, &x, &y, &z);
-	g_Funcs->PlaySound(getWorld(), sound, x, y, z);
+	g_Funcs->PlaySound(getUniqueWorld(), sound, x, y, z);
 }
 
 void Player::playSound3DEx(int32_t sound, sol::table position) const
 {
-	g_Funcs->PlaySound(getWorld(), sound, position[1], position[2], position[3]);
+	g_Funcs->PlaySound(getUniqueWorld(), sound, position[1], position[2], position[3]);
 }
 
 void Player::playSound3DEx2(int32_t sound, float x, float y, float z) const
 {
-	g_Funcs->PlaySound(getWorld(), sound, x, y, z);
+	g_Funcs->PlaySound(getUniqueWorld(), sound, x, y, z);
 }
 
 int32_t Player::getID() const {
