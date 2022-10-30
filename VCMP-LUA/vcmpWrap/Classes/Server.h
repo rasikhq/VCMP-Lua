@@ -25,6 +25,9 @@ public:
 	static std::string getName();
 	static void setName(const std::string&);
 
+	static uint32_t getMaxPlayers();
+	static void setMaxPlayers(uint32_t);
+
 	static std::string getGamemode();
 	static void setGamemode(const std::string&);
 

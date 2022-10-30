@@ -195,8 +195,8 @@ void RegisterVCMPCallbacks() {
 		spdlog::trace("OnPlayerDisconnect");
 		auto handlers = EventManager::GetHandlers("onPlayerDisconnect");
 		
-		Player* player = Player::Get(playerId);
-		Player::Unregister(player);
+		Player player = *Player::Get(playerId);
+		Player::Unregister(&player);
 
 		if (handlers.size() == 0) return;
 

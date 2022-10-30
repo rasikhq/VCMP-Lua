@@ -48,6 +48,14 @@ void Server::setName(const std::string& newName)
 	g_Funcs->SetServerName(newName.c_str());
 }
 
+uint32_t Server::getMaxPlayers() {
+	return g_Funcs->GetMaxPlayers();
+}
+
+void Server::setMaxPlayers(uint32_t maxPlayers) {
+	g_Funcs->SetMaxPlayers(maxPlayers);
+}
+
 std::string Server::getGamemode()
 {
 	char buffer[512];
@@ -1169,6 +1177,10 @@ void Server::Init(sol::state* L) {
 	usertype["setName"] = &Server::setName;
 	usertype["getName"] = &Server::getName;
 	usertype["name"] = sol::property(&Server::getName, &Server::setName);
+
+	usertype["setMaxPlayers"] = &Server::setMaxPlayers;
+	usertype["getMaxPlayers"] = &Server::getMaxPlayers;
+	usertype["maxPlayers"] = sol::property(&Server::getMaxPlayers, &Server::setMaxPlayers);
 
 	usertype["setGame"] = &Server::setGamemode;
 	usertype["getGame"] = &Server::getGamemode;
