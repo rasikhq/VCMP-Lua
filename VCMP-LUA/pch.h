@@ -28,7 +28,7 @@ extern "C"
 	#include <lanes.h>
 }
 
-#include <mariadb++/connection.hpp>
+#include <mysql-connector-cpp/include/mysql/jdbc.h>
 
 #ifdef WIN32
 #include <Windows.h>

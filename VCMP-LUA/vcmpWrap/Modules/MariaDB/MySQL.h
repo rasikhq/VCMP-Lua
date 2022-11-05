@@ -8,9 +8,9 @@ class MySQL {
 public:
 	static void Init(sol::state* Lua);
 	static inline void LogError() {
-		mariadb::last_error error;
+		/*mariadb::last_error error;
 		if (error.error_no() == 0) return;
-		spdlog::error("MySQL Error: [{}] {}", error.error_no(), error.error());
+		spdlog::error("MySQL Error: [{}] {}", error.error_no(), error.error());*/
 	}
 
 	/*** METHODS ***/
