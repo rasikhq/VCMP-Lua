@@ -5,6 +5,8 @@ add_library(VCMPLua SHARED ${HEADERS} ${SRC})
 
 target_include_directories(VCMPLua PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include ${CMAKE_CURRENT_LIST_DIR}/vcmpWrap)
 
+target_link_libraries(VCMPLua Async++)
+
 # set c++ standard 17
 set_target_properties(VCMPLua PROPERTIES
    	CXX_STANDARD 17

@@ -4,3 +4,6 @@
 [submodule "VCMP-LUA/vendor/mariadb-connector-cpp"]
 	path = VCMP-LUA/vendor/mariadb-connector-cpp
 	url = git@github.com:mariadb-corporation/mariadb-connector-cpp.git
+[submodule "VCMP-LUA/vendor/asyncplusplus"]
+	path = VCMP-LUA/vendor/asyncplusplus
+	url = git@github.com:Amanieu/asyncplusplus.git
