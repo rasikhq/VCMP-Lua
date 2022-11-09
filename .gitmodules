@@ -4,3 +4,6 @@
 [submodule "vendor/spdlog"]
 	path = vendor/spdlog
 	url = git@github.com:gabime/spdlog.git
+[submodule "vendor/lanes"]
+	path = vendor/lanes
+	url = git@github.com:LuaLanes/lanes.git

@@ -35,6 +35,11 @@ function(get_all_targets out_var subdirs)
     set(${out_var} ${targets} PARENT_SCOPE)
 endfunction()
 
+function(link_vendor _target)
+	message(STATUS "Linking vendor... " ${_target})
+	target_link_libraries(VCMPLua PRIVATE ${_target})
+endfunction()
+
 file(GLOB_RECURSE 
 	SOURCE_FILES
 		${CMAKE_CURRENT_SOURCE_DIR}/pch.h
@@ -46,6 +51,8 @@ file(GLOB_RECURSE
 
 add_library(VCMPLua SHARED ${SOURCE_FILES})
 
+target_include_directories(VCMPLua PRIVATE vendor)
+
 get_directories(VENDORS ${VENDOR_DIR})
 foreach(VENDOR ${VENDORS})
 	message(STATUS "Found vendor: " ${VENDOR})
@@ -54,8 +61,17 @@ endforeach()
 
 foreach(VENDOR ${VENDORS})
 	get_all_targets(_targets ${VENDOR_DIR}/${VENDOR})
-	if(NOT ${_targets} STREQUAL "")
-		message(STATUS "Linking vendor... " ${_targets})
-		target_link_libraries(VCMPLua PRIVATE ${_targets})
+	list(LENGTH _targets _total_targets)
+	if(_total_targets EQUAL 1)
+		get_target_property(_target_type ${_targets} TYPE)
+		if(NOT _target_type STREQUAL "MODULE_LIBRARY")
+			message(STATUS "Auto-Linking vendor... " ${_targets})
+			target_link_libraries(VCMPLua PRIVATE ${_targets})
+		endif()
 	endif()
 endforeach()
+
+# Vendors that produce more than 1 target have to be manually linked
+link_vendor(spdlog::spdlog)
+
+# Manual inclusion of headers
