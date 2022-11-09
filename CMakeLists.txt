@@ -56,7 +56,6 @@ target_compile_features(VCMPLua PRIVATE cxx_std_17)
 target_include_directories(VCMPLua PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(VCMPLua PRIVATE ${CMAKE_SOURCE_DIR}/vcmpWrap)
 target_include_directories(VCMPLua PRIVATE include)
-target_include_directories(VCMPLua PRIVATE vendor)
 
 get_directories(VENDORS ${VENDOR_DIR})
 foreach(VENDOR ${VENDORS})
