@@ -51,6 +51,7 @@ file(GLOB_RECURSE
 
 add_library(VCMPLua SHARED ${SOURCE_FILES})
 
+target_include_directories(VCMPLua PRIVATE include)
 target_include_directories(VCMPLua PRIVATE vendor)
 
 get_directories(VENDORS ${VENDOR_DIR})
@@ -72,6 +73,7 @@ foreach(VENDOR ${VENDORS})
 endforeach()
 
 # Vendors that produce more than 1 target have to be manually linked
+link_vendor(lua::lib)
 link_vendor(spdlog::spdlog)
 
 # Manual inclusion of headers

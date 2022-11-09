@@ -7,3 +7,6 @@
 [submodule "vendor/lanes"]
 	path = vendor/lanes
 	url = git@github.com:LuaLanes/lanes.git
+[submodule "vendor/lua/upstream"]
+	path = vendor/lua/upstream
+	url = git@github.com:lua/lua.git
