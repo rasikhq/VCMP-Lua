@@ -140,7 +140,7 @@ void Remote::postHTTPAsync(sol::function handler, const std::string& url, sol::t
 	cpr::SslOptions opts;
 	opts.SetOption(Certs);
 
-	s_Container.emplace_back(handler, RemoteRequestType::POST, url, cprParams, cprHeader, cprBody, cprPayload, cpr::Authentication("", ""), opts);
+	s_Container.emplace_back(handler, RemoteRequestType::POST, url, cprParams, cprHeader, cprBody, cprPayload, cpr::Authentication("", "", cpr::AuthMode::BASIC), opts);
 }
 
 /*** Internal ***/
@@ -206,6 +206,6 @@ cpr::Authentication Remote::GetAuthentication(sol::table& auth)
 			authPassword = auth["password"].get<std::string>();
 	}
 
-	cpr::Authentication cprAuth(authUser, authPassword);
+	cpr::Authentication cprAuth(authUser, authPassword, cpr::AuthMode::BASIC);
 	return cprAuth;
 }

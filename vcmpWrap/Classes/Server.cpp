@@ -1,6 +1,6 @@
 #include "Server.h"
 #include "Player.h"
-#include "Constants.h"
+#include "vcmpWrap/Constants.h"
 #include "utility.h"
 
 extern PluginFuncs* g_Funcs;

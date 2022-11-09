@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include <pch.h>
 #include "../Constants.h"
 
 const uint32_t DEFAULT_DURATION = 0;

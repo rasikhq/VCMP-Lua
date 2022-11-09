@@ -25,7 +25,7 @@ void Thread::run(sol::function f)
 				return value.get<sol::object>();
 			else
 			{
-				spdlog::error("Thread::run >> Failed to run worker function: {}", value.status());
+				spdlog::error("Thread::run >> Failed to run worker function");
 				return sol::nil;
 			}
 		}

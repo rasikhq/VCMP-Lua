@@ -9,7 +9,7 @@ void MySQL::Init(sol::state* Lua) {
 	userdata["createConnection"] = &MySQL::createConnection;*/
 }
 
-M/*ySQLAccount* MySQL::createAccount(const std::string& host, const std::string& user, const std::string& password, const std::string& database) {
+/*ySQLAccount* MySQL::createAccount(const std::string& host, const std::string& user, const std::string& password, const std::string& database) {
 	return new MySQLAccount(host, user, password, database);
 }
 

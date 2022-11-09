@@ -53,6 +53,8 @@ add_library(VCMPLua SHARED ${SOURCE_FILES})
 target_compile_features(VCMPLua PRIVATE cxx_std_17)
 # target_precompile_headers(VCMPLua PUBLIC pch.h)
 
+target_include_directories(VCMPLua PRIVATE ${CMAKE_SOURCE_DIR})
+target_include_directories(VCMPLua PRIVATE ${CMAKE_SOURCE_DIR}/vcmpWrap)
 target_include_directories(VCMPLua PRIVATE include)
 target_include_directories(VCMPLua PRIVATE vendor)
 
