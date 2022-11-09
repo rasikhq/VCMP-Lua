@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 project(VCMPLua LANGUAGES CXX)
-set_property(GLOBAL PROPERTY POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # CMake options
 set(VENDOR_DIR ${CMAKE_SOURCE_DIR}/vendor)
