@@ -17,12 +17,11 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/ostream_sink.h>
 #include <SimpleIni.h>
-#include <lua.h>
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 
-extern "C" 
+extern "C"
 {
 	#include <lanes.h>
 }
