@@ -10,3 +10,9 @@
 [submodule "vendor/lua/upstream"]
 	path = vendor/lua/upstream
 	url = git@github.com:lua/lua.git
+[submodule "vendor/SQLiteCpp"]
+	path = vendor/SQLiteCpp
+	url = git@github.com:SRombauts/SQLiteCpp.git
+[submodule "vendor/cpr"]
+	path = vendor/cpr
+	url = git@github.com:libcpr/cpr.git

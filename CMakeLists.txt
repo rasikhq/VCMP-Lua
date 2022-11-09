@@ -77,3 +77,5 @@ endforeach()
 # Vendors that produce more than 1 target have to be manually linked
 link_vendor(lua::lib)
 link_vendor(spdlog::spdlog)
+link_vendor(cpr::cpr)
+link_vendor(SQLiteCpp)
