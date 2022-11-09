@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(VCMPLua LANGUAGES CXX)
 set_property(GLOBAL PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_property(GLOBAL PROPERTY CXX_STANDARD 17)
 
 # CMake options
 set(VENDOR_DIR ${CMAKE_SOURCE_DIR}/vendor)
@@ -51,6 +50,9 @@ file(GLOB_RECURSE
 
 add_library(VCMPLua SHARED ${SOURCE_FILES})
 
+target_compile_features(VCMPLua PRIVATE cxx_std_17)
+# target_precompile_headers(VCMPLua PUBLIC pch.h)
+
 target_include_directories(VCMPLua PRIVATE include)
 target_include_directories(VCMPLua PRIVATE vendor)
 
@@ -75,5 +77,3 @@ endforeach()
 # Vendors that produce more than 1 target have to be manually linked
 link_vendor(lua::lib)
 link_vendor(spdlog::spdlog)
-
-# Manual inclusion of headers

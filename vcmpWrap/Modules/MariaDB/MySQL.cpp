@@ -1,15 +1,15 @@
 #include "MySQL.h"
 
 void MySQL::Init(sol::state* Lua) {
-	MySQLAccount::Init(Lua);
+	/*MySQLAccount::Init(Lua);
 	MySQLConnection::Init(Lua);
 
 	sol::usertype<MySQL> userdata = Lua->new_usertype<MySQL>("MySQL");
 	userdata["createAccount"] = sol::overload(&MySQL::createAccount, &MySQL::createAccountEx, &MySQL::createAccountEx2);
-	userdata["createConnection"] = &MySQL::createConnection;
+	userdata["createConnection"] = &MySQL::createConnection;*/
 }
 
-MySQLAccount* MySQL::createAccount(const std::string& host, const std::string& user, const std::string& password, const std::string& database) {
+M/*ySQLAccount* MySQL::createAccount(const std::string& host, const std::string& user, const std::string& password, const std::string& database) {
 	return new MySQLAccount(host, user, password, database);
 }
 
@@ -23,4 +23,4 @@ MySQLAccount* MySQL::createAccountEx(const std::string& host, const std::string&
 
 MySQLConnection* MySQL::createConnection(MySQLAccount* account) {
 	return new MySQLConnection(account);
-}
+}*/

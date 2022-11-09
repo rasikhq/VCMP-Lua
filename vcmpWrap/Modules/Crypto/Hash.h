@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 
-#include "modules/crypto/include/digestpp.hpp"
+#include <digestpp.hpp>
 
 class Hash
 {
