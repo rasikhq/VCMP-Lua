@@ -4,7 +4,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #undef _UNICODE
 
-// Fixes some issues with pre-C++17
+// Fixes some issues
 #define NOMINMAX
 
 #include <iostream>
