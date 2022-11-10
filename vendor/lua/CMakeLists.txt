@@ -15,10 +15,6 @@ list(TRANSFORM publicHeaderFiles PREPEND ${srcDir}/)
 add_library(lua
     ${srcFiles})
 
-target_compile_definitions(lua
-    PRIVATE
-    $<$<PLATFORM_ID:Linux>:LUA_USE_LINUX LUA_COMPAT_5_2>)
-
 target_compile_options(lua
     PRIVATE
     $<$<OR:$<C_COMPILER_ID:AppleClang>,$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:GNU>>:
