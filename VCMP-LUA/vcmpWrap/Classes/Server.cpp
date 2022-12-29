@@ -1459,9 +1459,7 @@ void Server::Init(sol::state* L) {
 	);
 
 #ifdef _x32
-	usertype["tick"] = sol::property([]() -> uint32_t { return static_cast<uint32_t>(GetCurrentSysTime()); });
-#else
-	usertype["tick"] = sol::property([]() -> uint64_t { return GetCurrentSysTime(); });
+	usertype["tick"] = sol::property([]() -> ulonglong { return static_cast<ulonglong>(GetCurrentSysTime()); });
 #endif
 
 	//
