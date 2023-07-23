@@ -13,9 +13,6 @@
 [submodule "vendor/SQLiteCpp"]
 	path = vendor/SQLiteCpp
 	url = git@github.com:SRombauts/SQLiteCpp.git
-[submodule "vendor/mariadbpp"]
-	path = vendor/mariadbpp
-	url = https://github.com/viaduck/mariadbpp.git
 [submodule "vendor/cpr"]
 	path = vendor/cpr
 	url = https://github.com/libcpr/cpr.git
