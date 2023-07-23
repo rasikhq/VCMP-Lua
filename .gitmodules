@@ -16,3 +16,6 @@
 [submodule "vendor/cpr"]
 	path = vendor/cpr
 	url = https://github.com/libcpr/cpr.git
+[submodule "vendor/mariadb-connector-c"]
+	path = vendor/mariadb-connector-c
+	url = https://github.com/mariadb-corporation/mariadb-connector-c.git
