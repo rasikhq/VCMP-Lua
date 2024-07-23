@@ -11,6 +11,9 @@ message(STATUS "VENDOR_DIR: " ${VENDOR_DIR})
 # Project options
 add_compile_definitions(LIBASYNC_STATIC)
 
+# https://github.com/SRombauts/SQLiteCpp/issues/452
+set(SQLITECPP_RUN_CPPLINT OFF)
+
 macro(get_directories result curdir)
 	file(GLOB children RELATIVE ${curdir} ${curdir}/*)
 	set(dirlist "")
@@ -81,5 +84,5 @@ endforeach()
 # Vendors that produce more than 1 target have to be manually linked
 # link_vendor(lua::lib)
 # link_vendor(spdlog::spdlog)
-# link_vendor(cpr::cpr)
+link_vendor(cpr::cpr)
 # link_vendor(SQLiteCpp)

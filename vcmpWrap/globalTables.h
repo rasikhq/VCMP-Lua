@@ -14,7 +14,6 @@
 #include "Classes/Checkpoint.h"
 #include "Classes/Pickup.h"
 
-#include "Modules/MariaDB/MySQL.h"
 #include "Modules/Crypto/Hash.h"
 #include "Modules/SqLite3/SqLite.h"
 #include "Modules/CPR/Remote.h"
@@ -38,7 +37,6 @@ void RegisterClasses(sol::state* Lua) {
 	Bind::Init(Lua);
 
 	// Modules
-	MySQL::Init(Lua);
 	Hash::Init(Lua);
 	SqLite::Init(Lua);
 	Remote::Init(Lua);
