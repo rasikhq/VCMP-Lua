@@ -16,3 +16,6 @@
 [submodule "vendor/SQLiteCpp"]
 	path = vendor/SQLiteCpp
 	url = git@github.com:SRombauts/SQLiteCpp.git
+[submodule "vendor/libpqxx"]
+	path = vendor/libpqxx
+	url = https://github.com/jtv/libpqxx.git
