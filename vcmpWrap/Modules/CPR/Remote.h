@@ -26,6 +26,7 @@ struct RemoteRequest
 		if (requestType == RemoteRequestType::GET)
 			future = cpr::GetAsync(cpr::Url(url),
 				cprParams,
+				cprHeader,
 				cprAuth,
 				opts
 			);
@@ -40,7 +41,7 @@ struct RemoteRequest
 			);
 	}
 
-	std::future<cpr::Response> future;
+	cpr::AsyncResponse future{ {} };
 	sol::function handler;
 };
 

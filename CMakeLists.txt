@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 3.2)
+cmake_policy(SET CMP0079 NEW)
+
+include(FetchContent)
+include(ExternalProject)
+
 project(VCMPLua LANGUAGES CXX)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -6,41 +11,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(VENDOR_DIR ${CMAKE_SOURCE_DIR}/vendor)
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Static Build" FORCE)
 
-message(STATUS "VENDOR_DIR: " ${VENDOR_DIR})
-
-# Project options
-add_compile_definitions(LIBASYNC_STATIC)
-
 # https://github.com/SRombauts/SQLiteCpp/issues/452
 set(SQLITECPP_RUN_CPPLINT OFF)
-
-macro(get_directories result curdir)
-	file(GLOB children RELATIVE ${curdir} ${curdir}/*)
-	set(dirlist "")
-	foreach(child ${children})
-		if(IS_DIRECTORY ${curdir}/${child})
-			list(APPEND dirlist ${child})
-		endif()
-	endforeach()
-	set(${result} ${dirlist})
-endmacro()
-
-function(get_all_targets out_var subdirs)
-    get_property(targets DIRECTORY ${subdirs} PROPERTY BUILDSYSTEM_TARGETS)
-    get_property(subdirs DIRECTORY ${subdirs} PROPERTY SUBDIRECTORIES)
-
-    foreach(subdir ${subdirs})
-        get_all_targets(subdir_targets ${subdir})
-        list(APPEND targets ${subdir_targets})
-    endforeach()
-
-    set(${out_var} ${targets} PARENT_SCOPE)
-endfunction()
-
-function(link_vendor _target)
-	message(STATUS "Linking vendor... " ${_target})
-	target_link_libraries(VCMPLua PRIVATE ${_target})
-endfunction()
 
 file(GLOB_RECURSE 
 	SOURCE_FILES
@@ -53,36 +25,38 @@ file(GLOB_RECURSE
 
 add_library(VCMPLua SHARED ${SOURCE_FILES})
 
-target_compile_features(VCMPLua PRIVATE cxx_std_17)
-# target_precompile_headers(VCMPLua PUBLIC pch.h)
-
 target_include_directories(VCMPLua PRIVATE ${CMAKE_SOURCE_DIR})
 target_include_directories(VCMPLua PRIVATE ${CMAKE_SOURCE_DIR}/vcmpWrap)
 target_include_directories(VCMPLua PRIVATE include)
 
-get_directories(VENDORS ${VENDOR_DIR})
-foreach(VENDOR ${VENDORS})
-	message(STATUS "Found vendor: " ${VENDOR})
-	add_subdirectory(${VENDOR_DIR}/${VENDOR})
-endforeach()
+target_compile_features(VCMPLua PRIVATE cxx_std_17)
 
-foreach(VENDOR ${VENDORS})
-	get_all_targets(_targets ${VENDOR_DIR}/${VENDOR})
-	list(LENGTH _targets _total_targets)
-	if(_total_targets GREATER_EQUAL 1)
-		list(GET _targets 0 _main_target)
-		get_target_property(_target_type ${_main_target} TYPE)
-		if((NOT _main_target STREQUAL "MODULE_LIBRARY") AND (NOT _main_target STREQUAL "uninstall"))
-			message(STATUS "Auto-Linking vendor... " ${_main_target})
-			target_link_libraries(VCMPLua PRIVATE ${_main_target})
-		endif()
-	else()
-		message(NOTICE "[!] Skip linking " ${VENDOR} " as it has no targets to link to (header-only libs)")
-	endif()
-endforeach()
+# Dependencies [conan managed]
+find_package(ZLIB REQUIRED)
+find_package(sol2 REQUIRED)
+find_package(Async++ REQUIRED)
+find_package(cpr REQUIRED)
+find_package(spdlog REQUIRED)
+find_package(SQLiteCpp REQUIRED)
+find_package(libmysqlclient REQUIRED)
 
-# Vendors that produce more than 1 target have to be manually linked
-# link_vendor(lua::lib)
-# link_vendor(spdlog::spdlog)
-link_vendor(cpr::cpr)
-# link_vendor(SQLiteCpp)
+target_link_libraries(VCMPLua sol2::sol2)
+target_link_libraries(VCMPLua Async++)
+target_link_libraries(VCMPLua cpr::cpr)
+target_link_libraries(VCMPLua spdlog::spdlog)
+target_link_libraries(VCMPLua SQLiteCpp)
+target_link_libraries(VCMPLua libmysqlclient::libmysqlclient)
+
+# Dependencies [submodules]
+add_subdirectory(${VENDOR_DIR}/SimpleINI)
+add_subdirectory(${VENDOR_DIR}/digestpp)
+
+add_subdirectory(${VENDOR_DIR}/lanes)
+target_link_libraries(lanes lua::lua) # Available from sol2
+target_link_libraries(VCMPLua lanes)
+
+# Extra configuration
+if(MSVC)
+	target_compile_options(VCMPLua PRIVATE "/MP")
+	target_compile_options(lanes PRIVATE "/MP")
+endif()
