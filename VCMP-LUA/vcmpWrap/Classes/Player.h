@@ -54,6 +54,7 @@ public:
 	int32_t getVehicleSlot() const;
 	int32_t getVehicleStatus() const;
 	int32_t getWeapon() const;
+	int32_t get3DArrowToPlayer(Player*) const;
 	sol::as_table_t<std::vector<float>> getAimPos() const;
 	sol::as_table_t<std::vector<float>> getAimDir() const;
 
@@ -84,6 +85,9 @@ public:
 	void eject() const;
 	void setCam(sol::table, sol::table) const;
 	void setCamEx(float, float, float, float, float, float) const;
+	void interpolateCamLookAt(float, float, float, uint32_t) const;
+
+	void kill() const;
 
 	void kick() const;
 	void ban() const;
@@ -99,6 +103,8 @@ public:
 	int32_t getScore() const;
 	int32_t getWantedLevel() const;
 	int32_t getWeaponSlot() const;
+	int32_t getDrunkHandling() const;
+	int32_t getDrunkVisuals() const;
 	uint32_t getImmunity() const;
 	float getHP() const;
 	float getArmour() const;
@@ -125,6 +131,9 @@ public:
 	void setName(const std::string&);
 	void setVehicle(Vehicle*);
 	void setVehicleWithSlot(Vehicle*, int32_t);
+	void set3DArrowToPlayer(Player*, bool) const;
+	void setDrunkHandling(int32_t) const;
+	void setDrunkVisuals(int32_t) const;
 
 	/*** COMMON PROPERTIES AMONGST ENTITIES ***/
 	inline const char* getType() { return Player::getStaticType(); }
