@@ -635,6 +635,8 @@ void Player::Init(sol::state* L) {
 	userdata["vehicle"] = sol::property(&Player::getVehicle, &Player::setVehicle);
 	userdata["weaponSlot"] = sol::property(&Player::getWeaponSlot, &Player::setWeaponSlot);
 	userdata["spectateTarget"] = sol::property(&Player::getSpectateTarget, &Player::setSpectateTarget);
+	userdata["drunkHandling"] = sol::property(&Player::getDrunkHandling, &Player::setDrunkHandling);
+	userdata["drunkVisuals"] = sol::property(&Player::getDrunkVisuals, &Player::setDrunkVisuals);
 
 	userdata["id"] = sol::property(&Player::getID);
 	userdata["online"] = sol::property(&Player::isOnline);
