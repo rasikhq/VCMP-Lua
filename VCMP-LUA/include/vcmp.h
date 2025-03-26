@@ -8,7 +8,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-	   http://www.apache.org/licenses/LICENSE-2.0
+       http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -162,6 +162,7 @@ typedef enum {
 	vcmpServerOptionWallGlitch = 19,
 	vcmpServerOptionDisableBackfaceCulling = 20,
 	vcmpServerOptionDisableHeliBladeDamage = 21,
+	vcmpServerOptionDisableCrouch = 22,
 	forceSizeVcmpServerOption = INT32_MAX
 } vcmpServerOption;
 
@@ -175,7 +176,8 @@ typedef enum {
 	vcmpPlayerOptionCanAttack = 6,
 	vcmpPlayerOptionHasMarker = 7,
 	vcmpPlayerOptionChatTagsEnabled = 8,
-	vcmpPlayerOptionDrunkEffects = 9,
+	vcmpPlayerOptionDrunkEffectsDeprecated = 9,
+	vcmpPlayerOptionBleeding = 10,
 	forceSizeVcmpPlayerOption = INT32_MAX
 } vcmpPlayerOption;
 
@@ -187,6 +189,9 @@ typedef enum {
 	vcmpVehicleOptionGhost = 4,
 	vcmpVehicleOptionSiren = 5,
 	vcmpVehicleOptionSingleUse = 6,
+	vcmpVehicleOptionEngineDisabled = 7,
+	vcmpVehicleOptionBootOpen = 8,
+	vcmpVehicleOptionBonnetOpen = 9,
 	forceSizeVcmpVehicleOption = INT32_MAX
 } vcmpVehicleOption;
 
@@ -202,7 +207,7 @@ typedef struct {
 	 * Plugin system
 	 */
 
-	 /* success */
+	/* success */
 	uint32_t(*GetServerVersion) (void);
 	/* vcmpErrorNullArgument */
 	vcmpError(*GetServerSettings) (ServerSettings* settings);
@@ -229,7 +234,7 @@ typedef struct {
 	 * Client messages
 	 */
 
-	 /* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorTooLargeInput */
 	vcmpError(*SendClientScriptData) (int32_t playerId, const void* data, size_t size);
 	/* vcmpErrorNoSuchEntity, vcmpErrorNullArgument, vcmpErrorTooLargeInput */
 	vcmpError(*SendClientMessage) (int32_t playerId, uint32_t colour, const char* format, ...);
@@ -240,7 +245,7 @@ typedef struct {
 	 * Server settings
 	 */
 
-	 /* vcmpErrorNullArgument, vcmpErrorTooLargeInput */
+	/* vcmpErrorNullArgument, vcmpErrorTooLargeInput */
 	vcmpError(*SetServerName) (const char* text);
 	/* vcmpErrorNullArgument, vcmpErrorBufferTooSmall */
 	vcmpError(*GetServerName) (char* buffer, size_t size);
@@ -263,7 +268,7 @@ typedef struct {
 	 * Game environment settings
 	 */
 
-	 /* vcmpErrorArgumentOutOfBounds */
+	/* vcmpErrorArgumentOutOfBounds */
 	vcmpError(*SetServerOption) (vcmpServerOption option, uint8_t toggle);
 	/* GetLastError: vcmpErrorArgumentOutOfBounds */
 	uint8_t(*GetServerOption) (vcmpServerOption option);
@@ -320,7 +325,7 @@ typedef struct {
 	 * Miscellaneous things
 	 */
 
-	 /* vcmpErrorArgumentOutOfBounds, vcmpErrorNoSuchEntity */
+	/* vcmpErrorArgumentOutOfBounds, vcmpErrorNoSuchEntity */
 	vcmpError(*CreateExplosion) (int32_t worldId, int32_t type, float x, float y, float z, int32_t responsiblePlayerId, uint8_t atGroundLevel);
 	/* vcmpErrorArgumentOutOfBounds */
 	vcmpError(*PlaySound) (int32_t worldId, int32_t soundId, float x, float y, float z);
@@ -335,7 +340,7 @@ typedef struct {
 	 * Weapon settings
 	 */
 
-	 /* vcmpErrorArgumentOutOfBounds */
+	/* vcmpErrorArgumentOutOfBounds */
 	vcmpError(*SetWeaponDataValue) (int32_t weaponId, int32_t fieldId, double value);
 	/* GetLastError: vcmpErrorArgumentOutOfBounds */
 	double(*GetWeaponDataValue) (int32_t weaponId, int32_t fieldId);
@@ -352,7 +357,7 @@ typedef struct {
 	 * Key binds
 	 */
 
-	 /* -1 == vcmpEntityNone */
+	/* -1 == vcmpEntityNone */
 	int32_t(*GetKeyBindUnusedSlot) (void);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*GetKeyBindData) (int32_t bindId, uint8_t* isCalledOnReleaseOut, int32_t* keyOneOut, int32_t* keyTwoOut, int32_t* keyThreeOut);
@@ -367,7 +372,7 @@ typedef struct {
 	 * Coordinate blips
 	 */
 
-	 /* GetLastError: vcmpErrorPoolExhausted */
+	/* GetLastError: vcmpErrorPoolExhausted */
 	int32_t(*CreateCoordBlip) (int32_t index, int32_t world, float x, float y, float z, int32_t scale, uint32_t colour, int32_t sprite);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*DestroyCoordBlip) (int32_t index);
@@ -378,7 +383,7 @@ typedef struct {
 	 * Radios
 	 */
 
-	 /* vcmpErrorArgumentOutOfBounds, vcmpErrorNullArgument */
+	/* vcmpErrorArgumentOutOfBounds, vcmpErrorNullArgument */
 	vcmpError(*AddRadioStream) (int32_t radioId, const char* radioName, const char* radioUrl, uint8_t isListed);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*RemoveRadioStream) (int32_t radioId);
@@ -387,7 +392,7 @@ typedef struct {
 	 * Spawning and classes
 	 */
 
-	 /* GetLastError: vcmpErrorArgumentOutOfBounds, vcmpErrorPoolExhausted */
+	/* GetLastError: vcmpErrorArgumentOutOfBounds, vcmpErrorPoolExhausted */
 	int32_t(*AddPlayerClass) (int32_t teamId, uint32_t colour, int32_t modelIndex, float x, float y, float z, float angle, int32_t weaponOne, int32_t weaponOneAmmo, int32_t weaponTwo, int32_t weaponTwoAmmo, int32_t weaponThree, int32_t weaponThreeAmmo);
 	/* success */
 	void(*SetSpawnPlayerPosition) (float x, float y, float z);
@@ -399,8 +404,8 @@ typedef struct {
 	/*
 	 * Administration
 	 */
-
-	 /* GetLastError: vcmpErrorNoSuchEntity */
+	
+	/* GetLastError: vcmpErrorNoSuchEntity */
 	uint8_t(*IsPlayerAdmin) (int32_t playerId);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*SetPlayerAdmin) (int32_t playerId, uint8_t toggle);
@@ -425,7 +430,7 @@ typedef struct {
 	 * Player access and basic info
 	 */
 
-	 /* -1 == vcmpEntityNone */
+	/* -1 == vcmpEntityNone */
 	int32_t(*GetPlayerIdFromName) (const char* name);
 	/* success */
 	uint8_t(*IsPlayerConnected) (int32_t playerId);
@@ -448,7 +453,7 @@ typedef struct {
 	 * Player world
 	 */
 
-	 /* vcmpErrorNoSuchEntity */
+	/* vcmpErrorNoSuchEntity */
 	vcmpError(*SetPlayerWorld) (int32_t playerId, int32_t world);
 	/* GetLastError: vcmpErrorNoSuchEntity */
 	int32_t(*GetPlayerWorld) (int32_t playerId);
@@ -465,7 +470,7 @@ typedef struct {
 	 * Player class, team, skin, colour
 	 */
 
-	 /* GetLastError: vcmpErrorNoSuchEntity */
+	/* GetLastError: vcmpErrorNoSuchEntity */
 	int32_t(*GetPlayerClass) (int32_t playerId);
 	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
 	vcmpError(*SetPlayerTeam) (int32_t playerId, int32_t teamId);
@@ -484,7 +489,7 @@ typedef struct {
 	 * Player spawn cycle
 	 */
 
-	 /* vcmpErrorNoSuchEntity */
+	/* vcmpErrorNoSuchEntity */
 	uint8_t(*IsPlayerSpawned) (int32_t playerId);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*ForcePlayerSpawn) (int32_t playerId);
@@ -499,7 +504,7 @@ typedef struct {
 	 * Player money, score, wanted level
 	 */
 
-	 /* vcmpErrorNoSuchEntity */
+	/* vcmpErrorNoSuchEntity */
 	vcmpError(*GivePlayerMoney) (int32_t playerId, int32_t amount);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*SetPlayerMoney) (int32_t playerId, int32_t amount);
@@ -522,7 +527,7 @@ typedef struct {
 	 * Player health and immunity
 	 */
 
-	 /* vcmpErrorNoSuchEntity */
+	/* vcmpErrorNoSuchEntity */
 	vcmpError(*SetPlayerHealth) (int32_t playerId, float health);
 	/* GetLastError: vcmpErrorNoSuchEntity */
 	float(*GetPlayerHealth) (int32_t playerId);
@@ -539,7 +544,7 @@ typedef struct {
 	 * Player position and rotation
 	 */
 
-	 /* vcmpErrorNoSuchEntity */
+	/* vcmpErrorNoSuchEntity */
 	vcmpError(*SetPlayerPosition) (int32_t playerId, float x, float y, float z);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*GetPlayerPosition) (int32_t playerId, float* xOut, float* yOut, float* zOut);
@@ -566,7 +571,7 @@ typedef struct {
 	 * Player actions and keys
 	 */
 
-	 /* GetLastError: vcmpErrorNoSuchEntity */
+	/* GetLastError: vcmpErrorNoSuchEntity */
 	uint8_t(*IsPlayerOnFire) (int32_t playerId);
 	/* GetLastError: vcmpErrorNoSuchEntity */
 	uint8_t(*IsPlayerCrouching) (int32_t playerId);
@@ -579,7 +584,7 @@ typedef struct {
 	 * Player vehicle
 	 */
 
-	 /* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds, vcmpErrorRequestDenied */
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds, vcmpErrorRequestDenied */
 	vcmpError(*PutPlayerInVehicle) (int32_t playerId, int32_t vehicleId, int32_t slotIndex, uint8_t makeRoom, uint8_t warp);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*RemovePlayerFromVehicle) (int32_t playerId);
@@ -594,7 +599,7 @@ typedef struct {
 	 * Player weapons
 	 */
 
-	 /* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
+	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
 	vcmpError(*GivePlayerWeapon) (int32_t playerId, int32_t weaponId, int32_t ammo);
 	/* vcmpErrorNoSuchEntity, vcmpErrorArgumentOutOfBounds */
 	vcmpError(*SetPlayerWeapon) (int32_t playerId, int32_t weaponId, int32_t ammo);
@@ -619,7 +624,7 @@ typedef struct {
 	 * Player camera
 	 */
 
-	 /* vcmpErrorNoSuchEntity */
+	/* vcmpErrorNoSuchEntity */
 	vcmpError(*SetCameraPosition) (int32_t playerId, float posX, float posY, float posZ, float lookX, float lookY, float lookZ);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*RestoreCamera) (int32_t playerId);
@@ -630,7 +635,7 @@ typedef struct {
 	 * Player miscellaneous stuff
 	 */
 
-	 /* vcmpErrorNoSuchEntity */
+	/* vcmpErrorNoSuchEntity */
 	vcmpError(*SetPlayerAnimation) (int32_t playerId, int32_t groupId, int32_t animationId);
 	/* GetLastError: vcmpErrorNoSuchEntity */
 	int32_t(*GetPlayerStandingOnVehicle) (int32_t playerId);
@@ -649,14 +654,14 @@ typedef struct {
 	 * All entities
 	 */
 
-	 /* GetLastError: vcmpArgumentOutOfBounds */
+	/* GetLastError: vcmpArgumentOutOfBounds */
 	uint8_t(*CheckEntityExists) (vcmpEntityPool entityPool, int32_t index);
 
 	/*
 	 * Vehicles
 	 */
 
-	 /* GetLastError: vcmpErrorArgumentOutOfBounds, vcmpErrorPoolExhausted */
+	/* GetLastError: vcmpErrorArgumentOutOfBounds, vcmpErrorPoolExhausted */
 	int32_t(*CreateVehicle) (int32_t modelIndex, int32_t world, float x, float y, float z, float angle, int32_t primaryColour, int32_t secondaryColour);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*DeleteVehicle) (int32_t vehicleId);
@@ -755,7 +760,7 @@ typedef struct {
 	 * Vehicle handling
 	 */
 
-	 /* success */
+	/* success */
 	void(*ResetAllVehicleHandlings) (void);
 	/* vcmpErrorArgumentOutOfBounds */
 	uint8_t(*ExistsHandlingRule) (int32_t modelIndex, int32_t ruleIndex);
@@ -782,7 +787,7 @@ typedef struct {
 	 * Pickups
 	 */
 
-	 /* vcmpErrorPoolExhausted */
+	/* vcmpErrorPoolExhausted */
 	int32_t(*CreatePickup) (int32_t modelIndex, int32_t world, int32_t quantity, float x, float y, float z, int32_t alpha, uint8_t isAutomatic);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*DeletePickup) (int32_t pickupId);
@@ -819,7 +824,7 @@ typedef struct {
 	 * Checkpoints
 	 */
 
-	 /* vcmpErrorPoolExhausted, vcmpErrorNoSuchEntity */
+	/* vcmpErrorPoolExhausted, vcmpErrorNoSuchEntity */
 	int32_t(*CreateCheckPoint) (int32_t playerId, int32_t world, uint8_t isSphere, float x, float y, float z, int32_t red, int32_t green, int32_t blue, int32_t alpha, float radius);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*DeleteCheckPoint) (int32_t checkPointId);
@@ -850,7 +855,7 @@ typedef struct {
 	 * Objects
 	 */
 
-	 /* GetLastError: vcmpErrorPoolExhausted */
+	/* GetLastError: vcmpErrorPoolExhausted */
 	int32_t(*CreateObject) (int32_t modelIndex, int32_t world, float x, float y, float z, int32_t alpha);
 	/* vcmpErrorNoSuchEntity */
 	vcmpError(*DeleteObject) (int32_t objectId);
@@ -912,6 +917,30 @@ typedef struct {
 	vcmpError(*SetVehicleLightsData) (int32_t vehicleId, uint32_t lightsData);
 	/* GetLastError: vcmpErrorNoSuchEntity */
 	uint32_t(*GetVehicleLightsData) (int32_t vehicleId);
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError(*KillPlayer) (int32_t playerId);
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError(*SetVehicle3DArrowForPlayer) (int32_t nVehicleId, int32_t nTargetPlayerId, uint8_t bEnabled);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t(*GetVehicle3DArrowForPlayer) (int32_t nVehicleId, int32_t nTargetPlayerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError(*SetPlayer3DArrowForPlayer) (int32_t nPlayerId, int32_t nTargetPlayerId, uint8_t bEnabled);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t(*GetPlayer3DArrowForPlayer) (int32_t nVehicleId, int32_t nTargetPlayerId);
+
+	/* vcmpErrorNoSuchEntity */
+	vcmpError(*SetPlayerDrunkHandling) (int32_t playerId, uint32_t drunkLevel);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint32_t(*GetPlayerDrunkHandling) (int32_t playerId);
+	/* vcmpErrorNoSuchEntity */
+	vcmpError(*SetPlayerDrunkVisuals) (int32_t playerId, uint8_t drunkLevel);
+	/* GetLastError: vcmpErrorNoSuchEntity */
+	uint8_t(*GetPlayerDrunkVisuals) (int32_t playerId);
+
+	/* vcmpErrorNoSuchEntity, vcmpErrorRequestDenied */
+	vcmpError(*InterpolateCameraLookAt) (int32_t playerId, float lookX, float lookY, float lookZ, uint32_t interpTimeMS);
 
 } PluginFuncs;
 

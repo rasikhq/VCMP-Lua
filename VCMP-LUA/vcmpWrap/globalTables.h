@@ -124,7 +124,8 @@ void InitGlobals(sol::state* Lua) {
 		"backfaceCulling",		vcmpServerOption::vcmpServerOptionDisableBackfaceCulling,
 		"heliBladeDamage",		vcmpServerOption::vcmpServerOptionDisableHeliBladeDamage,
 		"perfectHandling",		vcmpServerOption::vcmpServerOptionPerfectHandling,
-		"showMarkers",			vcmpServerOption::vcmpServerOptionShowMarkers
+		"showMarkers",			vcmpServerOption::vcmpServerOptionShowMarkers,
+		"disableCrouch",		vcmpServerOption::vcmpServerOptionDisableCrouch
 	);
 
 	Lua->new_enum("DisconnectReason",
@@ -183,7 +184,8 @@ void InitGlobals(sol::state* Lua) {
 		"showOnRadar",				vcmpPlayerOption::vcmpPlayerOptionHasMarker,
 		//
 		"chatTags",					vcmpPlayerOption::vcmpPlayerOptionChatTagsEnabled,
-		"drunkEffects",				vcmpPlayerOption::vcmpPlayerOptionDrunkEffects
+		"drunkEffects",				vcmpPlayerOption::vcmpPlayerOptionDrunkEffectsDeprecated,
+		"bleeding",					vcmpPlayerOption::vcmpPlayerOptionBleeding
 	);
 
 	Lua->new_enum("PlayerVehicle",
@@ -213,7 +215,10 @@ void InitGlobals(sol::state* Lua) {
 		"radioLocked",				vcmpVehicleOption::vcmpVehicleOptionRadioLocked,
 		"ghost",					vcmpVehicleOption::vcmpVehicleOptionGhost,
 		"siren",					vcmpVehicleOption::vcmpVehicleOptionSiren,
-		"singleUse",				vcmpVehicleOption::vcmpVehicleOptionSingleUse
+		"singleUse",				vcmpVehicleOption::vcmpVehicleOptionSingleUse,
+		"engine",					vcmpVehicleOption::vcmpVehicleOptionEngineDisabled,
+		"boot",						vcmpVehicleOption::vcmpVehicleOptionBootOpen,
+		"bonnet",					vcmpVehicleOption::vcmpVehicleOptionBonnetOpen
 	);
 
 	Lua->new_enum("VehicleSpeed",

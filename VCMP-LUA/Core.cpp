@@ -29,7 +29,7 @@ int my_exception_handler(lua_State* L, sol::optional<const std::exception&> mayb
 	return sol::stack::push(L, description);
 }
 
-extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs * pluginFuncs, PluginCallbacks * pluginCalls, PluginInfo * pluginInfo) {
+extern "C" EXPORT unsigned int VcmpPluginInit(PluginFuncs* pluginFuncs, PluginCallbacks* pluginCalls, PluginInfo* pluginInfo) {
 	g_Funcs = pluginFuncs;
 	g_Calls = pluginCalls;
 	g_Info = pluginInfo;

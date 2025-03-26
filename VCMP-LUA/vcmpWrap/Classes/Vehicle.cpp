@@ -337,6 +337,16 @@ void Vehicle::setColor(sol::table colors) {
 	g_Funcs->SetVehicleColour(m_ID, colors.get_or(1, primary), colors.get_or(2, secondary));
 }
 
+void Vehicle::set3DArrowToPlayer(Player* player, bool state) const
+{
+	g_Funcs->SetVehicle3DArrowForPlayer(m_ID, player->getID(), state);
+}
+
+int32_t Vehicle::get3DArrowToPlayer(Player* player) const
+{
+	return g_Funcs->GetVehicle3DArrowForPlayer(m_ID, player->getID());
+}
+
 uint32_t Vehicle::getLightsData() const { return g_Funcs->GetVehicleLightsData(m_ID); }
 void Vehicle::setLightsData(uint32_t data) {
 	if (getLightsData() == data)
@@ -479,6 +489,8 @@ void Vehicle::Init(sol::state* L) {
 	userdata["hasHandlingRule"] = &Vehicle::hasHandlingRule;
 	userdata["getHandlingRule"] = &Vehicle::getHandlingRule;
 	userdata["setHandlingRule"] = &Vehicle::setHandlingRule;
+	userdata["get3DArrowToPlayer"] = &Vehicle::get3DArrowToPlayer;
+	userdata["set3DArrowToPlayer"] = &Vehicle::set3DArrowToPlayer;
 
 	/*** READ-ONLY ***/
 	userdata.set("getType", &Vehicle::getType);

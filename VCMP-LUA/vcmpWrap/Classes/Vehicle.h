@@ -60,6 +60,8 @@ public:
 	uint8_t hasHandlingRule(int32_t);
 	void setHandlingRule(int32_t, double);
 	double getHandlingRule(int32_t);
+	void set3DArrowToPlayer(Player* player, bool) const;
+	int32_t get3DArrowToPlayer(Player* player) const;
 
 	/*** READ-ONLY ***/
 	int32_t getID() const;

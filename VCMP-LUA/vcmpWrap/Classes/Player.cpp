@@ -211,6 +211,11 @@ int32_t Player::getWeapon() const
 	return g_Funcs->GetPlayerWeapon(m_ID);
 }
 
+int32_t Player::get3DArrowToPlayer(Player* target) const
+{
+	return g_Funcs->GetPlayer3DArrowForPlayer(m_ID, target->getID());
+}
+
 sol::as_table_t<std::vector<float>> Player::getAimPos() const
 {
 	float x, y, z;
@@ -304,6 +309,16 @@ void Player::setCam(sol::table position, sol::table lookAt) const
 void Player::setCamEx(float camX, float camY, float camZ, float lookX, float lookY, float lookZ) const
 {
 	g_Funcs->SetCameraPosition(m_ID, camX, camY, camZ, lookX, lookY, lookZ);
+}
+
+void Player::interpolateCamLookAt(float lookX, float lookY, float lookZ, uint32_t ms) const
+{
+	g_Funcs->InterpolateCameraLookAt(m_ID, lookX, lookY, lookZ, ms);
+}
+
+void Player::kill() const
+{
+	g_Funcs->KillPlayer(m_ID);
 }
 
 void Player::kick() const 
@@ -467,8 +482,33 @@ void Player::setVehicleWithSlot(Vehicle* vehicle, int32_t slot) {
 	g_Funcs->PutPlayerInVehicle(m_ID, vehicle->getID(), slot, 1, 1);
 }
 
+void Player::set3DArrowToPlayer(Player* player, bool state) const
+{
+	g_Funcs->SetPlayer3DArrowForPlayer(m_ID, player->getID(), state);
+}
+
+void Player::setDrunkHandling(int32_t level) const
+{
+	g_Funcs->SetPlayerDrunkHandling(m_ID, level);
+}
+
+void Player::setDrunkVisuals(int32_t level) const
+{
+	g_Funcs->SetPlayerDrunkVisuals(m_ID, level);
+}
+
 int32_t Player::getWeaponSlot() const {
 	return g_Funcs->GetPlayerWeaponSlot(m_ID);
+}
+
+int32_t Player::getDrunkHandling() const
+{
+	return g_Funcs->GetPlayerDrunkHandling(m_ID);
+}
+
+int32_t Player::getDrunkVisuals() const
+{
+	return g_Funcs->GetPlayerDrunkVisuals(m_ID);
 }
 
 void Player::setWeaponSlot(int32_t slot) {
@@ -545,11 +585,17 @@ void Player::Init(sol::state* L) {
 	userdata["redirect"] = &Player::redirect;
 	userdata["setCamera"] = sol::overload(&Player::setCam, &Player::setCamEx);
 	userdata["restoreCamera"] = &Player::restoreCamera;
+	userdata["interpolateCamLookAt"] = &Player::interpolateCamLookAt;
 	userdata["kick"] = &Player::kick;
 	userdata["ban"] = &Player::ban;
 	userdata["selectClass"] = &Player::selectClass;
 	userdata["setAnimation"] = sol::overload(&Player::setAnimationCompact, &Player::setAnimation);
 	userdata["eject"] = &Player::eject;
+	userdata["kill"] = &Player::kill;
+	userdata["set3DArrowToPlayer"] = &Player::set3DArrowToPlayer;
+	userdata["get3DArrowToPlayer"] = &Player::get3DArrowToPlayer;
+	userdata["setDrunkHandling"] = &Player::setDrunkHandling;
+	userdata["setDrunkVisuals"] = &Player::setDrunkVisuals;
 
 	/*** READ-ONLY ***/
 	userdata.set("getType", &Player::getType);
@@ -569,6 +615,8 @@ void Player::Init(sol::state* L) {
 	userdata.set("getPing", &Player::getPing);
 	userdata.set("getFPS", &Player::getFPS);
 	userdata.set("getModules", &Player::getModules);
+	userdata.set("getDrunkHandling", &Player::getDrunkHandling);
+	userdata.set("getDrunkVisuals", &Player::getDrunkVisuals);
 
 	/*** PROPERTIES ***/
 	userdata["admin"] = sol::property(&Player::getAdmin, &Player::setAdmin);
