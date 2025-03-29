@@ -5,6 +5,10 @@ This code is written by kerukuro and released into public domain.
 #ifndef DIGESTPP_DETAIL_FUNCTIONS_HPP
 #define DIGESTPP_DETAIL_FUNCTIONS_HPP
 
+#include <cstdint>
+#include <array>
+#include <string>
+
 namespace digestpp
 {
 namespace detail
