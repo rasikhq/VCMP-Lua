@@ -1,0 +1,95 @@
+LuaSQL MySQL driver: memory-safety fixes. Upstream candidate.
+
+- Cursor methods that use the MYSQL handle (nextresult, hasnextresult) raise
+  an error after conn:close() instead of using the freed handle.
+- conn:ping() no longer passes a server error message as a format string.
+- The connect error message is always NUL-terminated (strncpy could leave it
+  unterminated) and the buffer fits TLS error messages.
+- With LUASQL_MYSQL_NO_LIBRARY_END defined, closing an environment does not
+  call mysql_library_end(), which frees client state that other environments
+  and their connections still use. The embedding program calls it once.
+
+--- a/src/ls_mysql.c
++++ b/src/ls_mysql.c
+@@ -113,6 +113,22 @@
+ 
+ 
+ /*
++** Returns the connection handle of a cursor, raising an error when the
++** connection was closed: the cursor keeps the connection object alive, but
++** conn:close() frees the MYSQL handle.
++*/
++static MYSQL *cur_getconn (lua_State *L, cur_data *cur) {
++	conn_data *conn;
++	lua_rawgeti (L, LUA_REGISTRYINDEX, cur->conn);
++	conn = (conn_data *)lua_touserdata (L, -1);
++	lua_pop (L, 1);
++	if (conn == NULL || conn->closed)
++		luaL_error (L, LUASQL_PREFIX"connection is closed");
++	return conn->my_conn;
++}
++
++
++/*
+ ** Push the value of #i field of #tuple row.
+ */
+ static void pushvalue (lua_State *L, void *row, long int len) {
+@@ -251,7 +267,7 @@
+ */
+ static int cur_next_result (lua_State *L) {
+ 	cur_data *cur = getcursor (L);
+-	MYSQL* con = cur->my_conn;
++	MYSQL* con = cur_getconn (L, cur);
+ 	int status;
+ 	if(mysql_more_results(con)){
+ 		status = mysql_next_result(con);
+@@ -300,7 +316,7 @@
+ */
+ static int cur_has_next_result (lua_State *L) {
+ 	cur_data *cur = getcursor (L);
+-	lua_pushboolean(L, mysql_more_results(cur->my_conn));
++	lua_pushboolean(L, mysql_more_results(cur_getconn (L, cur)));
+ 	return 1;
+ }
+ 
+@@ -460,7 +476,7 @@
+ 		lua_pushboolean (L, 0);
+ 		return 1;
+ 	}
+-	luaL_error(L, mysql_error(conn->my_conn));
++	luaL_error(L, "%s", mysql_error(conn->my_conn));
+ 	return 0;
+ }
+ 
+@@ -601,8 +617,9 @@
+ 	if (!mysql_real_connect(conn, host, username, password,
+ 		sourcename, port, unix_socket, client_flag))
+ 	{
+-		char error_msg[100];
+-		strncpy (error_msg,  mysql_error(conn), 99);
++		char error_msg[512];
++		strncpy (error_msg,  mysql_error(conn), sizeof(error_msg) - 1);
++		error_msg[sizeof(error_msg) - 1] = '\0';
+ 		mysql_close (conn); /* Close conn if connect failed */
+ 		return luasql_failmsg (L, "error connecting to database. MySQL: ", error_msg);
+ 	}
+@@ -617,7 +634,9 @@
+ 	env_data *env= (env_data *)luaL_checkudata (L, 1, LUASQL_ENVIRONMENT_MYSQL);
+ 	if (env != NULL && !(env->closed)) {
+ 		env->closed = 1;
++#ifndef LUASQL_MYSQL_NO_LIBRARY_END
+ 		mysql_library_end();
++#endif
+ 	}
+ 	return 0;
+ }
+@@ -635,7 +654,9 @@
+ 		return 2;
+ 	}
+ 	env->closed = 1;
++#ifndef LUASQL_MYSQL_NO_LIBRARY_END
+ 	mysql_library_end();
++#endif
+ 	lua_pushboolean (L, 1);
+ 	return 1;
+ }

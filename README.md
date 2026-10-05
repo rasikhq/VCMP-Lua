@@ -1,55 +1,62 @@
-# VCMP Lua Plugin
+# VCMP-Lua
 
-As the name suggests, this plugin provides a scripting API for VCMP in Lua (yay!). Please check out the [WIKI](https://github.com/DizzasTeR/VCMP-Lua/wiki) to learn
-about the structure of the plugin (its quite easy!)
+A Lua 5.4 scripting plugin for the Vice City: Multiplayer (VC:MP) 0.4 server.
 
-## Purpose of this project
+> **v2 is in development on this branch.** The plugin binary, the build and the
+> runtime are being rebuilt; the scripting API returns in a later phase. Use
+> the `master` branch (v1) for servers today.
 
-The purpose of this project is mainly that I love Lua, and I also love C++, therefore to keep my practice in C++ I decided to work on this plugin with one of my
-favorite scripting languages (Lua).
+The plugin is one self-contained x64 binary per platform,
+`LuaPlugin_x64.so` (Linux, glibc 2.28 or newer) and `LuaPlugin_x64.dll`
+(Windows). It needs nothing else installed: Lua, LuaSQL (SQLite, PostgreSQL,
+MySQL/MariaDB), lua-cjson, LuaSocket, Copas, LuaFileSystem and inspect.lua
+are built in and load with `require`.
 
-# The Lua config file
+## Configuration
 
-In your server directory you should place a **luaconfig.ini** file which will allow you to specify some settings the plugin can use. Some of these settings are
-optional while some (like specifying atleast 1 script file) is compulsory.
+Put `luaconfig.lua` in the server directory:
 
-The file structure is as of right now very simple:
-
-```ini
-[config]
-# Sets experimental mode ON (1) or OFF (0) | Intended for beta-testing and development only. Do not rely for stability
-#experimental=1
-# Sets the log level, See the Logger page on Wiki for more information
-loglevel=0
-# Sets the log file. This log file will be used to create daily logs and it will log everything logged by Logger class, regardless of level
-logfile=DailyLogs.logs
-
-[modules]
-# This is the modules section, here you can opt in to use external modules that the plugin provides. They can be listed and toggled by setting them to a boolean
-
-#moduleName=[true/false]
-lanes=false
-
-[scripts]
-# This is the scripts section, here you can specify all your script files that you want to run.
-
-# script=path/to/file.lua
-script=lua/script.lua
+```lua
+return {
+  scripts = { "lua/main.lua" },
+  package_path = "lua/?.lua;lua/?/init.lua",
+  log = { level = "info" },
+}
 ```
 
-# Building the plugin
+## Building
 
-## Windows
+The dependencies come from [vcpkg](https://vcpkg.io) (pinned in
+`vcpkg-configuration.json`) and from release tarballs pinned by SHA256
+(`cmake/deps/`).
 
-To build on Windows, just download the repository and run the win-build.bat file in the premake folder. You should be getting a Visual Studio 2019 solution file
+### Linux
 
-**NOTE: You can only build x64 of Lua plugin on Windows for now. Why? Cuz I'm too lazy to setup my environment to compile mariadb for x32 :D**
+The Linux plugin is built in a pinned manylinux_2_28 image, so it loads on
+older distributions too. With Docker:
 
-## Linux
+```bash
+docker build --platform linux/amd64 -t vcmp-lua-build -f ci/manylinux.Dockerfile ci
+docker run --rm --platform linux/amd64 -v "$PWD:/src" -w /src vcmp-lua-build ci/build-linux.sh
+```
 
-To build on Linux:
+The plugin is written to `build/linux-release/bin/LuaPlugin_x64.so`.
 
--   Download/Clone the repository
--   Download premake and build it
--   Inside the repository, call premake: `path/to/premake5 gmake`
--   Now use `make` with your desired `config`: `make config=release` OR `make config=release32`
+### Windows
+
+With Visual Studio 2022 (C++ workload) and Git:
+
+```powershell
+ci/bootstrap-vcpkg.ps1 .cache/vcpkg
+$env:VCPKG_ROOT = "$PWD/.cache/vcpkg"
+cmake --preset windows-release
+cmake --build --preset windows-release
+ctest --preset windows-release
+```
+
+The plugin is written to `build/windows-release/bin/LuaPlugin_x64.dll`.
+
+## License
+
+MIT, see [LICENSE](LICENSE). The bundled libraries are listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

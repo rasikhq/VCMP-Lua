@@ -1,0 +1,8 @@
+/* Linker version script for the Linux plugin: VcmpPluginInit is the only
+   symbol the server needs, so it is the only one the plugin exports. */
+{
+  global:
+    VcmpPluginInit;
+  local:
+    *;
+};

@@ -1,0 +1,27 @@
+Let a program that links lua-cjson statically define CJSON_EXPORT.
+
+lua_cjson.c always defines CJSON_EXPORT as __declspec(dllexport) with MSVC,
+so luaopen_cjson is exported from any DLL that links lua-cjson statically.
+VCMP-Lua must export VcmpPluginInit only. Upstream candidate.
+
+--- a/lua_cjson.c
++++ b/lua_cjson.c
+@@ -68,11 +68,17 @@
+ #endif
+ 
+ #ifdef _MSC_VER
+-#define CJSON_EXPORT    __declspec(dllexport)
+ #define strncasecmp(x,y,z) _strnicmp(x,y,z)
++#endif
++
++/* A program that links lua-cjson statically can define CJSON_EXPORT itself. */
++#ifndef CJSON_EXPORT
++#ifdef _MSC_VER
++#define CJSON_EXPORT    __declspec(dllexport)
+ #else
+ #define CJSON_EXPORT    extern
+ #endif
++#endif
+ 
+ /* Workaround for Solaris platforms missing isinf() */
+ #if !defined(isinf) && (defined(USE_INTERNAL_ISINF) || defined(MISSING_ISINF))

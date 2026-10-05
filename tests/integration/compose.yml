@@ -1,0 +1,55 @@
+# Integration services. Phase 1 runs the MySQL gate (plan, Part C):
+#
+#   ci/build-linux.sh (in the vcmp-lua-build image) first, then
+#   docker compose -f tests/integration/compose.yml run --rm mysql-gate
+#   docker compose -f tests/integration/compose.yml down --volumes
+#
+# Later phases add the VC:MP server, Postgres and a local TLS server.
+name: vcmp-lua-integration
+
+services:
+  mysql84:
+    image: mysql:8.4@sha256:6ea90827b1100f8f2ae306a539f86d2c264a26ed435a2a9f75551dd5c3aeb242
+    environment:
+      MYSQL_ROOT_PASSWORD: gate-root
+    volumes:
+      - ./mysql-gate/mysql84.sql:/docker-entrypoint-initdb.d/gate.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--host=127.0.0.1", "--user=root", "--password=gate-root"]
+      interval: 2s
+      timeout: 5s
+      retries: 90
+
+  mariadb11:
+    image: mariadb:11.8@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15
+    environment:
+      MARIADB_ROOT_PASSWORD: gate-root
+    volumes:
+      - ./mysql-gate/mariadb11.sql:/docker-entrypoint-initdb.d/gate.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 2s
+      timeout: 5s
+      retries: 90
+
+  # Accepts TCP connections on port 3306 and never answers.
+  tarpit:
+    image: vcmp-lua-build
+    platform: linux/amd64
+    command: ["python3", "/gate/tarpit.py"]
+    volumes:
+      - ./mysql-gate:/gate:ro
+
+  mysql-gate:
+    image: vcmp-lua-build
+    platform: linux/amd64
+    command: ["/src/tests/integration/mysql-gate/run.sh"]
+    volumes:
+      - ../..:/src
+    depends_on:
+      mysql84:
+        condition: service_healthy
+      mariadb11:
+        condition: service_healthy
+      tarpit:
+        condition: service_started

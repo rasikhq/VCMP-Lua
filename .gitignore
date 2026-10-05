@@ -1,5 +1,23 @@
-.vs/*
-backup/*
-bin/*
-*.vcxproj**
-*.sln
+# Build trees and local caches
+/build/
+/out/
+/.cache/
+/CMakeUserPresets.json
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Never commit binaries
+*.so
+*.dll
+*.exe
+*.pdb
+*.lib
+*.exp
+*.a
+*.o
+*.obj

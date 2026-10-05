@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "vcmp-lua",
+  "version": "2.0.0",
+  "description": "Lua 5.4 scripting plugin for the Vice City: Multiplayer 0.4 server",
+  "homepage": "https://github.com/rasikhq/VCMP-Lua",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "curl",
+      "default-features": false,
+      "features": [
+        "ssl"
+      ]
+    },
+    "fmt",
+    "libmariadb",
+    {
+      "name": "libpq",
+      "default-features": false,
+      "features": [
+        "openssl"
+      ]
+    },
+    "lua",
+    "openssl",
+    "sol2",
+    "spdlog",
+    {
+      "name": "sqlite3",
+      "features": [
+        "omit-load-extension"
+      ]
+    },
+    "zlib"
+  ],
+  "features": {
+    "tests": {
+      "description": "Dependencies of the unit tests",
+      "dependencies": [
+        "doctest"
+      ]
+    }
+  },
+  "overrides": [
+    {
+      "name": "lua",
+      "version": "5.4.8"
+    }
+  ]
+}
