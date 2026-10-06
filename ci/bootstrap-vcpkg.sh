@@ -9,10 +9,10 @@ baseline="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["de
     "$repo_dir/vcpkg-configuration.json")"
 
 if [ ! -d "$root/.git" ]; then
-    git clone --filter=blob:none https://github.com/microsoft/vcpkg "$root"
+    git clone https://github.com/microsoft/vcpkg "$root"
 fi
 if [ "$(git -C "$root" rev-parse HEAD)" != "$baseline" ] || [ ! -x "$root/vcpkg" ]; then
-    git -C "$root" fetch --filter=blob:none origin
+    git -C "$root" fetch origin
     git -C "$root" checkout --quiet --detach "$baseline"
     "$root/bootstrap-vcpkg.sh" -disableMetrics
 fi

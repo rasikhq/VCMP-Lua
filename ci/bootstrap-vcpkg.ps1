@@ -10,11 +10,11 @@ $config = Get-Content (Join-Path $PSScriptRoot '..\vcpkg-configuration.json') -R
 $baseline = $config.'default-registry'.baseline
 
 if (-not (Test-Path (Join-Path $Root '.git'))) {
-    git clone --filter=blob:none https://github.com/microsoft/vcpkg $Root
+    git clone https://github.com/microsoft/vcpkg $Root
 }
 $head = git -C $Root rev-parse HEAD
 if ($head -ne $baseline -or -not (Test-Path (Join-Path $Root 'vcpkg.exe'))) {
-    git -C $Root fetch --filter=blob:none origin
+    git -C $Root fetch origin
     git -C $Root checkout --quiet --detach $baseline
     & (Join-Path $Root 'bootstrap-vcpkg.bat') -disableMetrics
 }
