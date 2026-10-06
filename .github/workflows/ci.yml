@@ -5,6 +5,12 @@ on:
     branches: [master, v2]
   pull_request:
   workflow_dispatch:
+    inputs:
+      jobs:
+        description: Jobs to run
+        type: choice
+        options: [all, linux, windows]
+        default: all
 
 permissions:
   contents: read
@@ -13,10 +19,16 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# The vcpkg packages are cached under a new key per run, and saved right after
+# they are built, even when a later step fails: a fix cycle never rebuilds
+# OpenSSL, curl or libpq. A run saves only when it built new packages.
+
 jobs:
   linux:
     name: Linux x64 (manylinux_2_28)
+    if: github.event_name != 'workflow_dispatch' || inputs.jobs != 'windows'
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -32,24 +44,66 @@ jobs:
           cache-from: type=gha,scope=manylinux
           cache-to: type=gha,mode=max,scope=manylinux
 
-      - name: Cache vcpkg packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: vcpkg cache key
+        id: key
+        run: echo "key=vcpkg-linux-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/triplets/x64-linux-plugin.cmake', 'ci/manylinux.Dockerfile') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore vcpkg packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .cache/vcpkg-archives
-          key: vcpkg-linux-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/triplets/x64-linux-plugin.cmake', 'ci/manylinux.Dockerfile') }}
-          restore-keys: vcpkg-linux-
+          key: ${{ steps.key.outputs.key }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ steps.key.outputs.key }}-
+            vcpkg-linux-
+
+      - name: Count vcpkg packages
+        id: before
+        run: echo "count=$(find .cache/vcpkg-archives -type f 2>/dev/null | wc -l)" >> "$GITHUB_OUTPUT"
 
       - name: Build, test and check the binary
+        id: build
         run: docker run --rm -v "$PWD:/src" -w /src vcmp-lua-build ci/build-linux.sh
 
+      - name: Look for new vcpkg packages
+        id: after
+        if: always() && steps.before.outcome == 'success'
+        run: |
+          count="$(find .cache/vcpkg-archives -type f 2>/dev/null | wc -l)"
+          if [ "$count" != "${{ steps.before.outputs.count }}" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Save vcpkg packages
+        if: always() && steps.after.outputs.changed == 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/vcpkg-archives
+          key: ${{ steps.key.outputs.key }}-${{ github.run_id }}
+
       - name: MySQL gate
+        if: steps.build.outcome == 'success'
         run: docker compose -f tests/integration/compose.yml run --rm mysql-gate
 
       - name: Stop integration services
         if: always()
         run: docker compose -f tests/integration/compose.yml down --volumes
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: linux-logs
+          path: |
+            .cache/vcpkg/buildtrees/**/*.log
+            build/linux-release/vcpkg-manifest-install.log
+            build/linux-release/CMakeFiles/CMakeConfigureLog.yaml
+            build/linux-release/Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
+
+      - name: Upload plugin
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: LuaPlugin_x64-linux
           path: build/linux-release/bin/LuaPlugin_x64.so
@@ -57,40 +111,90 @@ jobs:
 
   windows:
     name: Windows x64 (MSVC)
+    if: github.event_name != 'workflow_dispatch' || inputs.jobs != 'linux'
     runs-on: windows-2022
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
     env:
       VCPKG_ROOT: ${{ github.workspace }}\.cache\vcpkg
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\.cache\vcpkg-archives
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Cache vcpkg packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: vcpkg cache key
+        id: key
+        run: |
+          "key=vcpkg-windows-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/triplets/x64-windows-static-plugin.cmake') }}" >> $env:GITHUB_OUTPUT
+
+      - name: Restore vcpkg packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .cache/vcpkg-archives
-          key: vcpkg-windows-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/triplets/x64-windows-static-plugin.cmake') }}
-          restore-keys: vcpkg-windows-
+          key: ${{ steps.key.outputs.key }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ steps.key.outputs.key }}-
+            vcpkg-windows-
 
       - name: Bootstrap vcpkg
-        shell: pwsh
+        id: bootstrap
         run: |
           New-Item -ItemType Directory -Force $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
+          "count=$((Get-ChildItem -Recurse -File $env:VCPKG_DEFAULT_BINARY_CACHE).Count)" >> $env:GITHUB_OUTPUT
           ci/bootstrap-vcpkg.ps1 $env:VCPKG_ROOT
 
-      - name: Configure
+      - name: Configure (builds the vcpkg packages)
+        id: configure
         run: cmake --preset windows-release
 
+      - name: Look for new vcpkg packages
+        id: after
+        if: always() && steps.bootstrap.outcome == 'success'
+        run: |
+          $count = (Get-ChildItem -Recurse -File $env:VCPKG_DEFAULT_BINARY_CACHE).Count
+          if ($count -ne ${{ steps.bootstrap.outputs.count }}) { "changed=true" >> $env:GITHUB_OUTPUT }
+
+      - name: Save vcpkg packages
+        if: always() && steps.after.outputs.changed == 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/vcpkg-archives
+          key: ${{ steps.key.outputs.key }}-${{ github.run_id }}
+
+      - name: Show vcpkg build logs
+        if: failure() && steps.configure.outcome == 'failure'
+        run: |
+          Get-ChildItem .cache/vcpkg/buildtrees -Recurse -Include *-err.log, *-out.log -ErrorAction SilentlyContinue |
+            ForEach-Object { "==== $($_.FullName)"; Get-Content $_.FullName -Tail 80 }
+
       - name: Build
+        id: build
         run: cmake --build --preset windows-release
 
       - name: Test
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: ctest --preset windows-release
 
       - name: Check the binary
-        shell: pwsh
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: ci/check-binary.ps1 build/windows-release/bin/LuaPlugin_x64.dll
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: windows-logs
+          path: |
+            .cache/vcpkg/buildtrees/**/*.log
+            build/windows-release/vcpkg-manifest-install.log
+            build/windows-release/CMakeFiles/CMakeConfigureLog.yaml
+            build/windows-release/Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
+
+      - name: Upload plugin
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: LuaPlugin_x64-windows
           path: build/windows-release/bin/LuaPlugin_x64.dll

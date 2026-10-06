@@ -262,16 +262,16 @@ int main(int argc, char** argv) {
         }
     }
 
-    uint32_t funcs_size = sizeof(PluginFuncs);
-    uint32_t calls_size = sizeof(PluginCallbacks);
-    uint32_t info_size = sizeof(PluginInfo);
+    uint32_t funcs_size = static_cast<uint32_t>(sizeof(PluginFuncs));
+    uint32_t calls_size = static_cast<uint32_t>(sizeof(PluginCallbacks));
+    uint32_t info_size = static_cast<uint32_t>(sizeof(PluginInfo));
     if (server == "old") {
-        funcs_size = offsetof(PluginFuncs, SetPlayerDrunkHandling);
-        calls_size = offsetof(PluginCallbacks, OnPlayerModuleList);
+        funcs_size = static_cast<uint32_t>(offsetof(PluginFuncs, SetPlayerDrunkHandling));
+        calls_size = static_cast<uint32_t>(offsetof(PluginCallbacks, OnPlayerModuleList));
     } else if (server == "ancient") {
-        funcs_size = offsetof(PluginFuncs, SetPlayerDrunkHandling);
-        calls_size = offsetof(PluginCallbacks, OnServerFrame);
-        info_size = offsetof(PluginInfo, name);
+        funcs_size = static_cast<uint32_t>(offsetof(PluginFuncs, SetPlayerDrunkHandling));
+        calls_size = static_cast<uint32_t>(offsetof(PluginCallbacks, OnServerFrame));
+        info_size = static_cast<uint32_t>(offsetof(PluginInfo, name));
     } else if (server != "new") {
         std::fprintf(stderr, "plugin_host: unknown server kind %s\n", server.c_str());
         return 2;

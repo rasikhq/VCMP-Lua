@@ -80,7 +80,7 @@ int RunConfigFile(lua_State* L) {
 // Validation reads the result with raw accesses only, so no metamethod runs.
 class Reader {
 public:
-    Reader(lua_State* L, std::string file) : L_(L), file_(std::move(file)) {}
+    Reader(lua_State* L, std::string file_name) : L_(L), file_(std::move(file_name)) {}
 
     [[noreturn]] void Fail(std::string_view field, std::string_view expected, int idx) const {
         throw ConfigError(fmt::format("{}: {} must be {} (got {})", file_, field, expected,

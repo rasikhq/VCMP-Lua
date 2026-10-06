@@ -21,6 +21,11 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 # Static CRT (/MT), as in the x64-windows-static-plugin triplet.
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+if(MSVC)
+    # /EHs, not /EHsc: Lua is compiled as C, and the panic handler throws a
+    # C++ exception through its frames, so extern "C" calls may throw.
+    string(REPLACE "/EHsc" "/EHs" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(Hardening)
