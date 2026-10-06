@@ -15,6 +15,11 @@ phase 1. They settle the entity design (plan B4) and the shutdown order
   arrived *inside* a server function the probe was calling.
 - **Real plugin:** `LuaPlugin_x64.so` was loaded next to `probe_a` with
   `tests/host/smoke.lua` as its script.
+- **To run it again:** build `tests/probe` (see its CMakeLists.txt), put
+  `mpsvrrel64`, `server.cfg` (`port 5192`, `plugins probe_a probe_b`) and
+  `plugins/` in one directory, and start the server with
+  `-p 5192:5192/udp`. Join three times: the probe kicks join 1 after 3 s,
+  quit join 2 yourself, and 5 s after join 3 it calls `ShutdownServer()`.
 
 ## Plugin API structs
 
@@ -95,23 +100,41 @@ The phase 1 plugin loads (`Loaded plugin: LuaPlugin_x64`), runs every check
 of `tests/host/smoke.lua` (`SMOKE PASS`), shuts down on `ShutdownServer()`
 and on Ctrl+C with its Lua finalizers running, and the server exits with 0.
 
-## Pending: players
+## Players
 
-Kicks, disconnects and a shutdown with a player online need a real game
-client (VC:MP does not support NPCs). Still to measure:
+Measured with a real VC:MP client joining from Windows three times: the
+probe kicked join 1 after 3 s, join 2 quit by itself, and 5 s after join 3
+the probe called `ShutdownServer()` with the player still online.
 
-- whether `OnPlayerDisconnect` fires inside `KickPlayer`, and its reason code;
-- what `IsPlayerConnected` and `GetPlayerName` return during
-  `OnPlayerDisconnect`;
-- the reason code when a player quits;
-- whether `OnPlayerDisconnect` comes before or after `OnServerShutdown`
-  when the server stops with a player online.
+- **Join:** `OnIncomingConnection` reaches every plugin, then
+  `OnPlayerConnect` reaches every plugin, in the same frame. During
+  `OnPlayerConnect`, `IsPlayerConnected` returns 1. `OnPlayerRequestClass`
+  follows about 0.1 s later. Player ids are reused: the client got id 0 on
+  every join.
+- **Kick:** `OnPlayerDisconnect` with reason 2 (`vcmpDisconnectReasonKick`)
+  fires **synchronously inside** `KickPlayer`, for every plugin. During the
+  event `IsPlayerConnected` returns 1 and `GetPlayerName` works. Right after
+  `KickPlayer` returns, `IsPlayerConnected` returns 0.
+- **Quit:** `OnPlayerDisconnect` with reason 1 (`vcmpDisconnectReasonQuit`),
+  in the frame; the player still counts as connected during the event.
+- **Shutdown with a player online:** `ShutdownServer()` returns, then
+  `OnServerShutdown` reaches every plugin, then the pool "deleted" events
+  for the remaining entities, and only then `OnPlayerDisconnect` with
+  reason 0 (`vcmpDisconnectReasonTimeout`).
 
-To run it: build `tests/probe` (see its CMakeLists.txt), put `mpsvrrel64`,
-`server.cfg` (`port 5192`, `plugins probe_a probe_b`) and `plugins/` in one
-directory, start the server with `-p 5192:5192/udp`, then join three times:
-join 1 is kicked after 3 s, quit join 2 yourself, and 5 s after join 3 the
-probe calls `ShutdownServer()`.
+Consequences:
+
+- B4's rule "players are invalidated after the disconnect dispatch" matches
+  the server: the player is valid during the event and gone right after it.
+- A script's kick call runs the disconnect handlers re-entrantly, inside the
+  binding. The event bus must allow nested dispatch (B3.6), and the kick
+  binding must not use the player after the server call returns.
+- Players are still connected during `OnServerShutdown`, and their
+  disconnects arrive after the runtime has closed. Phase 2 decides whether
+  the runtime dispatches a disconnect for every connected player before it
+  closes; otherwise scripts must save player data in their shutdown handler.
+- In a container on macOS the server sees the NAT gateway's address
+  (192.168.215.1), not the client's, so player IPs are not meaningful there.
 
 ## MySQL gate
 
