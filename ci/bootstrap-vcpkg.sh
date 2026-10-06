@@ -8,6 +8,8 @@ repo_dir="$(cd "$(dirname "$0")/.." && pwd)"
 baseline="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["default-registry"]["baseline"])' \
     "$repo_dir/vcpkg-configuration.json")"
 
+# A full clone: vcpkg reads older port versions (the Lua 5.4.8 override) from
+# git history, and a partial clone would fetch them from GitHub mid-build.
 if [ ! -d "$root/.git" ]; then
     git clone https://github.com/microsoft/vcpkg "$root"
 fi

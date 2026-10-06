@@ -9,6 +9,8 @@ $PSNativeCommandUseErrorActionPreference = $true
 $config = Get-Content (Join-Path $PSScriptRoot '..\vcpkg-configuration.json') -Raw | ConvertFrom-Json
 $baseline = $config.'default-registry'.baseline
 
+# A full clone: vcpkg reads older port versions (the Lua 5.4.8 override) from
+# git history, and a partial clone would fetch them from GitHub mid-build.
 if (-not (Test-Path (Join-Path $Root '.git'))) {
     git clone https://github.com/microsoft/vcpkg $Root
 }
