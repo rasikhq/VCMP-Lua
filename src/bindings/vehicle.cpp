@@ -280,12 +280,10 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
         bool all = true;
         const int table = reader.index(1);
         for (int i = 1, n = TableLength(self.L, table); i <= n; ++i) {
-            lua_rawgeti(self.L, table, i);
-            const std::int64_t rule = CheckInteger(self.L, -1, std::numeric_limits<std::int32_t>::min(),
-                                                   std::numeric_limits<std::int32_t>::max());
-            lua_pop(self.L, 1);
-            all = Check(self.L, VCMP_FN(self, ResetInstHandlingRule)(
-                                    self.id, static_cast<std::int32_t>(rule))) && all;
+            const auto rule = static_cast<std::int32_t>(
+                TableInteger(self.L, table, i, std::numeric_limits<std::int32_t>::min(),
+                             std::numeric_limits<std::int32_t>::max()));
+            all = Check(self.L, VCMP_FN(self, ResetInstHandlingRule)(self.id, rule)) && all;
         }
         return all;
     };
@@ -395,15 +393,12 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
             Check(self.L, VCMP_FN(self, GetVehicleColour)(self.id, &primary, &secondary));
             colours.push(self.L);
             const int table = lua_gettop(self.L);
-            for (int i = 1; i <= 2; ++i) {
-                if (lua_rawgeti(self.L, table, i) != LUA_TNIL) {
-                    const auto value = static_cast<std::int32_t>(
-                        CheckInteger(self.L, -1, std::numeric_limits<std::int32_t>::min(),
-                                     std::numeric_limits<std::int32_t>::max()));
-                    (i == 1 ? primary : secondary) = value;
-                }
-                lua_pop(self.L, 1);
-            }
+            primary = static_cast<std::int32_t>(TableInteger(
+                self.L, table, 1, std::numeric_limits<std::int32_t>::min(),
+                std::numeric_limits<std::int32_t>::max(), primary));
+            secondary = static_cast<std::int32_t>(TableInteger(
+                self.L, table, 2, std::numeric_limits<std::int32_t>::min(),
+                std::numeric_limits<std::int32_t>::max(), secondary));
             lua_pop(self.L, 1);
             Check(self.L, VCMP_FN(self, SetVehicleColour)(self.id, primary, secondary));
         });

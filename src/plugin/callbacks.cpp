@@ -545,6 +545,22 @@ void OnPickupRespawn(int32_t pickup_id) noexcept {
     });
 }
 
+void OnCheckpointEntered(int32_t checkpoint_id, int32_t player_id) noexcept {
+    OnEvent("OnCheckpointEntered", [&](Runtime& runtime) {
+        return Emit(runtime, Event::CheckpointEnter,
+                    Seen<EntityKind::Checkpoint>(runtime, checkpoint_id),
+                    SeenPlayer(runtime, player_id));
+    });
+}
+
+void OnCheckpointExited(int32_t checkpoint_id, int32_t player_id) noexcept {
+    OnEvent("OnCheckpointExited", [&](Runtime& runtime) {
+        return Emit(runtime, Event::CheckpointExit,
+                    Seen<EntityKind::Checkpoint>(runtime, checkpoint_id),
+                    SeenPlayer(runtime, player_id));
+    });
+}
+
 void SetPluginName(PluginInfo* info) noexcept {
     const std::size_t length = std::min(std::strlen(kPluginName), sizeof(info->name) - 1);
     std::memcpy(info->name, kPluginName, length);
@@ -654,6 +670,8 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
         VCMP_LUA_SET_CALLBACK(calls, OnPickupPickAttempt, &OnPickupPickAttempt);
         VCMP_LUA_SET_CALLBACK(calls, OnPickupPicked, &OnPickupPicked);
         VCMP_LUA_SET_CALLBACK(calls, OnPickupRespawn, &OnPickupRespawn);
+        VCMP_LUA_SET_CALLBACK(calls, OnCheckpointEntered, &OnCheckpointEntered);
+        VCMP_LUA_SET_CALLBACK(calls, OnCheckpointExited, &OnCheckpointExited);
         plugin.runtime = runtime.release();
         return 1;
     } catch (...) {

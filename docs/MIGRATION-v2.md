@@ -132,6 +132,17 @@ In v2 the server owns them, as in Squirrel:
   (default 255) and `automatic` (default `true`) are optional now.
 - New: `model` and `quantity` properties.
 
+## Checkpoint
+
+- Creation: see "Lifetime" above; v1's arguments
+  `(player, world, isSphere, x, y, z, {r, g, b[, a]}, radius)` or
+  `(player, world, isSphere, {x, y, z}, {r, g, b[, a]}, radius)`;
+  `player` may be `nil` for a checkpoint every player sees.
+- `checkpoint.radius = r` sets the radius (v1 compared `r` with the world
+  first and often did nothing).
+- Colour channels must be integers in [0, 255].
+- New: `owner` and `sphere` properties.
+
 ## New
 
 - `Server.reload()` reloads `luaconfig.lua` and every script.

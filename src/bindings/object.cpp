@@ -31,10 +31,7 @@ EntityRef<kObject> Create(lua_State* L, int first) {
     const Vec3 position = args.Vector(i);
     std::int32_t alpha = 255;
     if (table) {
-        if (lua_rawgeti(L, args.index(3), 4) != LUA_TNIL) {
-            alpha = static_cast<std::int32_t>(CheckInteger(L, -1, 0, 255));
-        }
-        lua_pop(L, 1);
+        alpha = static_cast<std::int32_t>(TableInteger(L, args.index(3), 4, 0, 255, 255));
     } else {
         alpha = args.IntOr<std::uint8_t>(i, 255);
     }
@@ -51,11 +48,8 @@ bool MoveObject(const Self& self, const ArgReader& args, Move move) {
     const Vec3 to = args.Vector(i);
     std::uint32_t ms = 0;
     if (table && args.missing(2)) {
-        if (lua_rawgeti(self.L, args.index(1), 4) != LUA_TNIL) {
-            ms = static_cast<std::uint32_t>(
-                CheckInteger(self.L, -1, 0, std::numeric_limits<std::uint32_t>::max()));
-        }
-        lua_pop(self.L, 1);
+        ms = static_cast<std::uint32_t>(TableInteger(
+            self.L, args.index(1), 4, 0, std::numeric_limits<std::uint32_t>::max(), 0));
     } else {
         ms = args.IntOr<std::uint32_t>(i, 0);
     }

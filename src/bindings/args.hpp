@@ -329,6 +329,11 @@ private:
 // argument" when it is missing or not a number. Uses raw access (B3.3).
 float TableNumber(lua_State* L, int index, int i);
 
+// Element i (1-based) of the table at index as an integer in [min, max];
+// nil gives fallback when one is passed, else raises "bad argument".
+std::int64_t TableInteger(lua_State* L, int index, int i, std::int64_t min, std::int64_t max,
+                          std::optional<std::int64_t> fallback = std::nullopt);
+
 // The number of array elements of the table at index (raw length).
 int TableLength(lua_State* L, int index);
 

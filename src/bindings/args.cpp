@@ -201,6 +201,30 @@ float TableNumber(lua_State* L, int index, int i) {
     return static_cast<float>(number);
 }
 
+std::int64_t TableInteger(lua_State* L, int index, int i, std::int64_t min, std::int64_t max,
+                          std::optional<std::int64_t> fallback) {
+    index = lua_absindex(L, index);
+    const int type = lua_rawgeti(L, index, i);
+    int is_integer = 0;
+    const lua_Integer value = type == LUA_TNUMBER ? lua_tointegerx(L, -1, &is_integer) : 0;
+    const char* type_name = lua_typename(L, type);
+    lua_pop(L, 1);
+    if (type == LUA_TNIL && fallback) {
+        return *fallback;
+    }
+    if (type != LUA_TNUMBER) {
+        ArgError(L, index, fmt::format("element {} must be an integer, got {}", i, type_name));
+    }
+    if (is_integer == 0) {
+        ArgError(L, index, fmt::format("element {} has no integer representation", i));
+    }
+    if (value < min || value > max) {
+        ArgError(L, index,
+                 fmt::format("element {}: value {} out of range [{}, {}]", i, value, min, max));
+    }
+    return value;
+}
+
 int TableLength(lua_State* L, int index) {
     return static_cast<int>(lua_rawlen(L, index));
 }

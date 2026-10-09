@@ -89,7 +89,8 @@ void RegisterEntities(sol::state& lua) {
     RegisterObject(lua, object);
     PickupType pickup = RegisterKind<EntityKind::Pickup>(lua);
     RegisterPickup(lua, pickup);
-    RegisterKind<EntityKind::Checkpoint>(lua);
+    CheckpointType checkpoint = RegisterKind<EntityKind::Checkpoint>(lua);
+    RegisterCheckpoint(lua, checkpoint);
     RegisterKind<EntityKind::Blip>(lua);
 }
 

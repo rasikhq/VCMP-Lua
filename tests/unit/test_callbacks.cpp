@@ -157,6 +157,22 @@ TEST_CASE("pickup events; a pick attempt can be refused") {
     CHECK(server.records == expected);
 }
 
+TEST_CASE("checkpoint events") {
+    FakeServer server;
+    Start(server);
+    Record(server, "onCheckpointEnter");
+    Record(server, "onCheckpointExit");
+    const int32_t player = server.Connect();
+    const int32_t checkpoint = server.CreateEntity(vcmpEntityPoolCheckPoint);
+    server.plugin.OnCheckpointEntered(checkpoint, player);
+    server.plugin.OnCheckpointExited(checkpoint, player);
+    const std::vector<std::string> expected = {
+        "onCheckpointEnter Checkpoint(0) Player(0)",
+        "onCheckpointExit Checkpoint(0) Player(0)",
+    };
+    CHECK(server.records == expected);
+}
+
 TEST_CASE("Event.cancel() makes a cancellable callback refuse") {
     FakeServer server;
     Start(server);

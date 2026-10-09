@@ -218,3 +218,10 @@ test("occupants, options, parts", function()
     v:explode()
     expect_call("ExplodeVehicle(" .. id .. ")")
 end)
+
+test("table elements are checked", function()
+    expect_error("bad value for 'color' (element 1 has no integer representation)",
+        function() v.color = { 1.5 } end)
+    expect_error("bad argument #1 to 'resetHandlingRule' (element 2 must be an integer, got string)",
+        function() v:resetHandlingRule({ 1, "x" }) end)
+end)
