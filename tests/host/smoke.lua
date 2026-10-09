@@ -153,6 +153,36 @@ check("inspect", function()
   assert(inspect({ a = 1 }) == "{\n  a = 1\n}")
 end)
 
+check("Hash", function()
+  assert(Hash.SHA256("abc") == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
+  assert(Hash.hmac("sha256", "key", "The quick brown fox jumps over the lazy dog") ==
+    "f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8")
+  assert(#Hash.randomBytes(32) == 32)
+  assert(require("hash") == Hash)
+end)
+
+check("sql", function()
+  local sql = require "sql"
+  local env = assert(require("luasql.sqlite3").sqlite3())
+  local conn = assert(env:connect(":memory:"))
+  assert(sql.format(conn, "SELECT ?, ?", "it's", nil) == "SELECT 'it''s', NULL")
+  conn:close()
+  env:close()
+end)
+
+check("http", function()
+  local http = require "http"
+  assert(type(http.request) == "function")
+  assert(not pcall(http.request, "ftp://example.com/", function() end))
+end)
+
+check("sandbox", function()
+  assert(package.cpath == "")
+  assert(load(string.dump(function() end)) == nil)
+  local ok, err = pcall(require, "no_such_c_module")
+  assert(not ok and err:find("C modules cannot be loaded from disk", 1, true), err)
+end)
+
 -- Runs while the plugin closes the Lua state (Runtime::Shutdown).
 smoke_finalizer = setmetatable({}, {
   __gc = function()

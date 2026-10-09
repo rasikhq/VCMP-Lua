@@ -10,6 +10,7 @@
 #include "core/frame_pump.hpp"
 #include "core/invoker.hpp"
 #include "core/scheduler.hpp"
+#include "modules/http.hpp"
 #include "plugin/api_guard.hpp"
 #include "runtime/config.hpp"
 
@@ -82,6 +83,7 @@ public:
     Scheduler& Timers() noexcept { return *timers_; }
     EntityPools& Entities() noexcept { return *entities_; }
     FramePump& Pump() noexcept { return *pump_; }
+    Http& Requests() noexcept { return *http_; }
 
     // What a dead runtime leaves behind (runtime.cpp).
     struct Remains;
@@ -96,6 +98,7 @@ private:
     std::unique_ptr<EntityPools> entities_;
     std::unique_ptr<EventBus> events_;
     std::unique_ptr<Scheduler> timers_;
+    std::unique_ptr<Http> http_;
     std::unique_ptr<FramePump> pump_;
     bool closing_ = false;
     bool dead_ = false;

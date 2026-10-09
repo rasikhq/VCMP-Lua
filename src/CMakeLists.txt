@@ -5,7 +5,14 @@ get_property(_embedded_modules GLOBAL PROPERTY VCMP_LUA_EMBEDDED_MODULES)
 vcmp_lua_embed("${_generated}/embedded_modules.cpp"
     MODULES
         ${_embedded_modules}
-        coxpcall "${PROJECT_SOURCE_DIR}/lua/coxpcall.lua")
+        coxpcall "${PROJECT_SOURCE_DIR}/lua/coxpcall.lua"
+        sql "${PROJECT_SOURCE_DIR}/lua/sql.lua"
+        vcmp-lua/prelude "${PROJECT_SOURCE_DIR}/lua/prelude.lua")
+set(_embedded_files "")
+if(NOT WIN32)
+    vcmp_lua_embed_file("${_generated}/cacert.cpp" "${VCMP_LUA_CACERT_FILE}" CaBundle)
+    list(APPEND _embedded_files "${_generated}/cacert.cpp")
+endif()
 
 # Everything except the entry point. The plugin and the tests link it.
 add_library(vcmp_lua_core STATIC
@@ -31,6 +38,8 @@ add_library(vcmp_lua_core STATIC
     core/event_bus.cpp
     core/frame_pump.cpp
     core/scheduler.cpp
+    modules/hash.cpp
+    modules/http.cpp
     plugin/callbacks.cpp
     runtime/config.cpp
     runtime/errors.cpp
@@ -38,7 +47,8 @@ add_library(vcmp_lua_core STATIC
     runtime/log.cpp
     runtime/preload.cpp
     runtime/runtime.cpp
-    "${_generated}/embedded_modules.cpp")
+    "${_generated}/embedded_modules.cpp"
+    ${_embedded_files})
 target_include_directories(vcmp_lua_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" "${_generated}")
 target_include_directories(vcmp_lua_core SYSTEM PUBLIC "${PROJECT_SOURCE_DIR}/third_party/vcmp")
 # Build-wide definitions (plan B3.10). SOL_ALL_SAFETIES_ON decides whether

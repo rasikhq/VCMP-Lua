@@ -8,7 +8,7 @@ struct lua_State;
 namespace vcmp_lua {
 
 // The work that runs once per server frame, in the order it was added:
-// timers now; the HTTP and Copas pumps in phase 4.
+// timers, HTTP and Copas (Runtime's constructor).
 class FramePump {
 public:
     using Step = std::function<void(lua_State*)>;

@@ -1,10 +1,19 @@
-# Integration services. Phase 1 runs the MySQL gate (plan, Part C):
+# Integration services. Build the plugin first (ci/build-linux.sh in the
+# vcmp-lua-build image), then:
 #
-#   ci/build-linux.sh (in the vcmp-lua-build image) first, then
-#   docker compose -f tests/integration/compose.yml run --rm mysql-gate
+# Smoke test (plan, Verification): the real VC:MP 0.4 Linux x64 server runs
+# tests/integration/smoke/smoke.lua against Postgres 17, MySQL 8.4,
+# MariaDB 11 and a local TLS server. VCMP_SERVER_DIR is a directory with the
+# unzipped server (mpsvrrel64); tests/integration/run.sh unzips the
+# download and runs all of this.
+#
+#   VCMP_SERVER_DIR=/path/to/server docker compose -f tests/integration/compose.yml up --exit-code-from vcmp
 #   docker compose -f tests/integration/compose.yml down --volumes
 #
-# Later phases add the VC:MP server, Postgres and a local TLS server.
+# MySQL gate (phase 1):
+#
+#   docker compose -f tests/integration/compose.yml --profile gate run --rm mysql-gate
+#   docker compose -f tests/integration/compose.yml --profile gate down --volumes
 name: vcmp-lua-integration
 
 services:
@@ -14,6 +23,7 @@ services:
       MYSQL_ROOT_PASSWORD: gate-root
     volumes:
       - ./mysql-gate/mysql84.sql:/docker-entrypoint-initdb.d/gate.sql:ro
+      - ./smoke/mysql.sql:/docker-entrypoint-initdb.d/smoke.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "--host=127.0.0.1", "--user=root", "--password=gate-root"]
       interval: 2s
@@ -26,14 +36,66 @@ services:
       MARIADB_ROOT_PASSWORD: gate-root
     volumes:
       - ./mysql-gate/mariadb11.sql:/docker-entrypoint-initdb.d/gate.sql:ro
+      - ./smoke/mysql.sql:/docker-entrypoint-initdb.d/smoke.sql:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 2s
       timeout: 5s
       retries: 90
 
+  postgres17:
+    image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    environment:
+      POSTGRES_DB: smoke
+      POSTGRES_USER: smoke
+      POSTGRES_PASSWORD: smoke-password
+    healthcheck:
+      test: ["CMD", "pg_isready", "--host=127.0.0.1", "--username=smoke", "--dbname=smoke"]
+      interval: 2s
+      timeout: 5s
+      retries: 90
+
+  # HTTPS on port 8443 with a test CA. The certificate names tls-server
+  # only, so tls-wrong is a wrong host name for the same server.
+  tls-server:
+    image: vcmp-lua-build
+    platform: linux/amd64
+    command: ["python3", "/smoke/tls_server.py"]
+    volumes:
+      - ./smoke:/smoke:ro
+      - certs:/certs
+    networks:
+      default:
+        aliases: [tls-wrong]
+    healthcheck:
+      test: ["CMD", "test", "-f", "/certs/ready"]
+      interval: 1s
+      timeout: 5s
+      retries: 60
+
+  # The real server needs glibc 2.38, and refuses to run as root.
+  vcmp:
+    image: ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
+    platform: linux/amd64
+    user: "1000:1000"
+    command: ["/src/tests/integration/smoke/run-server.sh"]
+    volumes:
+      - ../..:/src:ro
+      - ${VCMP_SERVER_DIR:-/dev/null}:/server-dist:ro
+      - certs:/certs:ro
+    depends_on:
+      mysql84:
+        condition: service_healthy
+      mariadb11:
+        condition: service_healthy
+      postgres17:
+        condition: service_healthy
+      tls-server:
+        condition: service_healthy
+
   # Accepts TCP connections on port 3306 and never answers.
   tarpit:
+    profiles: [gate]
     image: vcmp-lua-build
     platform: linux/amd64
     command: ["python3", "/gate/tarpit.py"]
@@ -41,6 +103,7 @@ services:
       - ./mysql-gate:/gate:ro
 
   mysql-gate:
+    profiles: [gate]
     image: vcmp-lua-build
     platform: linux/amd64
     command: ["/src/tests/integration/mysql-gate/run.sh"]
@@ -53,3 +116,6 @@ services:
         condition: service_healthy
       tarpit:
         condition: service_started
+
+volumes:
+  certs:

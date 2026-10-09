@@ -25,6 +25,7 @@ Versions are pinned in `vcpkg.json`, `vcpkg-configuration.json` and
 | timerwheel.lua | 1.0.2 | MIT | https://github.com/Tieske/timerwheel.lua |
 | inspect.lua | 3.1.3 | MIT | https://github.com/kikito/inspect.lua |
 | digestpp | 4beae75 | Unlicense (public domain) | https://github.com/kerukuro/digestpp |
+| Mozilla CA certificates, as extracted by the curl project (Linux build only) | 2026-09-25 | MPL-2.0 | https://curl.se/docs/caextract.html |
 | VC:MP 0.4 plugin SDK header (API 2.1, from SqMod's `module/VCMP/vcmp21.h` at 4a6bfc0) | 0.4 | Apache-2.0 | `third_party/vcmp/vcmp.h` |
 
 MariaDB Connector/C is licensed under the LGPL. VCMP-Lua links it statically;

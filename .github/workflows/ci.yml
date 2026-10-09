@@ -83,11 +83,25 @@ jobs:
 
       - name: MySQL gate
         if: steps.build.outcome == 'success'
-        run: docker compose -f tests/integration/compose.yml run --rm mysql-gate
+        run: docker compose -f tests/integration/compose.yml --profile gate run --rm mysql-gate
 
-      - name: Stop integration services
+      - name: Stop the MySQL gate services
         if: always()
-        run: docker compose -f tests/integration/compose.yml down --volumes
+        run: docker compose -f tests/integration/compose.yml --profile gate down --volumes
+
+      # The real VC:MP server is not redistributable from this repository: the
+      # owner sets the repository variables VCMP_SERVER_URL (the Linux x64
+      # server zip) and VCMP_SERVER_SHA256. The test itself uses no network
+      # beyond the compose services.
+      - name: Integration smoke test (real VC:MP server)
+        if: steps.build.outcome == 'success' && vars.VCMP_SERVER_URL != ''
+        env:
+          VCMP_SERVER_URL: ${{ vars.VCMP_SERVER_URL }}
+          VCMP_SERVER_SHA256: ${{ vars.VCMP_SERVER_SHA256 }}
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/vcmp-server.zip" "$VCMP_SERVER_URL"
+          echo "$VCMP_SERVER_SHA256  $RUNNER_TEMP/vcmp-server.zip" | sha256sum -c -
+          tests/integration/run.sh "$RUNNER_TEMP/vcmp-server.zip"
 
       - name: Upload logs
         if: failure()

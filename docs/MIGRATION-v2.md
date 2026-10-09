@@ -219,15 +219,30 @@ In v2 the server owns them, as in Squirrel:
 
 These v1 globals are gone. Using one raises an error that names its
 replacement, e.g. "MySQL was removed in v2: use require "luasql.mysql"
-(see docs/MIGRATION-v2.md#mysql)". The replacement libraries arrive in
-phase 4.
+(see docs/MIGRATION-v2.md#mysql)".
 
 ### MySQL
 
 `MySQL.createConnection` and its connection objects ran queries on worker
 threads, which crashed the server (plan A1). Use LuaSQL:
 `require "luasql.mysql"` (MariaDB Connector/C, linked into the plugin).
-Queries run synchronously on the server thread.
+Queries run synchronously on the server thread. LuaSQL has no prepared
+statements; build queries with `sql.format` (see "SQL values" below)
+instead of concatenating values. v1 bound every number as a float, so
+integers above 2^24 were corrupted; `sql.format` writes integers exactly.
+
+```lua
+local env = require("luasql.mysql").mysql()
+local conn = assert(env:connect("db", "user", "password", "127.0.0.1", 3306, nil, nil,
+  { connect_timeout = 5, read_timeout = 30, write_timeout = 30 }))
+```
+
+The last argument (options) is VCMP-Lua's: `connect_timeout`,
+`read_timeout`, `write_timeout` in seconds, `ssl` (`"disable"`,
+`"require"` or `"verify"`) and `ssl_ca`. Postgres takes a connection
+string: `require("luasql.postgres").postgres():connect("host=... dbname=...
+user=... password=... connect_timeout=5")`. Postgres and MySQL return every
+value as a string.
 
 ### SQLite
 
@@ -238,11 +253,43 @@ Queries run synchronously on the server thread.
 
 `Remote` (HTTP over cpr) is replaced by the `http` module:
 `require "http"`, `http.request{url, method, headers, body, timeout}`
-with a callback. Requests never block the server.
+with a callback. Requests never block the server: the callback runs in a
+later server frame.
+
+```lua
+local http = require "http"
+http.request({
+  url = "https://example.com/api",
+  method = "POST",                                   -- default: GET, or POST with a body
+  headers = { ["Content-Type"] = "application/json" },
+  body = cjson.encode({ name = player.name }),
+  timeout = 10,                                      -- seconds, default 30
+  redirects = 5,                                     -- default 5; 0 does not follow
+}, function(res, err)
+  if not res then
+    print("request failed: " .. err)
+    return
+  end
+  print(res.status, res.headers["content-type"], res.body, res.url)
+end)
+
+http.request("https://example.com/", function(res, err) end)  -- a GET
+```
+
+- `res.headers` has lower-case names; repeated headers are joined with
+  `", "`.
+- Certificates and host names are always checked. To trust a private CA,
+  set `http = { cafile = "ca.pem" }` in `luaconfig.lua`.
+- Only `http://` and `https://` URLs are accepted. A response body may be
+  at most 16 MiB, and at most 1000 requests may be pending.
+- Requests still pending at `Server.reload()` or shutdown are cancelled;
+  their callbacks do not run.
 
 ### JSON
 
-The embedded JSON library is replaced by lua-cjson: `require "cjson"`.
+The embedded JSON library is replaced by lua-cjson: `require "cjson"`
+(`cjson.encode`, `cjson.decode`; `require "cjson.safe"` returns `nil, err`
+instead of raising).
 
 ### Thread
 
@@ -254,6 +301,65 @@ Use timers, and the non-blocking `http` module.
 
 `dbg` stopped the whole server while it waited for console input. It has
 no replacement.
+
+## Hash
+
+The global `Hash` keeps v1's functions, with the same results, so stored
+hashes still verify: `MD5`, `SHA1`, `SHA256`, `SHA512`, `Whirlpool`
+(`Hash.SHA256(text)`) and the keyed `KMAC256`, `SKEIN256`, `SKEIN512`
+(`Hash.KMAC256(key, text)`). All return lower-case hex. `require "hash"`
+returns the same table.
+
+New, for storing passwords properly (a plain or salted SHA digest is far
+too fast to resist guessing):
+
+- `Hash.pbkdf2(password, salt, iterations, length[, digest])`: hex of
+  `length` bytes; `digest` defaults to `"sha256"`.
+- `Hash.scrypt(password, salt, N, r, p, length)`: hex; `N` is a power of
+  two, and `N * r * 128` bytes must fit in 32 MiB.
+- `Hash.hmac(digest, key, data)`: hex.
+- `Hash.randomBytes(n)`: `n` random bytes (binary) for salts and tokens;
+  `Hash.toHex(bytes)` turns them into hex.
+- `Hash.equals(a, b)`: compares two hashes in constant time.
+
+Digests for `hmac` and `pbkdf2`: `md5`, `sha1`, `sha224`, `sha256`,
+`sha384`, `sha512`, `sha3-256`, `sha3-512`.
+
+## SQL values
+
+`require "sql"` provides `sql.format(conn, text, ...)`: each `?` in the SQL
+text takes the next value, escaped for that connection by `conn:escape`.
+
+```lua
+local sql = require "sql"
+conn:execute(sql.format(conn, "INSERT INTO users (name, score) VALUES (?, ?)", name, 42))
+```
+
+`nil` becomes `NULL`, booleans `TRUE`/`FALSE`, numbers their exact value,
+strings a quoted literal. `??` is a literal `?`, and a `?` inside a quoted
+string, a quoted name or a comment stays. A wrong number of values, or a
+value such as a table or NaN, raises an error.
+
+## Modules
+
+Every library is built into the plugin and loads with `require`, without
+files on disk: `lfs`, `cjson`, `cjson.safe`, `socket` (and `socket.http`,
+`socket.url`, `ltn12`, `mime`, ...), `copas` (and `copas.http`,
+`copas.timer`, ...), `luasql.sqlite3`, `luasql.postgres`, `luasql.mysql`,
+`inspect`, `http`, `hash` and `sql`. Lua modules on `package_path` (from
+`luaconfig.lua`) load as before.
+
+- C modules cannot be loaded from disk (`package.cpath` is empty and
+  `package.loadlib` raises an error): the plugin's Lua is linked into it
+  and hidden, so an external C module could not use it.
+- `load`, `loadfile`, `dofile` and `require` accept Lua source only, not
+  precompiled bytecode, which can crash Lua 5.4.
+- `loadfile()` and `dofile()` without a file name raise an error instead of
+  waiting for console input.
+- Copas runs one step per server frame once a script requires it; start
+  work with `copas.addthread` and never call `copas.loop()`, which would
+  block the server. LuaSocket and Copas resolve host names on the server
+  thread, which blocks it; `http` does not.
 
 ## New
 

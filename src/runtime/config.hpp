@@ -16,12 +16,19 @@ struct LogConfig {
     bool daily = false;
 };
 
-// Settings from luaconfig.lua (plan B7). http.cafile is only type-checked
-// until the HTTP module arrives in phase 4.
+struct HttpConfig {
+    // CA certificates (PEM) that the http module trusts instead of the
+    // default ones: the system store on Windows; on Linux the distribution's
+    // bundle, or the embedded Mozilla bundle if there is none.
+    std::string cafile;
+};
+
+// Settings from luaconfig.lua (plan B7).
 struct Config {
     std::vector<std::string> scripts;
     std::string package_path = "lua/?.lua;lua/?/init.lua";
     LogConfig log;
+    HttpConfig http;
 };
 
 class ConfigError : public std::runtime_error {

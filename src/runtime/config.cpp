@@ -190,7 +190,7 @@ Config ReadConfig(lua_State* L, const std::string& file) {
         } else if (key == "http") {
             reader.Fields(value, "http", [&](std::string_view http_key, int http_value) {
                 if (http_key == "cafile") {
-                    reader.String(http_value, "http.cafile");
+                    config.http.cafile = reader.String(http_value, "http.cafile");
                 } else {
                     reader.Unknown(fmt::format("http.{}", http_key));
                 }

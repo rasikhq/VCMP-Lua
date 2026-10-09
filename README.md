@@ -10,7 +10,8 @@ The plugin is one self-contained x64 binary per platform,
 `LuaPlugin_x64.so` (Linux, glibc 2.28 or newer) and `LuaPlugin_x64.dll`
 (Windows). It needs nothing else installed: Lua, LuaSQL (SQLite, PostgreSQL,
 MySQL/MariaDB), lua-cjson, LuaSocket, Copas, LuaFileSystem and inspect.lua
-are built in and load with `require`.
+are built in and load with `require`, next to the plugin's own `http`
+(non-blocking HTTPS), `Hash` and `sql` modules.
 
 ## Configuration
 
@@ -21,6 +22,10 @@ return {
   scripts = { "lua/main.lua" },
   package_path = "lua/?.lua;lua/?/init.lua",
   log = { level = "info" },
+  -- CA certificates (PEM) for require "http". Default: the Windows
+  -- certificate store; on Linux the distribution's bundle, else a built-in
+  -- copy of Mozilla's.
+  http = { cafile = nil },
 }
 ```
 
@@ -55,6 +60,17 @@ ctest --preset windows-release
 ```
 
 The plugin is written to `build/windows-release/bin/LuaPlugin_x64.dll`.
+
+## Tests
+
+`ctest` runs the unit tests and loads the built plugin into a fake server
+(`tests/host`). The integration smoke test runs the plugin in the real
+VC:MP 0.4 Linux server against Postgres 17, MySQL 8.4, MariaDB 11 and a
+local TLS server, with Docker; pass it the server download:
+
+```bash
+tests/integration/run.sh /path/to/VCMP04_server_v46_linux64.zip
+```
 
 ## License
 

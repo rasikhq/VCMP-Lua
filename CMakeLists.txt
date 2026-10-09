@@ -42,6 +42,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(Hardening)
 include(EmbedLua)
+include(EmbedFile)
 
 # Native libraries (vcpkg.json).
 find_package(unofficial-lua CONFIG REQUIRED)
@@ -67,6 +68,9 @@ include(deps/luasql)
 include(deps/copas)
 include(deps/inspect)
 include(deps/digestpp)
+if(NOT WIN32)
+    include(deps/cacert)
+endif()
 
 add_subdirectory(src)
 

@@ -6,6 +6,8 @@
 
 #include <stdexcept>
 
+#include "modules/modules.hpp"
+
 namespace vcmp_lua::bindings {
 namespace {
 
@@ -31,6 +33,8 @@ void Register(sol::state& lua) {
     RegisterStream(lua);
     RegisterLogger(lua);
     RegisterRemovedV1Stubs(lua);
+    modules::RegisterHash(lua);
+    modules::RegisterHttp(lua);
 }
 
 sol::main_protected_function RequireFunction(const sol::main_object& value, const char* where,

@@ -5,6 +5,7 @@ add_executable(vcmp_lua_unit_tests
     main.cpp
     fake_server.cpp
     test_args.cpp
+    test_batteries.cpp
     test_callbacks.cpp
     test_entities.cpp
     test_events.cpp

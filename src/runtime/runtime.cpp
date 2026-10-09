@@ -38,7 +38,7 @@ int Print(lua_State* L) {
     return 0;
 }
 
-// Arg 1: light userdata, const Config*.
+// Arg 1: light userdata, const Config*. Returns the prelude's table.
 int SetupState(lua_State* L) {
     const auto* config = static_cast<const Config*>(lua_touserdata(L, 1));
     luaL_openlibs(L);
@@ -51,7 +51,9 @@ int SetupState(lua_State* L) {
 
     lua_pushcfunction(L, &Print);
     lua_setglobal(L, "print");
-    return 0;
+
+    RunPrelude(L);
+    return 1;
 }
 
 Runtime::Remains* g_remains = nullptr;
@@ -77,6 +79,7 @@ struct Runtime::Remains {
     std::unique_ptr<EntityPools> entities;
     std::unique_ptr<EventBus> events;
     std::unique_ptr<Scheduler> timers;
+    std::unique_ptr<Http> http;
     std::unique_ptr<FramePump> pump;
     Remains* next = nullptr;
 };
@@ -91,15 +94,26 @@ Runtime::Runtime(Config config, ServerApi api, Clock clock)
         entities_ = std::make_unique<EntityPools>();
         events_ = std::make_unique<EventBus>(*invoker_);
         timers_ = std::make_unique<Scheduler>(*invoker_, std::move(clock));
+        http_ = std::make_unique<Http>(*invoker_, config_.http);
         pump_ = std::make_unique<FramePump>();
-        pump_->Add([this](lua_State* thread) { timers_->Tick(thread); });
 
         lua_pushcfunction(L, &SetupState);
         lua_pushlightuserdata(L, &config_);
-        if (auto error = ProtectedCall(L, 1, 0)) {
+        if (auto error = ProtectedCall(L, 1, 1)) {
             throw std::runtime_error("cannot set up the Lua state: " + *error);
         }
+        sol::main_table prelude(L, -1);
+        lua_pop(L, 1);
         bindings::Register(*lua_);
+
+        // Once per frame, in this order: due timers, finished HTTP
+        // requests, one Copas step.
+        pump_->Add([this](lua_State* thread) { timers_->Tick(thread); });
+        pump_->Add([this](lua_State* thread) { http_->Pump(thread); });
+        pump_->Add([this, copas_step = prelude.raw_get<sol::main_protected_function>(
+                              "copas_step")](lua_State* thread) {
+            invoker_->Call(thread, copas_step, "copas.step", [](lua_State*) { return 0; });
+        });
     } catch (...) {
         Shutdown(ShutdownReason::Server);
         throw;
@@ -221,6 +235,7 @@ void Runtime::Shutdown(ShutdownReason reason) noexcept {
         remains->entities = std::move(entities_);
         remains->events = std::move(events_);
         remains->timers = std::move(timers_);
+        remains->http = std::move(http_);
         remains->pump = std::move(pump_);
         remains->next = std::exchange(g_remains, remains);
         lua_.reset();  // moved from: closes nothing
@@ -247,6 +262,9 @@ void Runtime::Shutdown(ShutdownReason reason) noexcept {
     if (timers_ != nullptr) {
         timers_->Clear();
     }
+    if (http_ != nullptr) {
+        http_->Clear();  // pending requests are dropped without a callback
+    }
     if (events_ != nullptr) {
         events_->Clear();
     }
@@ -260,6 +278,7 @@ void Runtime::Shutdown(ShutdownReason reason) noexcept {
 
     // 4. Destroy the subsystems.
     pump_.reset();
+    http_.reset();
     timers_.reset();
     events_.reset();
     entities_.reset();

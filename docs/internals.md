@@ -235,8 +235,8 @@ in-memory server that reproduces the behaviour measured above.
 - `VcmpPluginInit` reads `luaconfig.lua` and creates the `Runtime`; scripts
   run in `OnServerInitialise`, after the runtime adopts the players and
   entities that already exist. `onServerInit` follows the scripts.
-- Each frame runs the frame pump (timers; HTTP and Copas from phase 4), then
-  `onServerFrame(elapsedSeconds)`.
+- Each frame runs the frame pump (due timers, finished HTTP requests, one
+  `copas.step(0)`), then `onServerFrame(elapsedSeconds)`.
 - `OnServerShutdown`: `onServerShutdown`, then `onPlayerDisconnect` for
   every player still online, with reason 0 (`vcmpDisconnectReasonTimeout`,
   the reason the server itself reports later), then the shutdown. Scripts
@@ -245,7 +245,8 @@ in-memory server that reproduces the behaviour measured above.
   ignored.
 - Shutdown order: mark closing (bindings raise "runtime shutting down", no
   new entity handles); release every Lua reference C++ holds (handlers,
-  timers, entity handles and data tables); close the Lua state, so `__gc`
+  timers, entity handles and data tables, the callbacks of pending HTTP
+  requests, which are cancelled and never called); close the Lua state, so `__gc`
   runs while the subsystems still exist; destroy the subsystems.
 - If `OnServerShutdown` arrives during a call into Lua, the shutdown runs
   when that call returns. (No frame follows `OnServerShutdown`, so it cannot
@@ -313,3 +314,57 @@ too (only those: key binds are shared by every plugin).
 - Players are released after the disconnect dispatch, entities after the
   "deleted" dispatch of `onEntityPoolChange`.
 
+
+## Modules
+
+How the phase 4 batteries (`src/modules`, `src/runtime/preload.cpp`,
+`lua/`) work.
+
+### Loading and the sandbox
+
+- Every built-in module is a `package.preload` entry: the C modules'
+  `luaopen_*` functions, the embedded Lua files (loaded in text mode as
+  `@builtin/<name>.lua`), and `http` and `hash` from the bindings.
+- `lua/prelude.lua` runs in every new state before the bindings. It makes
+  `load`, `loadfile`, `dofile` and `require` text-only (crafted bytecode can
+  crash Lua 5.4), refuses `loadfile()`/`dofile()` without a file name (they
+  would wait for console input), empties `package.cpath`, disables
+  `package.loadlib`, and replaces the C searchers with one that explains why
+  C modules cannot load from disk: they would not link to the plugin's
+  hidden copy of Lua, and on Windows would start a second one. It is not a
+  security boundary: scripts keep `io`, `os` and `debug`.
+
+### http
+
+- One libcurl multi handle per runtime. `http.request` adds an easy handle
+  and returns; the frame pump calls `curl_multi_perform`, collects every
+  finished transfer, then calls their callbacks (all inside one counted call
+  into Lua, so a reload or shutdown waits until they are done).
+- Names are resolved on libcurl's resolver thread. Only `http` and `https`
+  are allowed, also for redirects (at most 5 by default). The peer
+  certificate and host name are always verified.
+- CA certificates: `http.cafile` from the config if set. Otherwise Schannel
+  and the Windows certificate store, with revocation checks that do not fail
+  when a revocation server cannot be reached; on Linux the first of the
+  usual distribution bundles that exists (`/etc/ssl/certs/ca-certificates.crt`,
+  `/etc/pki/tls/certs/ca-bundle.crt`, ...), else the Mozilla bundle built
+  into the plugin (`cmake/deps/cacert.cmake`). The paths of the machine that
+  built libcurl and OpenSSL are never used.
+- Limits: 1000 pending requests, 16 MiB per response body, a timeout of 30 s
+  by default and 1 hour at most, 10 s to connect.
+
+### Copas
+
+The prelude's pump function calls `copas.step(0)` once per frame after a
+script has required `copas`, and sets `copas.running` (which only
+`copas.loop` sets). `copas.loop()` itself would block the server. LuaSocket's
+DNS lookups block the server thread; `http` does not.
+
+### Integration smoke test
+
+`tests/integration/run.sh <server zip>` runs `tests/integration/smoke/smoke.lua`
+in the real Linux server (`compose.yml`): CRUD and 1,000 inserts in one
+frame on SQLite, Postgres 17, MySQL 8.4 and MariaDB 11; timers; entity
+create and destroy; HTTPS refused without the test CA; then a reload with
+`http.cafile`, after which HTTPS works, a wrong host name is refused, 100
+concurrent requests succeed, and the server shuts down cleanly.
