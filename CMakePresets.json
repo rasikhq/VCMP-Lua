@@ -1,0 +1,115 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vcpkg",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "VCPKG_MANIFEST_FEATURES": "tests",
+        "VCPKG_INSTALL_OPTIONS": "--clean-after-build"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux x64 release (inside ci/manylinux.Dockerfile)",
+      "inherits": "vcpkg",
+      "generator": "Ninja",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "x64-linux-plugin",
+        "VCPKG_HOST_TRIPLET": "x64-linux-plugin"
+      }
+    },
+    {
+      "name": "linux-asan",
+      "displayName": "Linux x64 unit tests with ASan + UBSan (inside ci/manylinux.Dockerfile)",
+      "inherits": "linux-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "VCMP_LUA_SANITIZE": "ON"
+      }
+    },
+    {
+      "name": "windows-release",
+      "displayName": "Windows x64 release (MSVC, static CRT)",
+      "inherits": "vcpkg",
+      "generator": "Visual Studio 17 2022",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-plugin",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-plugin"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "linux-asan",
+      "configurePreset": "linux-asan",
+      "targets": [
+        "vcmp_lua_unit_tests"
+      ]
+    },
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-asan",
+      "configurePreset": "linux-asan",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "unit"
+        }
+      },
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=1:abort_on_error=1:detect_stack_use_after_return=1:strict_init_order=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+      }
+    },
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

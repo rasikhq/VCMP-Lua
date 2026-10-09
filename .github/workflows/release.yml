@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Check the tag
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Tag matches the project version
+        id: check
+        run: |
+          version="$(sed -n 's/^ *VERSION \([0-9][0-9.]*\)$/\1/p' CMakeLists.txt | head -n 1)"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match the version in CMakeLists.txt ($version)"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build and test
+    needs: version
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: Draft the release
+    needs: [version, build]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: artifacts
+
+      - name: Package
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          mkdir dist
+          package() {
+            local os="$1" binary="$2"
+            local stage="stage/VCMP-Lua-$VERSION-$os-x64"
+            mkdir -p "$stage"
+            cp "$binary" LICENSE THIRD_PARTY_NOTICES.md THIRD_PARTY_LICENSES.txt examples/luaconfig.lua "$stage/"
+            (cd stage && zip -r -9 "../dist/VCMP-Lua-$VERSION-$os-x64.zip" "VCMP-Lua-$VERSION-$os-x64")
+          }
+          package linux artifacts/LuaPlugin_x64-linux/LuaPlugin_x64.so
+          package windows artifacts/LuaPlugin_x64-windows/LuaPlugin_x64.dll
+          (cd dist && sha256sum -- *.zip > SHA256SUMS)
+          cat dist/SHA256SUMS
+
+      # A draft: the owner checks the plugin on a Windows server, then
+      # publishes it.
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --draft --verify-tag \
+            --title "VCMP-Lua $VERSION" \
+            --notes "Lua 5.4 scripting plugin for the VC:MP 0.4 server. Upgrading from 2.x: see [docs/MIGRATION-v3.md](https://github.com/${{ github.repository }}/blob/$GITHUB_REF_NAME/docs/MIGRATION-v3.md). Verify downloads with \`sha256sum -c SHA256SUMS\`."

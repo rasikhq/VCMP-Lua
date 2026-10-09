@@ -1,0 +1,188 @@
+LuaSQL MySQL driver: connection options. Upstream candidate.
+
+env:connect() takes an optional 9th argument, a table with:
+  connect_timeout, read_timeout, write_timeout  seconds, 1..86400
+  ssl     "disable" (plain text), "require" (TLS, no certificate check)
+          or "verify" (TLS, certificate and host name check)
+  ssl_ca  CA certificate file
+Unknown keys raise an error. Without timeouts a lost server blocks the
+caller for minutes; the plugin runs queries on the server's main thread.
+The ssl option needs MariaDB Connector/C.
+
+When LUASQL_MYSQL_PLUGIN_DIR is defined, every connection uses it as
+MYSQL_PLUGIN_DIR. MariaDB Connector/C loads client plugins that are not
+built in (e.g. client_ed25519, which cannot be linked statically) from that
+directory, from $MARIADB_PLUGIN_DIR or from a path relative to the working
+directory. Pointing it at a directory that cannot exist means no plugin is
+ever loaded from disk.
+
+--- a/src/ls_mysql.c
++++ b/src/ls_mysql.c
+@@ -590,13 +590,144 @@
+ 	lua_pushvalue (L, env);
+ 	conn->env = luaL_ref (L, LUA_REGISTRYINDEX);
+ 	return 1;
++}
++
++
++/*
++** Options accepted in the optional table argument of env:connect().
++*/
++typedef struct {
++	unsigned int connect_timeout;  /* seconds; 0 = library default */
++	unsigned int read_timeout;     /* seconds; 0 = library default */
++	unsigned int write_timeout;    /* seconds; 0 = library default */
++	const char  *ssl;              /* "disable", "require", "verify" or NULL */
++	const char  *ssl_ca;           /* CA certificate file or NULL */
++} conn_options;
++
++#define OPTION_MAX_SECONDS 86400
++
++
++static unsigned int option_seconds (lua_State *L, int idx, const char *name) {
++	lua_Integer value;
++	int isint;
++	lua_pushstring (L, name);
++	lua_rawget (L, idx);
++	if (lua_isnil (L, -1)) {
++		lua_pop (L, 1);
++		return 0;
++	}
++	value = lua_tointegerx (L, -1, &isint);
++	if (!isint || value < 1 || value > OPTION_MAX_SECONDS)
++		luaL_error (L, LUASQL_PREFIX"option '%s' must be an integer between 1 and %d (seconds)",
++			name, OPTION_MAX_SECONDS);
++	lua_pop (L, 1);
++	return (unsigned int)value;
++}
++
++
++/*
++** The returned string stays valid while the options table is on the stack:
++** lua_rawget returns the string stored in the table itself.
++*/
++static const char *option_string (lua_State *L, int idx, const char *name) {
++	const char *value = NULL;
++	lua_pushstring (L, name);
++	lua_rawget (L, idx);
++	if (!lua_isnil (L, -1)) {
++		if (lua_type (L, -1) != LUA_TSTRING)
++			luaL_error (L, LUASQL_PREFIX"option '%s' must be a string", name);
++		value = lua_tostring (L, -1);
++	}
++	lua_pop (L, 1);
++	return value;
++}
++
++
++/*
++** Reads the options table at index idx (absent or nil means no options).
++** Raises errors only before any resource is allocated.
++*/
++static void get_conn_options (lua_State *L, int idx, conn_options *opts) {
++	static const char *const known[] = {
++		"connect_timeout", "read_timeout", "write_timeout", "ssl", "ssl_ca", NULL
++	};
++	memset (opts, 0, sizeof(*opts));
++	if (lua_isnoneornil (L, idx))
++		return;
++	luaL_checktype (L, idx, LUA_TTABLE);
++	lua_pushnil (L);
++	while (lua_next (L, idx) != 0) {
++		int i;
++		int found = 0;
++		if (lua_type (L, -2) == LUA_TSTRING) {
++			const char *key = lua_tostring (L, -2);
++			for (i = 0; known[i] != NULL; i++)
++				if (strcmp (key, known[i]) == 0)
++					found = 1;
++		}
++		if (!found) {
++			lua_pushvalue (L, -2);
++			luaL_error (L, LUASQL_PREFIX"unknown connection option '%s'", luaL_tolstring (L, -1, NULL));
++		}
++		lua_pop (L, 1);
++	}
++	opts->connect_timeout = option_seconds (L, idx, "connect_timeout");
++	opts->read_timeout = option_seconds (L, idx, "read_timeout");
++	opts->write_timeout = option_seconds (L, idx, "write_timeout");
++	opts->ssl = option_string (L, idx, "ssl");
++	opts->ssl_ca = option_string (L, idx, "ssl_ca");
++	if (opts->ssl != NULL && strcmp (opts->ssl, "disable") != 0 &&
++		strcmp (opts->ssl, "require") != 0 && strcmp (opts->ssl, "verify") != 0)
++		luaL_error (L, LUASQL_PREFIX"option 'ssl' must be \"disable\", \"require\" or \"verify\"");
++#ifndef MARIADB_PACKAGE_VERSION_ID
++	if (opts->ssl != NULL)
++		luaL_error (L, LUASQL_PREFIX"option 'ssl' needs MariaDB Connector/C");
++#endif
+ }
+ 
+ 
+ /*
++** Applies the options to a handle that has not connected yet.
++** Returns zero on success.
++*/
++static int set_conn_options (MYSQL *conn, const conn_options *opts) {
++	int rc = 0;
++#ifdef LUASQL_MYSQL_PLUGIN_DIR
++	/* Client plugins that are not built in (an authentication method the
++	** server asks for, a compression method) are loaded from this directory.
++	** An embedding program can name a directory that cannot exist, so that
++	** no plugin is ever loaded from disk. */
++	rc |= mysql_options (conn, MYSQL_PLUGIN_DIR, LUASQL_MYSQL_PLUGIN_DIR);
++#endif
++	if (opts->connect_timeout != 0)
++		rc |= mysql_options (conn, MYSQL_OPT_CONNECT_TIMEOUT, &opts->connect_timeout);
++	if (opts->read_timeout != 0)
++		rc |= mysql_options (conn, MYSQL_OPT_READ_TIMEOUT, &opts->read_timeout);
++	if (opts->write_timeout != 0)
++		rc |= mysql_options (conn, MYSQL_OPT_WRITE_TIMEOUT, &opts->write_timeout);
++	if (opts->ssl_ca != NULL)
++		rc |= mysql_options (conn, MYSQL_OPT_SSL_CA, opts->ssl_ca);
++#ifdef MARIADB_PACKAGE_VERSION_ID
++	if (opts->ssl != NULL) {
++		/* "disable": plain text; "require": TLS without certificate checks;
++		** "verify": TLS with certificate and host name checks. Without the
++		** option, MariaDB Connector/C 3.4 uses TLS and verifies the server. */
++		my_bool use_tls = strcmp (opts->ssl, "disable") != 0;
++		my_bool verify = strcmp (opts->ssl, "verify") == 0;
++		rc |= mysql_options (conn, MYSQL_OPT_SSL_ENFORCE, &use_tls);
++		rc |= mysql_options (conn, MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &verify);
++	}
++#endif
++	return rc;
++}
++
++
++/*
+ ** Connects to a data source.
+ **     param: one string for each connection parameter, said
+-**     datasource, username, password, host and port.
++**     datasource, username, password, host and port; then the optional
++**     unix socket and client flags; then an optional table of options
++**     (connect_timeout, read_timeout, write_timeout, ssl, ssl_ca).
+ */
+ static int env_connect (lua_State *L) {
+ 	const char *sourcename = luaL_checkstring(L, 2);
+@@ -606,14 +737,21 @@
+ 	const int port = luaL_optinteger(L, 6, 0);
+ 	const char *unix_socket = luaL_optstring(L, 7, NULL);
+ 	const long client_flag = (long)luaL_optinteger(L, 8, 0);
++	conn_options opts;
+ 	MYSQL *conn;
+ 	getenvironment(L); /* validate environment */
++	get_conn_options(L, 9, &opts);
+ 
+ 	/* Try to init the connection object. */
+ 	conn = mysql_init(NULL);
+ 	if (conn == NULL)
+ 		return luasql_faildirect(L, "error connecting: Out of memory.");
+ 
++	if (set_conn_options(conn, &opts) != 0) {
++		mysql_close (conn);
++		return luasql_faildirect(L, "error connecting: invalid connection option.");
++	}
++
+ 	if (!mysql_real_connect(conn, host, username, password,
+ 		sourcename, port, unix_socket, client_flag))
+ 	{

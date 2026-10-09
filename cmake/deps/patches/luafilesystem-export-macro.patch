@@ -1,0 +1,29 @@
+Let a program that links LuaFileSystem statically define LFS_EXPORT.
+
+lfs.h always defines LFS_EXPORT as __declspec(dllexport) on Windows, so
+luaopen_lfs is exported from any DLL that links lfs statically. VCMP-Lua
+must export VcmpPluginInit only. Upstream candidate.
+
+--- a/src/lfs.h
++++ b/src/lfs.h
+@@ -19,13 +19,19 @@
+ #define chdir(p) (_chdir(p))
+ #define getcwd(d, s) (_getcwd(d, s))
+ #define rmdir(p) (_rmdir(p))
+-#define LFS_EXPORT __declspec (dllexport)
+ #ifndef fileno
+ #define fileno(f) (_fileno(f))
+ #endif
++#endif
++
++/* A program that links lfs statically can define LFS_EXPORT itself. */
++#ifndef LFS_EXPORT
++#ifdef _WIN32
++#define LFS_EXPORT __declspec (dllexport)
+ #else
+ #define LFS_EXPORT
+ #endif
++#endif
+ 
+ #ifdef __cplusplus
+ extern "C" {

@@ -1,0 +1,12 @@
+#pragma once
+
+#include <cstdint>
+
+namespace vcmp_lua {
+
+inline constexpr const char* kVersion = "@PROJECT_VERSION@";
+// PluginInfo::pluginVersion: 0x00MMmmpp.
+inline constexpr std::uint32_t kVersionNumber =
+    (@PROJECT_VERSION_MAJOR@u << 16) | (@PROJECT_VERSION_MINOR@u << 8) | @PROJECT_VERSION_PATCH@u;
+
+}  // namespace vcmp_lua

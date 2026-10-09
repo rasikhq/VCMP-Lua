@@ -1,0 +1,32 @@
+-- The constant tables (bindings/enums.cpp).
+
+test("2.x names and values", function()
+    expect_eq(ServerOption.deathMessages, 16, "ServerOption.deathMessages")
+    expect_eq(ServerOption.disableCrouch, 22, "ServerOption.disableCrouch")
+    expect_eq(DisconnectReason.kick, 2, "DisconnectReason.kick")
+    expect_eq(DisconnectReason.ban, DisconnectReason.kick, "DisconnectReason.ban")
+    expect_eq(PlayerState.unspawned, 8, "PlayerState.unspawned")
+    expect_eq(PlayerUpdate.aiming, 1, "PlayerUpdate.aiming")
+    expect_eq(PlayerOption.showOnRadar, PlayerOption.hasMarker, "PlayerOption.showOnRadar")
+    expect_eq(VehicleUpdate.colour, VehicleUpdate.color, "VehicleUpdate.colour")
+    expect_eq(VehicleOption.bonnet, 9, "VehicleOption.bonnet")
+    expect_eq(VehicleSpeed.turnRelative, 4, "VehicleSpeed.turnRelative")
+    expect_eq(PickupOption.singleUse, 0, "PickupOption.singleUse")
+    expect_eq(EntityType.checkpoint, 8, "EntityType.checkpoint")
+    expect_eq(math.type(EntityType.vehicle), "integer", "integer values")
+end)
+
+test("BodyPart.rightLeg is the right leg (2.x had the right arm)", function()
+    expect_eq(BodyPart.rightLeg, 5, "rightLeg")
+    expect_eq(BodyPart.rightArm, 3, "rightArm")
+end)
+
+test("new in 3.0", function()
+    expect_eq(EntityType.player, 5, "EntityType.player")
+    expect_eq(NetworkStatistics.packetLossTotal, 16, "NetworkStatistics.packetLossTotal")
+end)
+
+test("the tables are read-only", function()
+    expect_error("", function() BodyPart.head = 1 end)
+    expect_eq(BodyPart.head, 6, "unchanged")
+end)
