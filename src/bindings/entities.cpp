@@ -87,7 +87,8 @@ void RegisterEntities(sol::state& lua) {
     RegisterVehicle(lua, vehicle);
     ObjectType object = RegisterKind<EntityKind::Object>(lua);
     RegisterObject(lua, object);
-    RegisterKind<EntityKind::Pickup>(lua);
+    PickupType pickup = RegisterKind<EntityKind::Pickup>(lua);
+    RegisterPickup(lua, pickup);
     RegisterKind<EntityKind::Checkpoint>(lua);
     RegisterKind<EntityKind::Blip>(lua);
 }

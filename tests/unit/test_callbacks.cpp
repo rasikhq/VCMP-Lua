@@ -130,6 +130,33 @@ TEST_CASE("object events") {
     CHECK(server.records == expected);
 }
 
+TEST_CASE("pickup events; a pick attempt can be refused") {
+    FakeServer server;
+    Start(server);
+    Record(server, "onPickupPickAttempt");
+    Record(server, "onPickupPicked");
+    Record(server, "onPickupRespawn");
+    REQUIRE(server.Run(R"(
+        Event.bind("onPickupPickAttempt", function(pickup, player)
+            if player.id == 1 then Event.cancel() end
+        end)
+    )") == "");
+    const int32_t a = server.Connect();
+    const int32_t b = server.Connect();
+    const int32_t pickup = server.CreateEntity(vcmpEntityPoolPickup);
+    CHECK(server.plugin.OnPickupPickAttempt(pickup, a) == 1);
+    CHECK(server.plugin.OnPickupPickAttempt(pickup, b) == 0);
+    server.plugin.OnPickupPicked(pickup, a);
+    server.plugin.OnPickupRespawn(pickup);
+    const std::vector<std::string> expected = {
+        "onPickupPickAttempt Pickup(0) Player(0)",
+        "onPickupPickAttempt Pickup(0) Player(1)",
+        "onPickupPicked Pickup(0) Player(0)",
+        "onPickupRespawn Pickup(0)",
+    };
+    CHECK(server.records == expected);
+}
+
 TEST_CASE("Event.cancel() makes a cancellable callback refuse") {
     FakeServer server;
     Start(server);

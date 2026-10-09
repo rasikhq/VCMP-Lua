@@ -525,6 +525,26 @@ void OnObjectTouched(int32_t object_id, int32_t player_id) noexcept {
     });
 }
 
+uint8_t OnPickupPickAttempt(int32_t pickup_id, int32_t player_id) noexcept {
+    return OnEvent("OnPickupPickAttempt", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PickupPickAttempt, Seen<EntityKind::Pickup>(runtime, pickup_id),
+                    SeenPlayer(runtime, player_id));
+    });
+}
+
+void OnPickupPicked(int32_t pickup_id, int32_t player_id) noexcept {
+    OnEvent("OnPickupPicked", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PickupPicked, Seen<EntityKind::Pickup>(runtime, pickup_id),
+                    SeenPlayer(runtime, player_id));
+    });
+}
+
+void OnPickupRespawn(int32_t pickup_id) noexcept {
+    OnEvent("OnPickupRespawn", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PickupRespawn, Seen<EntityKind::Pickup>(runtime, pickup_id));
+    });
+}
+
 void SetPluginName(PluginInfo* info) noexcept {
     const std::size_t length = std::min(std::strlen(kPluginName), sizeof(info->name) - 1);
     std::memcpy(info->name, kPluginName, length);
@@ -631,6 +651,9 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
         VCMP_LUA_SET_CALLBACK(calls, OnVehicleRespawn, &OnVehicleRespawn);
         VCMP_LUA_SET_CALLBACK(calls, OnObjectShot, &OnObjectShot);
         VCMP_LUA_SET_CALLBACK(calls, OnObjectTouched, &OnObjectTouched);
+        VCMP_LUA_SET_CALLBACK(calls, OnPickupPickAttempt, &OnPickupPickAttempt);
+        VCMP_LUA_SET_CALLBACK(calls, OnPickupPicked, &OnPickupPicked);
+        VCMP_LUA_SET_CALLBACK(calls, OnPickupRespawn, &OnPickupRespawn);
         plugin.runtime = runtime.release();
         return 1;
     } catch (...) {

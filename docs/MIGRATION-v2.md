@@ -124,6 +124,14 @@ In v2 the server owns them, as in Squirrel:
   v1 used Euler angles when the fourth element was -1.
 - New: `model` and `alpha` properties.
 
+## Pickup
+
+- Creation: see "Lifetime" above; v1's arguments
+  `(model, world, quantity, x, y, z, alpha, automatic)` or
+  `(model, world, quantity, {x, y, z}, alpha, automatic)`. `alpha`
+  (default 255) and `automatic` (default `true`) are optional now.
+- New: `model` and `quantity` properties.
+
 ## New
 
 - `Server.reload()` reloads `luaconfig.lua` and every script.
