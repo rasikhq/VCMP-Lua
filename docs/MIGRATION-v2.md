@@ -143,6 +143,18 @@ In v2 the server owns them, as in Squirrel:
 - Colour channels must be integers in [0, 255].
 - New: `owner` and `sphere` properties.
 
+## Bind (key binds)
+
+- `Bind.create(signalOnRelease, key1[, key2[, key3]])` returns a handle;
+  v1's `Bind(...)` and `Bind.new(...)` still work. The bind stays until
+  `bind:destroy()`: dropping the handle removes nothing.
+- `Bind.clearAllBinds()` removes only the binds the scripts created. v1
+  removed every plugin's binds.
+- A bind another plugin removed raises "bind no longer exists" on use.
+- `onPlayerKeyDown`/`onPlayerKeyUp` pass the bind's handle also for binds
+  that another plugin registered (v1 passed `nil`).
+- `Server.reload()` removes the binds the scripts created.
+
 ## New
 
 - `Server.reload()` reloads `luaconfig.lua` and every script.

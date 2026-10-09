@@ -13,7 +13,8 @@ namespace vcmp_lua {
 namespace {
 
 // Pool sizes of the VC:MP 0.4 server (the same limits SqMod uses). Vehicle
-// ids start at 1 (docs/internals.md), so that pool has one extra slot.
+// ids start at 1 (docs/internals.md), so that pool has one extra slot. Key
+// bind slots are those of GetKeyBindUnusedSlot.
 constexpr std::array<EntityTraits, kEntityKindCount> kTraits = {{
     {"player", "Player", 0, 100},
     {"vehicle", "Vehicle", 1, 1001},
@@ -21,6 +22,7 @@ constexpr std::array<EntityTraits, kEntityKindCount> kTraits = {{
     {"pickup", "Pickup", 0, 2000},
     {"checkpoint", "Checkpoint", 0, 2000},
     {"blip", "Blip", 0, 100},
+    {"bind", "Bind", 0, 256},
 }};
 
 template <EntityKind K>
@@ -34,6 +36,7 @@ constexpr std::array<MakeHandleFn, kEntityKindCount> kMakeHandle = {
     &MakeHandle<EntityKind::Player>,     &MakeHandle<EntityKind::Vehicle>,
     &MakeHandle<EntityKind::Object>,     &MakeHandle<EntityKind::Pickup>,
     &MakeHandle<EntityKind::Checkpoint>, &MakeHandle<EntityKind::Blip>,
+    &MakeHandle<EntityKind::Bind>,
 };
 
 }  // namespace
@@ -104,6 +107,7 @@ void EntityPool::Release(std::int32_t id) noexcept {
     slot.created_by_us = false;
     slot.handle.reset();
     slot.data.reset();
+    slot.tag.clear();
 }
 
 void EntityPool::MarkCreatedByUs(std::int32_t id) noexcept {
@@ -169,6 +173,16 @@ void EntityPool::SetData(std::int32_t id, std::uint32_t generation, sol::main_ta
     Slot(id).data = std::move(data);
 }
 
+const std::string& EntityPool::Tag(std::int32_t id, std::uint32_t generation) const {
+    Require(id, generation);
+    return Slot(id).tag;
+}
+
+void EntityPool::SetTag(std::int32_t id, std::uint32_t generation, std::string tag) {
+    Require(id, generation);
+    Slot(id).tag = std::move(tag);
+}
+
 void EntityPool::ReleaseRefs() noexcept {
     for (SlotData& slot : slots_) {
         slot.handle.reset();
@@ -181,7 +195,8 @@ void EntityPool::ReleaseRefs() noexcept {
 EntityPools::EntityPools()
     : pools_{{EntityPool(EntityKind::Player), EntityPool(EntityKind::Vehicle),
               EntityPool(EntityKind::Object), EntityPool(EntityKind::Pickup),
-              EntityPool(EntityKind::Checkpoint), EntityPool(EntityKind::Blip)}} {}
+              EntityPool(EntityKind::Checkpoint), EntityPool(EntityKind::Blip),
+              EntityPool(EntityKind::Bind)}} {}
 
 EntityPool* EntityPools::FromServerPool(vcmpEntityPool pool) noexcept {
     switch (pool) {
@@ -222,6 +237,16 @@ void EntityPools::Enumerate(const ServerApi& api) {
             }
         }
     }
+    if (const auto bind_data = VCMP_LUA_FIND(api, GetKeyBindData)) {
+        EntityPool& binds = Get(EntityKind::Bind);
+        for (std::int32_t id = 0; id < Traits(EntityKind::Bind).capacity; ++id) {
+            uint8_t on_release = 0;
+            int32_t keys[3] = {};
+            if (bind_data(id, &on_release, &keys[0], &keys[1], &keys[2]) == vcmpErrorNone) {
+                binds.Adopt(id);
+            }
+        }
+    }
     const auto exists = VCMP_LUA_FIND(api, CheckEntityExists);
     if (exists == nullptr) {
         return;
@@ -256,6 +281,7 @@ void EntityPools::DeleteCreated(const ServerApi& api) {
                 if (auto fn = VCMP_LUA_FIND(api, DestroyCoordBlip)) fn(id);
                 break;
             case EntityKind::Player:
+            case EntityKind::Bind:
                 break;
         }
     };
@@ -265,6 +291,16 @@ void EntityPools::DeleteCreated(const ServerApi& api) {
             delete_one(kind, id);  // the server reports the deletion, usually
             pool.Release(id);      // synchronously; releasing again is a no-op
         }
+    }
+    // Key binds are shared by every plugin: only ours are removed, never
+    // with RemoveAllKeyBinds.
+    EntityPool& binds = Get(EntityKind::Bind);
+    const auto remove_bind = VCMP_LUA_FIND(api, RemoveKeyBind);
+    for (const std::int32_t id : binds.CreatedByUs()) {
+        if (remove_bind != nullptr) {
+            remove_bind(id);
+        }
+        binds.Release(id);
     }
 }
 

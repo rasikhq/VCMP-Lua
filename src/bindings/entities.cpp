@@ -92,6 +92,8 @@ void RegisterEntities(sol::state& lua) {
     CheckpointType checkpoint = RegisterKind<EntityKind::Checkpoint>(lua);
     RegisterCheckpoint(lua, checkpoint);
     RegisterKind<EntityKind::Blip>(lua);
+    BindType bind = RegisterKind<EntityKind::Bind>(lua);
+    RegisterBind(lua, bind);
 }
 
 }  // namespace vcmp_lua::bindings

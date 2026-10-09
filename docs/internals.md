@@ -200,7 +200,8 @@ error is logged and the old scripts keep running), deletes the vehicles,
 objects, pickups, checkpoints and blips the old runtime created, closes the
 old Lua state and starts a new runtime, which adopts the existing players and
 entities and runs the scripts. Player classes cannot be removed through the
-server API, so they stay. Phase 3 adds key binds to what a reload deletes.
+server API, so they stay. Key binds the old runtime registered are removed
+too (only those: key binds are shared by every plugin).
 
 ### Events
 
@@ -234,8 +235,12 @@ server API, so they stay. Phase 3 adds key binds to what a reload deletes.
 ### Entities
 
 - One pool per kind with the server's limits (players 100, vehicles
-  1-1000, objects 3000, pickups 2000, checkpoints 2000, blips 100). Ids
-  outside a pool are logged and ignored.
+  1-1000, objects 3000, pickups 2000, checkpoints 2000, blips 100, key
+  binds 256). Ids outside a pool are logged and ignored.
+- Key binds raise no pool events. Start-up enumeration asks
+  `GetKeyBindData` for every slot, a bind first seen in an event is
+  adopted, and a handle is checked with `GetKeyBindData` on every use: a
+  bind another plugin removed raises "bind no longer exists".
 - A slot holds a generation, the cached Lua handle (created when Lua first
   sees the entity), the `data` table and whether this runtime created the
   entity. The generation changes once per lifetime.

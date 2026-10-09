@@ -303,6 +303,43 @@ void InstallStateful(PluginFuncs& funcs) {
     Override<&PluginFuncs::KickPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
     Override<&PluginFuncs::BanPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
 
+    // Key binds: slots 0-255, shared by every plugin, no pool events.
+    Override<&PluginFuncs::GetKeyBindUnusedSlot>([]() -> int32_t {
+        const auto& binds = FakeServer::Current().key_binds;
+        for (int32_t id = 0; id < 256; ++id) {
+            if (!binds.contains(id)) {
+                return id;
+            }
+        }
+        return -1;
+    });
+    Override<&PluginFuncs::RegisterKeyBind>(
+        [](int32_t id, uint8_t on_release, int32_t key1, int32_t key2, int32_t key3) {
+            if (id < 0 || id >= 256) {
+                return vcmpErrorArgumentOutOfBounds;
+            }
+            FakeServer::Current().key_binds[id] = {on_release != 0, {key1, key2, key3}};
+            return vcmpErrorNone;
+        });
+    Override<&PluginFuncs::RemoveKeyBind>([](int32_t id) {
+        return FakeServer::Current().key_binds.erase(id) == 1 ? vcmpErrorNone
+                                                              : vcmpErrorNoSuchEntity;
+    });
+    Override<&PluginFuncs::RemoveAllKeyBinds>([] { FakeServer::Current().key_binds.clear(); });
+    Override<&PluginFuncs::GetKeyBindData>([](int32_t id, uint8_t* on_release, int32_t* key1,
+                                              int32_t* key2, int32_t* key3) {
+        const auto& binds = FakeServer::Current().key_binds;
+        const auto it = binds.find(id);
+        if (it == binds.end()) {
+            return vcmpErrorNoSuchEntity;
+        }
+        *on_release = it->second.on_release ? 1 : 0;
+        *key1 = it->second.keys[0];
+        *key2 = it->second.keys[1];
+        *key3 = it->second.keys[2];
+        return vcmpErrorNone;
+    });
+
     Override<&PluginFuncs::CheckEntityExists>([](vcmpEntityPool pool, int32_t id) -> uint8_t {
         return FakeServer::Current().EntityExists(pool, id) ? 1 : 0;
     });
@@ -421,6 +458,13 @@ void InstallFakeTable(sol::state_view lua) {
         FakeServer::Current().Disconnect(id,
                                          static_cast<vcmpDisconnectReason>(reason.value_or(1)));
     };
+    // fake.bind(id, onRelease, k1, k2, k3): another plugin registers a key
+    // bind; fake.unbind(id) removes it; fake.binds() counts them.
+    fake["bind"] = [](int32_t id, bool on_release, int32_t k1, int32_t k2, int32_t k3) {
+        FakeServer::Current().key_binds[id] = {on_release, {k1, k2, k3}};
+    };
+    fake["unbind"] = [](int32_t id) { FakeServer::Current().key_binds.erase(id); };
+    fake["binds"] = [] { return FakeServer::Current().key_binds.size(); };
     // fake.exists(pool, id): whether the server has the entity.
     fake["exists"] = [](int pool, int32_t id) {
         return FakeServer::Current().EntityExists(static_cast<vcmpEntityPool>(pool), id);

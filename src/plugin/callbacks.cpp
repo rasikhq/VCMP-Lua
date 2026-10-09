@@ -561,6 +561,22 @@ void OnCheckpointExited(int32_t checkpoint_id, int32_t player_id) noexcept {
     });
 }
 
+// onPlayerKeyDown / onPlayerKeyUp(player, bind). Binds raise no pool
+// events; one seen here for the first time (another plugin's) is adopted.
+void OnPlayerKeyBindDown(int32_t player_id, int32_t bind_id) noexcept {
+    OnEvent("OnPlayerKeyBindDown", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerKeyDown, SeenPlayer(runtime, player_id),
+                    Seen<EntityKind::Bind>(runtime, bind_id));
+    });
+}
+
+void OnPlayerKeyBindUp(int32_t player_id, int32_t bind_id) noexcept {
+    OnEvent("OnPlayerKeyBindUp", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerKeyUp, SeenPlayer(runtime, player_id),
+                    Seen<EntityKind::Bind>(runtime, bind_id));
+    });
+}
+
 void SetPluginName(PluginInfo* info) noexcept {
     const std::size_t length = std::min(std::strlen(kPluginName), sizeof(info->name) - 1);
     std::memcpy(info->name, kPluginName, length);
@@ -662,6 +678,8 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerPrivateMessage, &OnPlayerPrivateMessage);
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerSpectate, &OnPlayerSpectate);
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerCrashReport, &OnPlayerCrashReport);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerKeyBindDown, &OnPlayerKeyBindDown);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerKeyBindUp, &OnPlayerKeyBindUp);
         VCMP_LUA_SET_CALLBACK(calls, OnVehicleUpdate, &OnVehicleUpdate);
         VCMP_LUA_SET_CALLBACK(calls, OnVehicleExplode, &OnVehicleExplode);
         VCMP_LUA_SET_CALLBACK(calls, OnVehicleRespawn, &OnVehicleRespawn);

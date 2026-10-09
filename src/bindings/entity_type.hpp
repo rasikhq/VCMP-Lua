@@ -26,12 +26,14 @@ using ObjectType = EntityType<EntityKind::Object>;
 using PickupType = EntityType<EntityKind::Pickup>;
 using CheckpointType = EntityType<EntityKind::Checkpoint>;
 using BlipType = EntityType<EntityKind::Blip>;
+using BindType = EntityType<EntityKind::Bind>;
 
 void RegisterPlayer(sol::state& lua, PlayerType& type);
 void RegisterVehicle(sol::state& lua, VehicleType& type);
 void RegisterObject(sol::state& lua, ObjectType& type);
 void RegisterPickup(sol::state& lua, PickupType& type);
 void RegisterCheckpoint(sol::state& lua, CheckpointType& type);
+void RegisterBind(sol::state& lua, BindType& type);
 
 namespace detail {
 

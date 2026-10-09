@@ -7,15 +7,17 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "plugin/api_guard.hpp"
 
 namespace vcmp_lua {
 
-// The server entities scripts get handles to (plan B4).
-enum class EntityKind : std::uint8_t { Player, Vehicle, Object, Pickup, Checkpoint, Blip };
-inline constexpr std::size_t kEntityKindCount = 6;
+// The server entities scripts get handles to (plan B4). Key binds are not
+// in the server's entity pools (no pool events), but are held the same way.
+enum class EntityKind : std::uint8_t { Player, Vehicle, Object, Pickup, Checkpoint, Blip, Bind };
+inline constexpr std::size_t kEntityKindCount = 7;
 
 struct EntityTraits {
     const char* name;       // in error messages: "vehicle no longer exists"
@@ -47,6 +49,7 @@ struct EntityRef {
 
 using PlayerRef = EntityRef<EntityKind::Player>;
 using VehicleRef = EntityRef<EntityKind::Vehicle>;
+using BindRef = EntityRef<EntityKind::Bind>;
 
 // Pushes the handle of entity (kind, id, generation) of the runtime that owns
 // L, or nil when it no longer exists, id is -1, or the runtime is closing.
@@ -114,6 +117,11 @@ public:
     sol::main_table Data(lua_State* L, std::int32_t id, std::uint32_t generation);
     void SetData(std::int32_t id, std::uint32_t generation, sol::main_table data);
 
+    // A script-chosen name (key binds' tag), dropped with the entity.
+    // Require()s the entity.
+    [[nodiscard]] const std::string& Tag(std::int32_t id, std::uint32_t generation) const;
+    void SetTag(std::int32_t id, std::uint32_t generation, std::string tag);
+
     // Runtime::Shutdown: no new handles from step 1 on, and every Lua
     // reference released in step 2.
     void Close() noexcept { closed_ = true; }
@@ -126,6 +134,7 @@ private:
         std::uint32_t generation = 0;
         sol::main_object handle;
         sol::main_table data;
+        std::string tag;
     };
 
     SlotData& Slot(std::int32_t id) noexcept;
@@ -148,11 +157,11 @@ public:
     // The pool behind a vcmpEntityPool, or null (radio streams).
     EntityPool* FromServerPool(vcmpEntityPool pool) noexcept;
 
-    // Adopts every player and entity that exists already (scripts load after
-    // other plugins may have created some, and again on reload).
+    // Adopts every player, entity and key bind that exists already (scripts
+    // load after other plugins may have created some, and again on reload).
     void Enumerate(const ServerApi& api);
 
-    // Deletes the entities this runtime created (on reload).
+    // Deletes the entities and key binds this runtime created (on reload).
     void DeleteCreated(const ServerApi& api);
 
     void Close() noexcept;

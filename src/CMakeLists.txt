@@ -10,6 +10,7 @@ vcmp_lua_embed("${_generated}/embedded_modules.cpp"
 # Everything except the entry point. The plugin and the tests link it.
 add_library(vcmp_lua_core STATIC
     bindings/args.cpp
+    bindings/bind.cpp
     bindings/bindings.cpp
     bindings/checkpoint.cpp
     bindings/convert.cpp

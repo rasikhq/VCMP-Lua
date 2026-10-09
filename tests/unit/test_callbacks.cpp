@@ -253,3 +253,37 @@ TEST_CASE("an entity first seen in an event is adopted; callbacks after shutdown
 }
 
 }  // namespace vcmp_lua::test
+
+namespace vcmp_lua::test {
+
+TEST_CASE("key bind events; a reload removes our binds only") {
+    FakeServer server;
+    REQUIRE(server.Load());
+    server.key_binds[100] = {};  // another plugin's, before we start
+    server.Initialise();
+    REQUIRE(server.Run(R"(
+        mine = Bind.create(false, 1)
+        Event.bind("onPlayerKeyDown", function(player, bind)
+            record("down", tostring(player), tostring(bind), bind == mine)
+        end)
+        Event.bind("onPlayerKeyUp", function(player, bind)
+            record("up", tostring(player), tostring(bind))
+        end)
+    )") == "");
+    const int32_t player = server.Connect();
+    server.plugin.OnPlayerKeyBindDown(player, 0);
+    server.plugin.OnPlayerKeyBindUp(player, 100);
+    const std::vector<std::string> expected = {
+        "down Player(0) Bind(0) true",
+        "up Player(0) Bind(100)",
+    };
+    CHECK(server.records == expected);
+    CHECK(server.key_binds.size() == 2);
+
+    REQUIRE(server.Run("Server.reload()") == "");
+    server.Frame();
+    CHECK(server.key_binds.size() == 1);
+    CHECK(server.key_binds.contains(100));
+}
+
+}  // namespace vcmp_lua::test

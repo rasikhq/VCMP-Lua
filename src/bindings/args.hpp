@@ -181,6 +181,11 @@ const EntityHandle<K>* ToHandle(lua_State* L, int index) {
     return &sol::stack::get<EntityHandle<K>&>(L, index);
 }
 
+// Key binds raise no pool events: before use, the server is asked whether
+// the bind still exists; if not, it is released and "bind no longer exists"
+// raised.
+void RequireBindExists(Runtime& runtime, std::int32_t id);
+
 template <EntityKind K>
 Live<K> CheckLive(lua_State* L, int index) {
     Runtime& runtime = Runtime::Require(L);
@@ -189,6 +194,9 @@ Live<K> CheckLive(lua_State* L, int index) {
         TypeError(L, index, Traits(K).type_name);
     }
     runtime.Entities().Get(K).Require(handle->id, handle->generation);
+    if constexpr (K == EntityKind::Bind) {
+        RequireBindExists(runtime, handle->id);
+    }
     return {&runtime, L, handle->id, handle->generation};
 }
 

@@ -146,10 +146,14 @@ vcmpError FakeLogMessage(const char* format, ...) {
 
 vcmpError FakeGetLastError() { return vcmpErrorNone; }
 
-// An empty server: no players, no entities.
+// An empty server: no players, no entities, no key binds.
 uint8_t FakeIsPlayerConnected(int32_t) { return 0; }
 
 uint8_t FakeCheckEntityExists(vcmpEntityPool, int32_t) { return 0; }
+
+vcmpError FakeGetKeyBindData(int32_t, uint8_t*, int32_t*, int32_t*, int32_t*) {
+    return vcmpErrorNoSuchEntity;
+}
 
 // Every other PluginFuncs slot points at a trap that records the call.
 std::vector<std::size_t> g_unexpected_calls;
@@ -190,6 +194,7 @@ void FillFuncs(PluginFuncs& funcs, uint32_t struct_size) {
     funcs.GetLastError = &FakeGetLastError;
     funcs.IsPlayerConnected = &FakeIsPlayerConnected;
     funcs.CheckEntityExists = &FakeCheckEntityExists;
+    funcs.GetKeyBindData = &FakeGetKeyBindData;
 }
 
 // A struct inside a larger buffer. Bytes past the reported structSize hold a
