@@ -95,6 +95,25 @@ TEST_CASE("player events pass v1's arguments") {
     CHECK(server.records == expected);
 }
 
+TEST_CASE("vehicle events") {
+    FakeServer server;
+    Start(server);
+    for (const char* event : {"onVehicleUpdate", "onVehicleExplode", "onVehicleRespawn"}) {
+        Record(server, event);
+    }
+    const int32_t id = server.CreateVehicle();
+    server.plugin.OnVehicleUpdate(id, vcmpVehicleUpdateHealth);
+    server.plugin.OnVehicleExplode(id);
+    server.plugin.OnVehicleRespawn(id);
+    const std::string v = "Vehicle(" + std::to_string(id) + ")";
+    const std::vector<std::string> expected = {
+        "onVehicleUpdate " + v + " number:4",
+        "onVehicleExplode " + v,
+        "onVehicleRespawn " + v,
+    };
+    CHECK(server.records == expected);
+}
+
 TEST_CASE("Event.cancel() makes a cancellable callback refuse") {
     FakeServer server;
     Start(server);

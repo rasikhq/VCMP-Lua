@@ -278,6 +278,51 @@ Live<K> sol_lua_get(sol::types<Live<K>>, lua_State* L, int index, sol::stack::re
     return CheckLive<K>(L, lua_absindex(L, index));
 }
 
+// --- Reading arguments by position ---------------------------------------------
+
+// For bindings that accept several forms (a table or numbers, optional
+// arguments in the middle): reads the arguments of the running function by
+// position, with the same checks and messages as the argument types.
+class ArgReader {
+public:
+    // first: the stack index of argument 1.
+    ArgReader(lua_State* L, int first) noexcept : L_(L), first_(first) {}
+
+    [[nodiscard]] lua_State* L() const noexcept { return L_; }
+    [[nodiscard]] int index(int i) const noexcept { return first_ + i - 1; }
+    [[nodiscard]] int type(int i) const noexcept { return lua_type(L_, index(i)); }
+    [[nodiscard]] bool missing(int i) const noexcept { return lua_isnoneornil(L_, index(i)); }
+    // Number of arguments from argument 1 on.
+    [[nodiscard]] int count() const noexcept { return lua_gettop(L_) - first_ + 1; }
+
+    template <typename T>
+    T Int(int i) const {
+        return static_cast<T>(CheckInteger(L_, index(i), std::numeric_limits<T>::min(),
+                                           std::numeric_limits<T>::max()));
+    }
+    template <typename T>
+    T IntOr(int i, T fallback) const {
+        return missing(i) ? fallback : Int<T>(i);
+    }
+    [[nodiscard]] float Number(int i) const { return static_cast<float>(CheckNumber(L_, index(i))); }
+    [[nodiscard]] float NumberOr(int i, float fallback) const {
+        return missing(i) ? fallback : Number(i);
+    }
+    [[nodiscard]] bool Bool(int i) const { return CheckBoolean(L_, index(i)); }
+    [[nodiscard]] bool BoolOr(int i, bool fallback) const {
+        return missing(i) ? fallback : Bool(i);
+    }
+    [[nodiscard]] std::uint32_t ColourAt(int i) const { return CheckColour(L_, index(i)); }
+
+    // A Vec3 starting at argument i: a table (one argument) or three
+    // numbers. i is advanced past it.
+    Vec3 Vector(int& i) const;
+
+private:
+    lua_State* L_;
+    int first_;
+};
+
 // --- Tables ------------------------------------------------------------------
 
 // Element i (1-based) of the table at index as a number; raises "bad

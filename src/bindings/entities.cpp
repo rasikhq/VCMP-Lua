@@ -83,7 +83,8 @@ EntityType<K> RegisterKind(sol::state& lua) {
 void RegisterEntities(sol::state& lua) {
     PlayerType player = RegisterKind<EntityKind::Player>(lua);
     RegisterPlayer(lua, player);
-    RegisterKind<EntityKind::Vehicle>(lua);
+    VehicleType vehicle = RegisterKind<EntityKind::Vehicle>(lua);
+    RegisterVehicle(lua, vehicle);
     RegisterKind<EntityKind::Object>(lua);
     RegisterKind<EntityKind::Pickup>(lua);
     RegisterKind<EntityKind::Checkpoint>(lua);

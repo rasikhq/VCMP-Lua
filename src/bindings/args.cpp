@@ -205,6 +205,13 @@ int TableLength(lua_State* L, int index) {
     return static_cast<int>(lua_rawlen(L, index));
 }
 
+Vec3 ArgReader::Vector(int& i) const {
+    sol::stack::record tracking;
+    Vec3 value = sol_lua_get(sol::types<Vec3>(), L_, index(i), tracking);
+    i += tracking.used;
+    return value;
+}
+
 Vec3 sol_lua_get(sol::types<Vec3>, lua_State* L, int index, sol::stack::record& tracking) {
     index = lua_absindex(L, index);
     if (lua_type(L, index) == LUA_TTABLE) {

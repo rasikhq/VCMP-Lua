@@ -489,6 +489,28 @@ void OnPlayerCrashReport(int32_t player_id, const char* report) noexcept {
     });
 }
 
+void OnVehicleUpdate(int32_t vehicle_id, vcmpVehicleUpdate update) noexcept {
+    OnEvent("OnVehicleUpdate", [&](Runtime& runtime) {
+        if (!runtime.Events().HasHandlers(EventBus::Index(Event::VehicleUpdate))) {
+            return false;  // many per second: skip the adoption too
+        }
+        return Emit(runtime, Event::VehicleUpdate, Seen<EntityKind::Vehicle>(runtime, vehicle_id),
+                    static_cast<int32_t>(update));
+    });
+}
+
+void OnVehicleExplode(int32_t vehicle_id) noexcept {
+    OnEvent("OnVehicleExplode", [&](Runtime& runtime) {
+        return Emit(runtime, Event::VehicleExplode, Seen<EntityKind::Vehicle>(runtime, vehicle_id));
+    });
+}
+
+void OnVehicleRespawn(int32_t vehicle_id) noexcept {
+    OnEvent("OnVehicleRespawn", [&](Runtime& runtime) {
+        return Emit(runtime, Event::VehicleRespawn, Seen<EntityKind::Vehicle>(runtime, vehicle_id));
+    });
+}
+
 void SetPluginName(PluginInfo* info) noexcept {
     const std::size_t length = std::min(std::strlen(kPluginName), sizeof(info->name) - 1);
     std::memcpy(info->name, kPluginName, length);
@@ -590,6 +612,9 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerPrivateMessage, &OnPlayerPrivateMessage);
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerSpectate, &OnPlayerSpectate);
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerCrashReport, &OnPlayerCrashReport);
+        VCMP_LUA_SET_CALLBACK(calls, OnVehicleUpdate, &OnVehicleUpdate);
+        VCMP_LUA_SET_CALLBACK(calls, OnVehicleExplode, &OnVehicleExplode);
+        VCMP_LUA_SET_CALLBACK(calls, OnVehicleRespawn, &OnVehicleRespawn);
         plugin.runtime = runtime.release();
         return 1;
     } catch (...) {

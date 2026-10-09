@@ -18,6 +18,7 @@ add_library(vcmp_lua_core STATIC
     bindings/player.cpp
     bindings/server.cpp
     bindings/timer.cpp
+    bindings/vehicle.cpp
     core/entity_pool.cpp
     core/event_bus.cpp
     core/frame_pump.cpp

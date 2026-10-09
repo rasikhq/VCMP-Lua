@@ -28,6 +28,7 @@ using CheckpointType = EntityType<EntityKind::Checkpoint>;
 using BlipType = EntityType<EntityKind::Blip>;
 
 void RegisterPlayer(sol::state& lua, PlayerType& type);
+void RegisterVehicle(sol::state& lua, VehicleType& type);
 
 namespace detail {
 

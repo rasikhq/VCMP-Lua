@@ -66,6 +66,20 @@ main.lua:14: bad argument #2 to 'create' (value 5000000000 out of range [-214748
   "<kind> no longer exists" instead of crashing or touching another entity.
 - `handle.valid` is new: `false` once the entity is gone, without raising.
 
+## Lifetime of vehicles, objects, pickups and checkpoints
+
+In v1 the Lua garbage collector owned these entities: an entity whose Lua
+object was not stored somewhere disappeared at the next collection, and
+handles from `findByID`, `getActive` or events then pointed at freed memory.
+In v2 the server owns them, as in Squirrel:
+
+- `Vehicle.create(...)` creates a vehicle and returns its handle. The v1
+  forms `Vehicle(...)` and `Vehicle.new(...)` still work and do the same.
+  The same goes for `Object`, `Pickup` and `Checkpoint`.
+- The entity stays until `entity:destroy()`, or until the server or
+  another plugin deletes it. Dropping the handle deletes nothing.
+- `Server.reload()` deletes the entities the scripts created.
+
 ## Player
 
 - The members keep their v1 names and arguments.
@@ -86,6 +100,19 @@ main.lua:14: bad argument #2 to 'create' (value 5000000000 out of range [-214748
   `gameKeys`, `standingOnVehicle`, `standingOnObject`, `giveMoney(amount)`,
   `getWeaponAtSlot(slot)`, `getAmmoAtSlot(slot)` and
   `getNetworkStatistics(NetworkStatistics.x)`.
+
+## Vehicle
+
+- Creation: see "Lifetime" above. The arguments are v1's:
+  `(model, world, x, y, z, angle[, colour1[, colour2]])` or
+  `(model, world, {x, y, z[, angle]}[, colour1[, colour2]])`.
+- `vehicle.rotation = vehicle.rotation` works: the setter accepts the
+  getter's `{euler = ..., quaternion = ...}` table as well as `{x, y, z}`
+  and `{x, y, z, w}`.
+- `getOccupant(slot)` returns `nil` for an empty seat and raises an error
+  for an invalid slot.
+- `setSpeed`: the final `add` argument is optional (default `false`).
+- New: `model`, `wrecked`, `lightsData`, `explode()`.
 
 ## New
 
