@@ -17,10 +17,12 @@ add_library(vcmp_lua_core STATIC
     bindings/entities.cpp
     bindings/enums.cpp
     bindings/event.cpp
+    bindings/logger.cpp
     bindings/names.cpp
     bindings/object.cpp
     bindings/pickup.cpp
     bindings/player.cpp
+    bindings/removed_v1_stubs.cpp
     bindings/server.cpp
     bindings/stream.cpp
     bindings/timer.cpp

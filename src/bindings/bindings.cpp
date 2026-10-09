@@ -29,6 +29,8 @@ void Register(sol::state& lua) {
     RegisterEntities(lua);
     RegisterServer(lua);
     RegisterStream(lua);
+    RegisterLogger(lua);
+    RegisterRemovedV1Stubs(lua);
 }
 
 sol::main_protected_function RequireFunction(const sol::main_object& value, const char* where,

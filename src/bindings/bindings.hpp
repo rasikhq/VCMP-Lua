@@ -12,6 +12,8 @@ void RegisterEnums(sol::state& lua);
 void RegisterEvent(sol::state& lua);
 void RegisterTimer(sol::state& lua);
 void RegisterEntities(sol::state& lua);
+void RegisterLogger(sol::state& lua);
+void RegisterRemovedV1Stubs(sol::state& lua);
 void RegisterServer(sol::state& lua);
 void RegisterStream(sol::state& lua);
 

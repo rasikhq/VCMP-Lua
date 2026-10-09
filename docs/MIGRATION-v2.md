@@ -205,6 +205,56 @@ In v2 the server owns them, as in Squirrel:
 - New event: `onEntityStreamingChange(player, entityType, entityId,
   deleted)` (plugin API 2.1).
 
+## Logger
+
+- `Logger.debug/info/warn/error/critical(message)` keep their names.
+- `Logger.setLevel(level)` sets the least severe level that is logged:
+  `"debug"`, `"info"`, `"warn"`, `"error"`, `"critical"`, `"off"`, or v1's
+  numbers 0 (debug) to 4 (critical), 5 for off. In v1 the numbers worked
+  backwards and level 0 still logged everything. The setting is the same
+  one as `log.level` in `luaconfig.lua`; a reload restores the config's.
+- New: `Logger.getLevel()`.
+
+## Removed
+
+These v1 globals are gone. Using one raises an error that names its
+replacement, e.g. "MySQL was removed in v2: use require "luasql.mysql"
+(see docs/MIGRATION-v2.md#mysql)". The replacement libraries arrive in
+phase 4.
+
+### MySQL
+
+`MySQL.createConnection` and its connection objects ran queries on worker
+threads, which crashed the server (plan A1). Use LuaSQL:
+`require "luasql.mysql"` (MariaDB Connector/C, linked into the plugin).
+Queries run synchronously on the server thread.
+
+### SQLite
+
+`SQLite`, `SqLite` and `SQLiteDatabase` are replaced by
+`require "luasql.sqlite3"`.
+
+### Remote
+
+`Remote` (HTTP over cpr) is replaced by the `http` module:
+`require "http"`, `http.request{url, method, headers, body, timeout}`
+with a callback. Requests never block the server.
+
+### JSON
+
+The embedded JSON library is replaced by lua-cjson: `require "cjson"`.
+
+### Thread
+
+`Thread` ran Lua on worker threads, which a Lua state does not allow
+(plan A1). There is no replacement: scripts run on the server's thread.
+Use timers, and the non-blocking `http` module.
+
+### Debugger
+
+`dbg` stopped the whole server while it waited for console input. It has
+no replacement.
+
 ## New
 
 - `Server.reload()` reloads `luaconfig.lua` and every script.
