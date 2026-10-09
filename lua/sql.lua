@@ -38,7 +38,9 @@ local function literal(conn, value, index)
       return tostring(value)
     end
     if value ~= value or value == huge or value == -huge then
-      error(format("sql.format: value %d is %s, which SQL cannot store", index, tostring(value)), 3)
+      -- NaN prints as "nan" or "-nan" depending on the platform.
+      local name = value ~= value and "nan" or tostring(value)
+      error(format("sql.format: value %d is %s, which SQL cannot store", index, name), 3)
     end
     return format("%.17g", value)
   elseif kind == "string" then

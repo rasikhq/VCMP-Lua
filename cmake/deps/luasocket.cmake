@@ -16,10 +16,13 @@ else()
 endif()
 list(TRANSFORM _socket_sources PREPEND "${_socket_src}/")
 
+# Winsock's fd_set holds 64 sockets by default, so socket.select (and Copas)
+# would refuse a 65th; on Windows FD_SETSIZE is a count, not a highest fd.
 vcmp_lua_c_module(vcmp_lua_luasocket
     SOURCES ${_socket_sources}
     INCLUDE_DIRS "${_socket_src}"
     DEFINITIONS LUASOCKET_API= $<$<C_COMPILER_ID:MSVC>:_WINSOCK_DEPRECATED_NO_WARNINGS>
+        $<$<BOOL:${WIN32}>:FD_SETSIZE=1024>
     LIBRARIES ${_socket_libraries})
 
 vcmp_lua_embed_lua(

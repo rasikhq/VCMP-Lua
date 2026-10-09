@@ -57,7 +57,9 @@ bool FramesUntil(FakeServer& server, const std::string& expression, double secon
 constexpr const char* kCopasServer = R"lua(
     local copas = require "copas"
     local socket = require "socket"
-    local listener = assert(socket.bind("127.0.0.1", 0))
+    -- A backlog for 100 simultaneous connections: Windows drops SYNs to a full
+    -- backlog, and the client retries only after seconds.
+    local listener = assert(socket.bind("127.0.0.1", 0, 128))
     port = select(2, listener:getsockname())
     served = 0
     copas.addserver(listener, function(raw)
@@ -275,6 +277,15 @@ TEST_CASE("sql.format fills placeholders with escaped literals") {
     )lua") == "");
 }
 
+#ifdef _WIN32
+TEST_CASE("LuaSocket on Windows: socket.select takes more than 64 sockets") {
+    FakeServer server;
+    REQUIRE(server.Load());
+    server.Initialise();
+    CHECK(server.Eval("require('socket')._SETSIZE") == "1024");
+}
+#endif
+
 TEST_CASE("Copas: the frame pump steps it and sets copas.running") {
     FakeServer server;
     REQUIRE(server.Load());
@@ -358,7 +369,10 @@ TEST_CASE("http: 100 concurrent requests, and callbacks that start requests") {
           end)
         end
     )lua") == "");
-    REQUIRE(FramesUntil(server, "ok_count + #failures == 100 and chained", 30));
+    const bool done = FramesUntil(server, "ok_count + #failures == 100 and chained", 30);
+    INFO(server.Eval("string.format('ok %d, failed %d, chained %s, served %d: %s', ok_count, "
+                     "#failures, tostring(chained), served, table.concat(failures, '; '))"));
+    REQUIRE(done);
     CHECK(server.Eval("table.concat(failures, '; ')") == "");
     CHECK(server.Eval("served") == "101");
 }
