@@ -2,9 +2,9 @@
 
 #include <doctest/doctest.h>
 #include <fmt/format.h>
+#include <spdlog/sinks/ostream_sink.h>
 #include <lua.hpp>
 #include <sol/sol.hpp>
-#include <spdlog/sinks/ostream_sink.h>
 
 #include <array>
 #include <cstdarg>
@@ -105,8 +105,8 @@ std::string Describe(const char* name, const std::array<Slot, N>& slots) {
         if (i > 0) {
             line += ", ";
         }
-        const bool buffer = slot.kind == Slot::Kind::MutText && i + 1 < N &&
-                            slots[i + 1].kind == Slot::Kind::Size;
+        const bool buffer =
+            slot.kind == Slot::Kind::MutText && i + 1 < N && slots[i + 1].kind == Slot::Kind::Size;
         switch (slot.kind) {
             case Slot::Kind::Int:
                 line += fmt::format("{}", slot.i);
@@ -185,40 +185,43 @@ R Respond(const char* name, std::array<Slot, N>& slots) {
     }
 }
 
-template <auto Field>
+// One tag type per PluginFuncs field, so that each field gets its own stub.
+#define VCMP_LUA_FUNC(field) \
+    struct field##Tag {};
+#include "plugin_funcs.inc"
+#undef VCMP_LUA_FUNC
+
+template <typename Tag, typename Fn>
 struct Stub;
 
-// The recorder for PluginFuncs::*Field, or the override installed for it.
-template <typename R, typename... A, R (*PluginFuncs::*Field)(A...)>
-struct Stub<Field> {
+// The recorder for one PluginFuncs field, or the replacement installed for it.
+template <typename Tag, typename R, typename... A>
+struct Stub<Tag, R (*)(A...)> {
     static inline const char* name = "";
-    static inline R (*override)(A...) = nullptr;
+    static inline R (*replacement)(A...) = nullptr;
 
     static R Call(A... args) {
-        if (override != nullptr) {
+        std::array<Slot, sizeof...(A)> slots = {MakeSlot(args)...};
+        if (replacement != nullptr) {
             FakeServer& server = FakeServer::Current();
-            std::array<Slot, sizeof...(A)> slots = {MakeSlot(args)...};
             server.calls.push_back(Describe(name, slots));
             server.last_error = vcmpErrorNone;
-            return override(args...);
+            return replacement(args...);
         }
-        std::array<Slot, sizeof...(A)> slots = {MakeSlot(args)...};
         return Respond<R>(name, slots);
     }
 };
 
-template <auto Field>
-void Install(PluginFuncs& funcs, const char* name) {
-    Stub<Field>::name = name;
-    Stub<Field>::override = nullptr;
-    funcs.*Field = &Stub<Field>::Call;
+template <typename Tag, typename Fn>
+void Install(Fn& field, const char* name) {
+    Stub<Tag, Fn>::name = name;
+    Stub<Tag, Fn>::replacement = nullptr;
+    field = &Stub<Tag, Fn>::Call;
 }
 
 // The function runs instead of the recorder; the call is still recorded.
-template <auto Field, typename Fn>
-void Override(Fn fn) {
-    Stub<Field>::override = fn;
-}
+#define VCMP_LUA_OVERRIDE(field, ...) \
+    (Stub<field##Tag, decltype(PluginFuncs::field)>::replacement = (__VA_ARGS__))
 
 // The C-variadic functions: the bindings always pass "%s" and one string.
 std::string Format(const char* format, va_list args) {
@@ -279,14 +282,15 @@ void InstallStateful(PluginFuncs& funcs) {
     // GetLastError is not recorded: bindings call it after many getters.
     funcs.GetLastError = [] { return FakeServer::Current().last_error; };
 
-    Override<&PluginFuncs::GetServerVersion>([]() -> uint32_t { return 67710; });
-    Override<&PluginFuncs::GetMaxPlayers>([]() -> uint32_t { return 100; });
-    Override<&PluginFuncs::GetTime>(
-        []() { return static_cast<uint64_t>(FakeServer::Current().now_ms) * 1000; });
+    VCMP_LUA_OVERRIDE(GetServerVersion, []() -> uint32_t { return 67710; });
+    VCMP_LUA_OVERRIDE(GetMaxPlayers, []() -> uint32_t { return 100; });
+    VCMP_LUA_OVERRIDE(GetTime,
+                      []() { return static_cast<uint64_t>(FakeServer::Current().now_ms) * 1000; });
 
-    Override<&PluginFuncs::IsPlayerConnected>(
-        [](int32_t id) -> uint8_t { return FakeServer::Current().Connected(id) ? 1 : 0; });
-    Override<&PluginFuncs::GetPlayerName>([](int32_t id, char* buffer, size_t size) {
+    VCMP_LUA_OVERRIDE(IsPlayerConnected, [](int32_t id) -> uint8_t {
+        return FakeServer::Current().Connected(id) ? 1 : 0;
+    });
+    VCMP_LUA_OVERRIDE(GetPlayerName, [](int32_t id, char* buffer, size_t size) {
         const auto name = FakeServer::Current().PlayerName(id);
         if (!name) {
             return vcmpErrorNoSuchEntity;
@@ -297,21 +301,21 @@ void InstallStateful(PluginFuncs& funcs) {
         std::snprintf(buffer, size, "%s", name->c_str());
         return vcmpErrorNone;
     });
-    Override<&PluginFuncs::SetPlayerName>([](int32_t id, const char* name) {
+    VCMP_LUA_OVERRIDE(SetPlayerName, [](int32_t id, const char* name) {
         return FakeServer::Current().SetPlayerName(id, name);
     });
-    Override<&PluginFuncs::KickPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
-    Override<&PluginFuncs::BanPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
+    VCMP_LUA_OVERRIDE(KickPlayer, [](int32_t id) { return FakeServer::Current().Kick(id); });
+    VCMP_LUA_OVERRIDE(BanPlayer, [](int32_t id) { return FakeServer::Current().Kick(id); });
 
     // The 0.4 server's quirk: these report vcmpErrorBufferTooSmall even when
     // the text fits (docs/internals.md).
-    Override<&PluginFuncs::GetServerName>([](char* buffer, size_t size) {
+    VCMP_LUA_OVERRIDE(GetServerName, [](char* buffer, size_t size) {
         const auto& texts = FakeServer::Current().texts;
         const auto it = texts.find("GetServerName");
         std::snprintf(buffer, size, "%s", it != texts.end() ? it->second.c_str() : "");
         return vcmpErrorBufferTooSmall;
     });
-    Override<&PluginFuncs::GetGameModeText>([](char* buffer, size_t size) {
+    VCMP_LUA_OVERRIDE(GetGameModeText, [](char* buffer, size_t size) {
         const auto& texts = FakeServer::Current().texts;
         const auto it = texts.find("GetGameModeText");
         std::snprintf(buffer, size, "%s", it != texts.end() ? it->second.c_str() : "");
@@ -319,7 +323,7 @@ void InstallStateful(PluginFuncs& funcs) {
     });
 
     // Records the bytes, in hex: SendClientScriptData(0, 01ff, 2).
-    Override<&PluginFuncs::SendClientScriptData>([](int32_t id, const void* data, size_t size) {
+    VCMP_LUA_OVERRIDE(SendClientScriptData, [](int32_t id, const void* data, size_t size) {
         FakeServer& server = FakeServer::Current();
         std::string hex;
         for (size_t i = 0; i < size; ++i) {
@@ -331,7 +335,7 @@ void InstallStateful(PluginFuncs& funcs) {
 
     // Key binds as in the 0.4 server: 50 slots shared by every plugin, no
     // pool events, and GetKeyBindData answers for a free slot too (keys 0).
-    Override<&PluginFuncs::GetKeyBindUnusedSlot>([]() -> int32_t {
+    VCMP_LUA_OVERRIDE(GetKeyBindUnusedSlot, []() -> int32_t {
         const auto& binds = FakeServer::Current().key_binds;
         for (int32_t id = 0; id < 50; ++id) {
             if (!binds.contains(id)) {
@@ -340,24 +344,24 @@ void InstallStateful(PluginFuncs& funcs) {
         }
         return -1;
     });
-    Override<&PluginFuncs::RegisterKeyBind>(
-        [](int32_t id, uint8_t on_release, int32_t key1, int32_t key2, int32_t key3) {
-            if (id < 0 || id >= 50) {
-                return vcmpErrorArgumentOutOfBounds;
-            }
-            FakeServer::Current().key_binds[id] = {on_release != 0, {key1, key2, key3}};
-            return vcmpErrorNone;
-        });
-    Override<&PluginFuncs::RemoveKeyBind>([](int32_t id) {
+    VCMP_LUA_OVERRIDE(RegisterKeyBind, [](int32_t id, uint8_t on_release, int32_t key1,
+                                          int32_t key2, int32_t key3) {
+        if (id < 0 || id >= 50) {
+            return vcmpErrorArgumentOutOfBounds;
+        }
+        FakeServer::Current().key_binds[id] = {on_release != 0, {key1, key2, key3}};
+        return vcmpErrorNone;
+    });
+    VCMP_LUA_OVERRIDE(RemoveKeyBind, [](int32_t id) {
         if (id < 0 || id >= 50) {
             return vcmpErrorArgumentOutOfBounds;
         }
         FakeServer::Current().key_binds.erase(id);
         return vcmpErrorNone;
     });
-    Override<&PluginFuncs::RemoveAllKeyBinds>([] { FakeServer::Current().key_binds.clear(); });
-    Override<&PluginFuncs::GetKeyBindData>([](int32_t id, uint8_t* on_release, int32_t* key1,
-                                              int32_t* key2, int32_t* key3) {
+    VCMP_LUA_OVERRIDE(RemoveAllKeyBinds, [] { FakeServer::Current().key_binds.clear(); });
+    VCMP_LUA_OVERRIDE(GetKeyBindData, [](int32_t id, uint8_t* on_release, int32_t* key1,
+                                         int32_t* key2, int32_t* key3) {
         if (id < 0 || id >= 50) {
             return vcmpErrorArgumentOutOfBounds;
         }
@@ -375,39 +379,43 @@ void InstallStateful(PluginFuncs& funcs) {
         return vcmpErrorNone;
     });
 
-    Override<&PluginFuncs::CheckEntityExists>([](vcmpEntityPool pool, int32_t id) -> uint8_t {
+    VCMP_LUA_OVERRIDE(CheckEntityExists, [](vcmpEntityPool pool, int32_t id) -> uint8_t {
         return FakeServer::Current().EntityExists(pool, id) ? 1 : 0;
     });
-    Override<&PluginFuncs::CreateVehicle>(
-        [](int32_t, int32_t, float, float, float, float, int32_t, int32_t) {
-            return FakeServer::Current().CreateEntity(vcmpEntityPoolVehicle);
-        });
-    Override<&PluginFuncs::DeleteVehicle>(
-        [](int32_t id) { return FakeServer::Current().DeleteEntity(vcmpEntityPoolVehicle, id); });
-    Override<&PluginFuncs::CreateObject>([](int32_t, int32_t, float, float, float, int32_t) {
+    VCMP_LUA_OVERRIDE(CreateVehicle,
+                      [](int32_t, int32_t, float, float, float, float, int32_t, int32_t) {
+                          return FakeServer::Current().CreateEntity(vcmpEntityPoolVehicle);
+                      });
+    VCMP_LUA_OVERRIDE(DeleteVehicle, [](int32_t id) {
+        return FakeServer::Current().DeleteEntity(vcmpEntityPoolVehicle, id);
+    });
+    VCMP_LUA_OVERRIDE(CreateObject, [](int32_t, int32_t, float, float, float, int32_t) {
         return FakeServer::Current().CreateEntity(vcmpEntityPoolObject);
     });
-    Override<&PluginFuncs::DeleteObject>(
-        [](int32_t id) { return FakeServer::Current().DeleteEntity(vcmpEntityPoolObject, id); });
-    Override<&PluginFuncs::CreatePickup>(
-        [](int32_t, int32_t, int32_t, float, float, float, int32_t, uint8_t) {
-            return FakeServer::Current().CreateEntity(vcmpEntityPoolPickup);
-        });
-    Override<&PluginFuncs::DeletePickup>(
-        [](int32_t id) { return FakeServer::Current().DeleteEntity(vcmpEntityPoolPickup, id); });
-    Override<&PluginFuncs::CreateCheckPoint>([](int32_t, int32_t, uint8_t, float, float, float,
-                                                int32_t, int32_t, int32_t, int32_t, float) {
+    VCMP_LUA_OVERRIDE(DeleteObject, [](int32_t id) {
+        return FakeServer::Current().DeleteEntity(vcmpEntityPoolObject, id);
+    });
+    VCMP_LUA_OVERRIDE(CreatePickup,
+                      [](int32_t, int32_t, int32_t, float, float, float, int32_t, uint8_t) {
+                          return FakeServer::Current().CreateEntity(vcmpEntityPoolPickup);
+                      });
+    VCMP_LUA_OVERRIDE(DeletePickup, [](int32_t id) {
+        return FakeServer::Current().DeleteEntity(vcmpEntityPoolPickup, id);
+    });
+    VCMP_LUA_OVERRIDE(CreateCheckPoint, [](int32_t, int32_t, uint8_t, float, float, float, int32_t,
+                                           int32_t, int32_t, int32_t, float) {
         return FakeServer::Current().CreateEntity(vcmpEntityPoolCheckPoint);
     });
-    Override<&PluginFuncs::DeleteCheckPoint>([](int32_t id) {
+    VCMP_LUA_OVERRIDE(DeleteCheckPoint, [](int32_t id) {
         return FakeServer::Current().DeleteEntity(vcmpEntityPoolCheckPoint, id);
     });
-    Override<&PluginFuncs::CreateCoordBlip>(
-        [](int32_t, int32_t, float, float, float, int32_t, uint32_t, int32_t) {
-            return FakeServer::Current().CreateEntity(vcmpEntityPoolBlip);
-        });
-    Override<&PluginFuncs::DestroyCoordBlip>(
-        [](int32_t id) { return FakeServer::Current().DeleteEntity(vcmpEntityPoolBlip, id); });
+    VCMP_LUA_OVERRIDE(CreateCoordBlip,
+                      [](int32_t, int32_t, float, float, float, int32_t, uint32_t, int32_t) {
+                          return FakeServer::Current().CreateEntity(vcmpEntityPoolBlip);
+                      });
+    VCMP_LUA_OVERRIDE(DestroyCoordBlip, [](int32_t id) {
+        return FakeServer::Current().DeleteEntity(vcmpEntityPoolBlip, id);
+    });
 }
 
 // --- Test hooks installed in every runtime -------------------------------------
@@ -473,10 +481,10 @@ void InstallFakeTable(sol::state_view lua) {
     // fake.remove(name): the server lacks this function.
     fake["remove"] = [](const std::string& name) {
         FakeServer& server = FakeServer::Current();
-#define VCMP_LUA_FUNC(field)        \
-    if (name == #field) {           \
+#define VCMP_LUA_FUNC(field)          \
+    if (name == #field) {             \
         server.funcs.field = nullptr; \
-        return;                     \
+        return;                       \
     }
 #include "plugin_funcs.inc"
 #undef VCMP_LUA_FUNC
@@ -490,8 +498,7 @@ void InstallFakeTable(sol::state_view lua) {
     };
     // fake.disconnect(id[, reason]): the player leaves.
     fake["disconnect"] = [](int32_t id, std::optional<int> reason) {
-        FakeServer::Current().Disconnect(id,
-                                         static_cast<vcmpDisconnectReason>(reason.value_or(1)));
+        FakeServer::Current().Disconnect(id, static_cast<vcmpDisconnectReason>(reason.value_or(1)));
     };
     // fake.bind(id, onRelease, k1, k2, k3): another plugin registers a key
     // bind; fake.unbind(id) removes it; fake.binds() counts them.
@@ -595,7 +602,7 @@ FakeServer::FakeServer() {
     funcs.structSize = sizeof(funcs);
     plugin.structSize = sizeof(plugin);
     info.structSize = sizeof(info);
-#define VCMP_LUA_FUNC(field) Install<&PluginFuncs::field>(funcs, #field);
+#define VCMP_LUA_FUNC(field) Install<field##Tag>(funcs.field, #field);
 #include "plugin_funcs.inc"
 #undef VCMP_LUA_FUNC
     InstallStateful(funcs);
@@ -645,9 +652,9 @@ void FakeServer::Shutdown() {
     plugin.OnServerShutdown();
     shut_down_ = true;
     // What the real server does next (docs/internals.md).
-    for (const vcmpEntityPool pool : {vcmpEntityPoolPickup, vcmpEntityPoolObject,
-                                      vcmpEntityPoolCheckPoint, vcmpEntityPoolVehicle,
-                                      vcmpEntityPoolBlip}) {
+    for (const vcmpEntityPool pool :
+         {vcmpEntityPoolPickup, vcmpEntityPoolObject, vcmpEntityPoolCheckPoint,
+          vcmpEntityPoolVehicle, vcmpEntityPoolBlip}) {
         const std::set<std::int32_t> ids = *PoolSet(pool);
         for (const std::int32_t id : ids) {
             DeleteEntity(pool, id);

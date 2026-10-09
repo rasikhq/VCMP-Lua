@@ -95,9 +95,9 @@ void RegisterBind(sol::state&, BindType& type) {
         if (!ReadBind(self.api(), self.id, data)) {
             throw std::runtime_error("bind no longer exists");
         }
-        return sol::state_view(self.L).create_table_with(
-            "keyOne", data.keys[0], "keyTwo", data.keys[1], "keyThree", data.keys[2],
-            "signalsOnRelease", data.on_release != 0);
+        return sol::state_view(self.L).create_table_with("keyOne", data.keys[0], "keyTwo",
+                                                         data.keys[1], "keyThree", data.keys[2],
+                                                         "signalsOnRelease", data.on_release != 0);
     };
 
     // bind.tag: a name of the script's choosing, for Bind.findByTag.

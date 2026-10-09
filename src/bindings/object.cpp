@@ -48,8 +48,8 @@ bool MoveObject(const Self& self, const ArgReader& args, Move move) {
     const Vec3 to = args.Vector(i);
     std::uint32_t ms = 0;
     if (table && args.missing(2)) {
-        ms = static_cast<std::uint32_t>(TableInteger(
-            self.L, args.index(1), 4, 0, std::numeric_limits<std::uint32_t>::max(), 0));
+        ms = static_cast<std::uint32_t>(TableInteger(self.L, args.index(1), 4, 0,
+                                                     std::numeric_limits<std::uint32_t>::max(), 0));
     } else {
         ms = args.IntOr<std::uint32_t>(i, 0);
     }
@@ -125,9 +125,11 @@ void RegisterObject(sol::state&, ObjectType& type) {
     type["getModel"] = model;
     type["model"] = Property<kObject>(model);
 
-    type["world"] = Property<kObject>(
-        [](Self self) { return VCMP_FN(self, GetObjectWorld)(self.id); },
-        [](Self self, Int32 world) { Check(self.L, VCMP_FN(self, SetObjectWorld)(self.id, world)); });
+    type["world"] =
+        Property<kObject>([](Self self) { return VCMP_FN(self, GetObjectWorld)(self.id); },
+                          [](Self self, Int32 world) {
+                              Check(self.L, VCMP_FN(self, SetObjectWorld)(self.id, world));
+                          });
     // object.trackShots / trackTouch: whether onObjectShot / onObjectTouch fire.
     type["trackShots"] = Property<kObject>(
         [](Self self) { return VCMP_FN(self, IsObjectShotReportEnabled)(self.id) != 0; },
@@ -146,8 +148,8 @@ void RegisterObject(sol::state&, ObjectType& type) {
             return v;
         },
         [](Self self, Vec3 position) {
-            Check(self.L, VCMP_FN(self, SetObjectPosition)(self.id, position.x, position.y,
-                                                           position.z));
+            Check(self.L,
+                  VCMP_FN(self, SetObjectPosition)(self.id, position.x, position.y, position.z));
         });
     // object.angle: Euler {x, y, z}; assigning rotates the object to it.
     type["angle"] = Property<kObject>(
@@ -157,7 +159,8 @@ void RegisterObject(sol::state&, ObjectType& type) {
             return v;
         },
         [](Self self, Vec3 angle) {
-            Check(self.L, VCMP_FN(self, RotateObjectToEuler)(self.id, angle.x, angle.y, angle.z, 0));
+            Check(self.L,
+                  VCMP_FN(self, RotateObjectToEuler)(self.id, angle.x, angle.y, angle.z, 0));
         });
 }
 

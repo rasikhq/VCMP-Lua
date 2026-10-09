@@ -1,8 +1,8 @@
 // The constant tables of v1 (ServerOption, PlayerOption, ...), read-only.
 // Fixed from v1: BodyPart.rightLeg was RightArm, ServerOption listed
 // deathMessages twice. New: EntityType.player and NetworkStatistics.
-#include <sol/sol.hpp>
 #include <vcmp.h>
+#include <sol/sol.hpp>
 
 #include <cstdint>
 #include <initializer_list>

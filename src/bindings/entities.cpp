@@ -32,12 +32,13 @@ EntityType<K> RegisterKind(sol::state& lua) {
     EntityType<K> type = lua.new_usertype<Handle>(
         Traits(K).type_name, sol::no_constructor,
 
-        "id", Property<K>([](Live<K> self) { return self.id; }),
-        "getID", [](Live<K> self) { return self.id; },
+        "id", Property<K>([](Live<K> self) { return self.id; }), "getID",
+        [](Live<K> self) { return self.id; },
 
         // False once the entity is gone; the only member that does not raise
         // for a dead handle (besides tostring).
-        "valid", sol::property([](const Handle& self, sol::this_state L) { return IsAlive(L, self); }),
+        "valid",
+        sol::property([](const Handle& self, sol::this_state L) { return IsAlive(L, self); }),
 
         // A table for scripts' own per-entity data, dropped with the entity.
         "data",
@@ -50,8 +51,8 @@ EntityType<K> RegisterKind(sol::state& lua) {
             }),
 
         // Kind.type() and handle:getType(): the class name, as in v1.
-        "type", [] { return Traits(K).type_name; },
-        "getType", [](const Handle&) { return Traits(K).type_name; },
+        "type", [] { return Traits(K).type_name; }, "getType",
+        [](const Handle&) { return Traits(K).type_name; },
 
         // Kind.findByID(id): the entity's handle, or nil.
         "findByID",
@@ -71,7 +72,8 @@ EntityType<K> RegisterKind(sol::state& lua) {
             return result;
         },
 
-        sol::meta_function::to_string, [](const Handle& self, sol::this_state L) {
+        sol::meta_function::to_string,
+        [](const Handle& self, sol::this_state L) {
             return fmt::format("{}({}{})", Traits(K).type_name, self.id,
                                IsAlive(L, self) ? "" : ", no longer exists");
         });

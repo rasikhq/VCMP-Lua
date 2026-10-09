@@ -41,10 +41,10 @@ void Start(FakeServer& server) {
     };
     lua["fails"] = [](Ctx ctx, int code) { return Check(ctx.L, static_cast<vcmpError>(code)); };
     lua.new_usertype<Thing>(
-        "Thing", "new", sol::constructors<Thing()>(),
-        "set", [](Thing& thing, Float value) { thing.value = value; },
-        "value", sol::property([](const Thing& thing) { return thing.value; },
-                               [](Thing& thing, Float value) { thing.value = value; }));
+        "Thing", "new", sol::constructors<Thing()>(), "set",
+        [](Thing& thing, Float value) { thing.value = value; }, "value",
+        sol::property([](const Thing& thing) { return thing.value; },
+                      [](Thing& thing, Float value) { thing.value = value; }));
 }
 
 }  // namespace

@@ -96,8 +96,8 @@ bool SetSpeed(const Self& self, const ArgReader& args) {
                                                                 which == kNormalRelative ? 1 : 0));
         case kTurn:
         case kTurnRelative:
-            return Check(self.L, VCMP_FN(self, SetVehicleTurnSpeed)(self.id, v.x, v.y, v.z, add,
-                                                                    which == kTurnRelative ? 1 : 0));
+            return Check(self.L, VCMP_FN(self, SetVehicleTurnSpeed)(
+                                     self.id, v.x, v.y, v.z, add, which == kTurnRelative ? 1 : 0));
         default:
             ArgError(self.L, args.index(1), "VehicleSpeed value expected");
     }
@@ -124,7 +124,7 @@ void SetRotationFromTable(const Self& self, int index, bool spawn) {
     index = lua_absindex(L, index);
     // The getter's own table: prefer its quaternion.
     for (const char* key : {"quaternion", "euler"}) {
-        if (lua_getfield(L, index, key) == LUA_TTABLE) {
+        if (RawField(L, index, key) == LUA_TTABLE) {
             const int inner = lua_gettop(L);
             SetRotationFromTable(self, inner, spawn);
             lua_pop(L, 1);
@@ -199,8 +199,12 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
         self.pool().Release(self.id);  // the server reported it already
         return deleted;
     };
-    type["respawn"] = [](Self self) { return Check(self.L, VCMP_FN(self, RespawnVehicle)(self.id)); };
-    type["explode"] = [](Self self) { return Check(self.L, VCMP_FN(self, ExplodeVehicle)(self.id)); };
+    type["respawn"] = [](Self self) {
+        return Check(self.L, VCMP_FN(self, RespawnVehicle)(self.id));
+    };
+    type["explode"] = [](Self self) {
+        return Check(self.L, VCMP_FN(self, ExplodeVehicle)(self.id));
+    };
     // vehicle:repair() / vehicle:fix(): full health, no damage, lights fixed.
     const auto repair = [](Self self) {
         Check(self.L, VCMP_FN(self, SetVehicleHealth)(self.id, 1000.0f));
@@ -221,8 +225,9 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
         return on;
     };
     type["setOption"] = [](Self self, Int32 option, Boolean on) {
-        return Check(self.L, VCMP_FN(self, SetVehicleOption)(
-                                 self.id, static_cast<vcmpVehicleOption>(option.value), on ? 1 : 0));
+        return Check(self.L,
+                     VCMP_FN(self, SetVehicleOption)(
+                         self.id, static_cast<vcmpVehicleOption>(option.value), on ? 1 : 0));
     };
     type["getPartStatus"] = [](Self self, Int32 part) {
         const std::int32_t status = VCMP_FN(self, GetVehiclePartStatus)(self.id, part);
@@ -274,8 +279,8 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
     type["resetHandlingRule"] = [](Self self, sol::variadic_args args) {
         const ArgReader reader(self.L, args.stack_index());
         if (reader.type(1) != LUA_TTABLE) {
-            return Check(self.L, VCMP_FN(self, ResetInstHandlingRule)(self.id,
-                                                                      reader.Int<std::int32_t>(1)));
+            return Check(
+                self.L, VCMP_FN(self, ResetInstHandlingRule)(self.id, reader.Int<std::int32_t>(1)));
         }
         bool all = true;
         const int table = reader.index(1);
@@ -336,37 +341,41 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
 
     // --- Properties ------------------------------------------------------------
 
-    type["world"] = Property<kVehicle>(
-        [](Self self) { return VCMP_FN(self, GetVehicleWorld)(self.id); },
-        [](Self self, Int32 world) { Check(self.L, VCMP_FN(self, SetVehicleWorld)(self.id, world)); });
-    type["health"] = Property<kVehicle>(
-        [](Self self) { return VCMP_FN(self, GetVehicleHealth)(self.id); },
-        [](Self self, Float health) {
-            Check(self.L, VCMP_FN(self, SetVehicleHealth)(self.id, health));
-        });
+    type["world"] =
+        Property<kVehicle>([](Self self) { return VCMP_FN(self, GetVehicleWorld)(self.id); },
+                           [](Self self, Int32 world) {
+                               Check(self.L, VCMP_FN(self, SetVehicleWorld)(self.id, world));
+                           });
+    type["health"] =
+        Property<kVehicle>([](Self self) { return VCMP_FN(self, GetVehicleHealth)(self.id); },
+                           [](Self self, Float health) {
+                               Check(self.L, VCMP_FN(self, SetVehicleHealth)(self.id, health));
+                           });
     type["idleRespawnTime"] = Property<kVehicle>(
         [](Self self) { return VCMP_FN(self, GetVehicleIdleRespawnTimer)(self.id); },
         [](Self self, UInt32 ms) {
             Check(self.L, VCMP_FN(self, SetVehicleIdleRespawnTimer)(self.id, ms));
         });
-    type["radio"] = Property<kVehicle>(
-        [](Self self) { return VCMP_FN(self, GetVehicleRadio)(self.id); },
-        [](Self self, Int32 radio) { Check(self.L, VCMP_FN(self, SetVehicleRadio)(self.id, radio)); });
-    type["damage"] = Property<kVehicle>(
-        [](Self self) { return VCMP_FN(self, GetVehicleDamageData)(self.id); },
-        [](Self self, UInt32 data) {
-            Check(self.L, VCMP_FN(self, SetVehicleDamageData)(self.id, data));
-        });
+    type["radio"] =
+        Property<kVehicle>([](Self self) { return VCMP_FN(self, GetVehicleRadio)(self.id); },
+                           [](Self self, Int32 radio) {
+                               Check(self.L, VCMP_FN(self, SetVehicleRadio)(self.id, radio));
+                           });
+    type["damage"] =
+        Property<kVehicle>([](Self self) { return VCMP_FN(self, GetVehicleDamageData)(self.id); },
+                           [](Self self, UInt32 data) {
+                               Check(self.L, VCMP_FN(self, SetVehicleDamageData)(self.id, data));
+                           });
     type["immunity"] = Property<kVehicle>(
         [](Self self) { return VCMP_FN(self, GetVehicleImmunityFlags)(self.id); },
         [](Self self, UInt32 flags) {
             Check(self.L, VCMP_FN(self, SetVehicleImmunityFlags)(self.id, flags));
         });
-    type["lightsData"] = Property<kVehicle>(
-        [](Self self) { return VCMP_FN(self, GetVehicleLightsData)(self.id); },
-        [](Self self, UInt32 data) {
-            Check(self.L, VCMP_FN(self, SetVehicleLightsData)(self.id, data));
-        });
+    type["lightsData"] =
+        Property<kVehicle>([](Self self) { return VCMP_FN(self, GetVehicleLightsData)(self.id); },
+                           [](Self self, UInt32 data) {
+                               Check(self.L, VCMP_FN(self, SetVehicleLightsData)(self.id, data));
+                           });
     type["taxiLight"] = Property<kVehicle>(
         [](Self self) { return (VCMP_FN(self, GetVehicleLightsData)(self.id) & kTaxiLight) != 0; },
         [](Self self, Boolean on) {
@@ -393,12 +402,12 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
             Check(self.L, VCMP_FN(self, GetVehicleColour)(self.id, &primary, &secondary));
             colours.push(self.L);
             const int table = lua_gettop(self.L);
-            primary = static_cast<std::int32_t>(TableInteger(
-                self.L, table, 1, std::numeric_limits<std::int32_t>::min(),
-                std::numeric_limits<std::int32_t>::max(), primary));
-            secondary = static_cast<std::int32_t>(TableInteger(
-                self.L, table, 2, std::numeric_limits<std::int32_t>::min(),
-                std::numeric_limits<std::int32_t>::max(), secondary));
+            primary = static_cast<std::int32_t>(
+                TableInteger(self.L, table, 1, std::numeric_limits<std::int32_t>::min(),
+                             std::numeric_limits<std::int32_t>::max(), primary));
+            secondary = static_cast<std::int32_t>(
+                TableInteger(self.L, table, 2, std::numeric_limits<std::int32_t>::min(),
+                             std::numeric_limits<std::int32_t>::max(), secondary));
             lua_pop(self.L, 1);
             Check(self.L, VCMP_FN(self, SetVehicleColour)(self.id, primary, secondary));
         });
@@ -440,10 +449,12 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
         });
     // vehicle.rotation (and vehicle.angle, as in v1): {euler = {x, y, z},
     // quaternion = {x, y, z, w}}; accepts that table, {x, y, z} or {x, y, z, w}.
-    type["rotation"] = Property<kVehicle>([](Self self) { return GetRotation(self); },
-                                          [](Self self, sol::object value) { SetRotation(self, value); });
-    type["angle"] = Property<kVehicle>([](Self self) { return GetRotation(self); },
-                                       [](Self self, sol::object value) { SetRotation(self, value); });
+    type["rotation"] =
+        Property<kVehicle>([](Self self) { return GetRotation(self); },
+                           [](Self self, sol::object value) { SetRotation(self, value); });
+    type["angle"] =
+        Property<kVehicle>([](Self self) { return GetRotation(self); },
+                           [](Self self, sol::object value) { SetRotation(self, value); });
 }
 
 }  // namespace vcmp_lua::bindings

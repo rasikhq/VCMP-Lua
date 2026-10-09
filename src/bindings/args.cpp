@@ -22,7 +22,8 @@ bool Equals(const char* a, const char* b) noexcept {
 // The key of the property being read or assigned, when the running function
 // is a usertype's __index/__newindex: the stack is (object, key, value).
 const char* PropertyKey(lua_State* L, const lua_Debug& ar) {
-    if (Equals(ar.namewhat, "metamethod") && (Equals(ar.name, "index") || Equals(ar.name, "newindex")) &&
+    if (Equals(ar.namewhat, "metamethod") &&
+        (Equals(ar.name, "index") || Equals(ar.name, "newindex")) &&
         lua_type(L, 2) == LUA_TSTRING) {
         return lua_tostring(L, 2);
     }
@@ -69,7 +70,8 @@ void ArgError(lua_State* L, int index, std::string_view message) {
     if (Equals(ar.namewhat, "method")) {
         --index;  // self is not counted
         if (index == 0) {
-            throw std::invalid_argument(fmt::format("calling '{}' on bad self ({})", name, message));
+            throw std::invalid_argument(
+                fmt::format("calling '{}' on bad self ({})", name, message));
         }
     }
     throw std::invalid_argument(fmt::format("bad argument #{} to '{}' ({})", index, name, message));
@@ -183,9 +185,8 @@ std::string CheckString(lua_State* L, int index) {
 }
 
 std::uint32_t CheckColour(lua_State* L, int index) {
-    const std::int64_t value =
-        CheckInteger(L, index, std::numeric_limits<std::int32_t>::min(),
-                     std::numeric_limits<std::uint32_t>::max());
+    const std::int64_t value = CheckInteger(L, index, std::numeric_limits<std::int32_t>::min(),
+                                            std::numeric_limits<std::uint32_t>::max());
     return static_cast<std::uint32_t>(value);
 }
 
@@ -225,6 +226,12 @@ std::int64_t TableInteger(lua_State* L, int index, int i, std::int64_t min, std:
     return value;
 }
 
+int RawField(lua_State* L, int index, const char* key) {
+    index = lua_absindex(L, index);
+    lua_pushstring(L, key);
+    return lua_rawget(L, index);
+}
+
 int TableLength(lua_State* L, int index) {
     return static_cast<int>(lua_rawlen(L, index));
 }
@@ -246,7 +253,8 @@ Vec3 sol_lua_get(sol::types<Vec3>, lua_State* L, int index, sol::stack::record& 
     if (lua_type(L, index) != LUA_TNUMBER) {
         TypeError(L, index, "table or number");
     }
-    return {static_cast<float>(CheckNumber(L, index)), static_cast<float>(CheckNumber(L, index + 1)),
+    return {static_cast<float>(CheckNumber(L, index)),
+            static_cast<float>(CheckNumber(L, index + 1)),
             static_cast<float>(CheckNumber(L, index + 2))};
 }
 

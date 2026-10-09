@@ -86,15 +86,15 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
 
     type["msgAll"] = [](Ctx ctx, String text, Opt<Colour> colour) {
         ForEachPlayer(ctx, [&](const Self& player) {
-            VCMP_FN(player, SendClientMessage)(player.id, colour.value_or(kWhite), "%s",
-                                                text.c_str());
+            VCMP_FN(player, SendClientMessage)
+            (player.id, colour.value_or(kWhite), "%s", text.c_str());
         });
     };
 
     type["announceAll"] = [](Ctx ctx, String text, Opt<Int32> announce_type) {
         ForEachPlayer(ctx, [&](const Self& player) {
-            VCMP_FN(player, SendGameMessage)(player.id, announce_type.value_or(0), "%s",
-                                              text.c_str());
+            VCMP_FN(player, SendGameMessage)
+            (player.id, announce_type.value_or(0), "%s", text.c_str());
         });
     };
 
@@ -113,8 +113,8 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
     };
 
     type["getOption"] = [](Self self, Int32 option) {
-        const bool value = VCMP_FN(self, GetPlayerOption)(self.id, static_cast<vcmpPlayerOption>(
-                                                                       option.value)) != 0;
+        const bool value = VCMP_FN(self, GetPlayerOption)(
+                               self.id, static_cast<vcmpPlayerOption>(option.value)) != 0;
         CheckLast(self.L, self.api());
         return value;
     };
@@ -154,7 +154,9 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
     type["removeWeapon"] = [](Self self, Int32 weapon) {
         return Check(self.L, VCMP_FN(self, RemovePlayerWeapon)(self.id, weapon));
     };
-    type["disarm"] = [](Self self) { return Check(self.L, VCMP_FN(self, RemoveAllWeapons)(self.id)); };
+    type["disarm"] = [](Self self) {
+        return Check(self.L, VCMP_FN(self, RemoveAllWeapons)(self.id));
+    };
     type["getWeaponAtSlot"] = [](Self self, Int32 slot) {
         const std::int32_t weapon = VCMP_FN(self, GetPlayerWeaponAtSlot)(self.id, slot);
         CheckLast(self.L, self.api());
@@ -174,8 +176,8 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
 
     // player:setVehicle(vehicle[, slot]): false if the server refuses.
     type["setVehicle"] = [](Self self, Live<kVehicle> vehicle, Opt<Int32> slot) {
-        return Check(self.L,
-                     VCMP_FN(self, PutPlayerInVehicle)(self.id, vehicle.id, slot.value_or(0), 1, 1));
+        return Check(
+            self.L, VCMP_FN(self, PutPlayerInVehicle)(self.id, vehicle.id, slot.value_or(0), 1, 1));
     };
     type["eject"] = [](Self self) {
         return Check(self.L, VCMP_FN(self, RemovePlayerFromVehicle)(self.id));
@@ -193,9 +195,9 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
 
     // player:setCamera(position, lookAt): two tables or six numbers.
     type["setCamera"] = [](Self self, Vec3 position, Vec3 look_at) {
-        return Check(self.L, VCMP_FN(self, SetCameraPosition)(self.id, position.x, position.y,
-                                                              position.z, look_at.x, look_at.y,
-                                                              look_at.z));
+        return Check(self.L,
+                     VCMP_FN(self, SetCameraPosition)(self.id, position.x, position.y, position.z,
+                                                      look_at.x, look_at.y, look_at.z));
     };
     type["restoreCamera"] = [](Self self) {
         return Check(self.L, VCMP_FN(self, RestoreCamera)(self.id));
@@ -250,7 +252,9 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
     // --- Read-only, as v1's get*/is* methods and as properties -----------------
 
     const auto ip = [](Self self) { return ReadText(self.L, VCMP_FN(self, GetPlayerIP), self.id); };
-    const auto uid = [](Self self) { return ReadText(self.L, VCMP_FN(self, GetPlayerUID), self.id); };
+    const auto uid = [](Self self) {
+        return ReadText(self.L, VCMP_FN(self, GetPlayerUID), self.id);
+    };
     const auto uid2 = [](Self self) {
         return ReadText(self.L, VCMP_FN(self, GetPlayerUID2), self.id);
     };
@@ -258,7 +262,9 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
     const auto state = [](Self self) {
         return static_cast<std::int32_t>(VCMP_FN(self, GetPlayerState)(self.id));
     };
-    const auto unique_world = [](Self self) { return VCMP_FN(self, GetPlayerUniqueWorld)(self.id); };
+    const auto unique_world = [](Self self) {
+        return VCMP_FN(self, GetPlayerUniqueWorld)(self.id);
+    };
     const auto player_class = [](Self self) { return VCMP_FN(self, GetPlayerClass)(self.id); };
     const auto online = [](Self self) { return VCMP_FN(self, IsPlayerConnected)(self.id) != 0; };
     const auto spawned = [](Self self) { return VCMP_FN(self, IsPlayerSpawned)(self.id) != 0; };
@@ -307,12 +313,16 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
     type["fps"] = Property<kPlayer>(fps);
     type["cameraLocked"] =
         Property<kPlayer>([](Self self) { return VCMP_FN(self, IsCameraLocked)(self.id) != 0; });
-    type["onFire"] = Property<kPlayer>([](Self self) { return VCMP_FN(self, IsPlayerOnFire)(self.id) != 0; });
-    type["action"] = Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerAction)(self.id); });
+    type["onFire"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, IsPlayerOnFire)(self.id) != 0; });
+    type["action"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerAction)(self.id); });
     type["gameKeys"] =
         Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerGameKeys)(self.id); });
-    type["weapon"] = Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerWeapon)(self.id); });
-    type["ammo"] = Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerWeaponAmmo)(self.id); });
+    type["weapon"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerWeapon)(self.id); });
+    type["ammo"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerWeaponAmmo)(self.id); });
     type["vehicleSlot"] =
         Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerInVehicleSlot)(self.id); });
     type["vehicleStatus"] = Property<kPlayer>([](Self self) {
@@ -338,68 +348,76 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
 
     // --- Properties ------------------------------------------------------------
 
-    type["admin"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, IsPlayerAdmin)(self.id) != 0; },
-        [](Self self, Boolean on) { Check(self.L, VCMP_FN(self, SetPlayerAdmin)(self.id, on ? 1 : 0)); });
-    type["world"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerWorld)(self.id); },
-        [](Self self, Int32 world) { Check(self.L, VCMP_FN(self, SetPlayerWorld)(self.id, world)); });
-    type["secondaryWorld"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerSecondaryWorld)(self.id); },
-        [](Self self, Int32 world) {
-            Check(self.L, VCMP_FN(self, SetPlayerSecondaryWorld)(self.id, world));
-        });
+    type["admin"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, IsPlayerAdmin)(self.id) != 0; },
+                          [](Self self, Boolean on) {
+                              Check(self.L, VCMP_FN(self, SetPlayerAdmin)(self.id, on ? 1 : 0));
+                          });
+    type["world"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerWorld)(self.id); },
+                          [](Self self, Int32 world) {
+                              Check(self.L, VCMP_FN(self, SetPlayerWorld)(self.id, world));
+                          });
+    type["secondaryWorld"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerSecondaryWorld)(self.id); },
+                          [](Self self, Int32 world) {
+                              Check(self.L, VCMP_FN(self, SetPlayerSecondaryWorld)(self.id, world));
+                          });
     type["team"] = Property<kPlayer>(
         [](Self self) { return VCMP_FN(self, GetPlayerTeam)(self.id); },
         [](Self self, Int32 team) { Check(self.L, VCMP_FN(self, SetPlayerTeam)(self.id, team)); });
     type["skin"] = Property<kPlayer>(
         [](Self self) { return VCMP_FN(self, GetPlayerSkin)(self.id); },
         [](Self self, Int32 skin) { Check(self.L, VCMP_FN(self, SetPlayerSkin)(self.id, skin)); });
-    type["color"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerColour)(self.id); },
-        [](Self self, Colour colour) {
-            Check(self.L, VCMP_FN(self, SetPlayerColour)(self.id, colour));
-        });
+    type["color"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerColour)(self.id); },
+                          [](Self self, Colour colour) {
+                              Check(self.L, VCMP_FN(self, SetPlayerColour)(self.id, colour));
+                          });
     type["cash"] = Property<kPlayer>(
         [](Self self) { return VCMP_FN(self, GetPlayerMoney)(self.id); },
         [](Self self, Int32 cash) { Check(self.L, VCMP_FN(self, SetPlayerMoney)(self.id, cash)); });
-    type["score"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerScore)(self.id); },
-        [](Self self, Int32 score) { Check(self.L, VCMP_FN(self, SetPlayerScore)(self.id, score)); });
-    type["wantedLevel"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerWantedLevel)(self.id); },
-        [](Self self, Int32 level) {
-            Check(self.L, VCMP_FN(self, SetPlayerWantedLevel)(self.id, level));
-        });
-    type["immunity"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerImmunityFlags)(self.id); },
-        [](Self self, UInt32 flags) {
-            Check(self.L, VCMP_FN(self, SetPlayerImmunityFlags)(self.id, flags));
-        });
-    type["health"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerHealth)(self.id); },
-        [](Self self, Float health) { Check(self.L, VCMP_FN(self, SetPlayerHealth)(self.id, health)); });
-    type["armour"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerArmour)(self.id); },
-        [](Self self, Float armour) { Check(self.L, VCMP_FN(self, SetPlayerArmour)(self.id, armour)); });
+    type["score"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerScore)(self.id); },
+                          [](Self self, Int32 score) {
+                              Check(self.L, VCMP_FN(self, SetPlayerScore)(self.id, score));
+                          });
+    type["wantedLevel"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerWantedLevel)(self.id); },
+                          [](Self self, Int32 level) {
+                              Check(self.L, VCMP_FN(self, SetPlayerWantedLevel)(self.id, level));
+                          });
+    type["immunity"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerImmunityFlags)(self.id); },
+                          [](Self self, UInt32 flags) {
+                              Check(self.L, VCMP_FN(self, SetPlayerImmunityFlags)(self.id, flags));
+                          });
+    type["health"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerHealth)(self.id); },
+                          [](Self self, Float health) {
+                              Check(self.L, VCMP_FN(self, SetPlayerHealth)(self.id, health));
+                          });
+    type["armour"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerArmour)(self.id); },
+                          [](Self self, Float armour) {
+                              Check(self.L, VCMP_FN(self, SetPlayerArmour)(self.id, armour));
+                          });
     type["name"] = Property<kPlayer>(
         [](Self self) { return ReadText(self.L, VCMP_FN(self, GetPlayerName), self.id); },
         [](Self self, String name) {
             Check(self.L, VCMP_FN(self, SetPlayerName)(self.id, name.c_str()));
         });
-    type["weaponSlot"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerWeaponSlot)(self.id); },
-        [](Self self, Int32 slot) { Check(self.L, VCMP_FN(self, SetPlayerWeaponSlot)(self.id, slot)); });
-    type["drunkHandling"] = Property<kPlayer>(
-        drunk_handling,
-        [](Self self, UInt32 level) {
-            Check(self.L, VCMP_FN(self, SetPlayerDrunkHandling)(self.id, level));
-        });
-    type["drunkVisuals"] = Property<kPlayer>(
-        drunk_visuals,
-        [](Self self, UInt8 level) {
-            Check(self.L, VCMP_FN(self, SetPlayerDrunkVisuals)(self.id, level));
-        });
+    type["weaponSlot"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerWeaponSlot)(self.id); },
+                          [](Self self, Int32 slot) {
+                              Check(self.L, VCMP_FN(self, SetPlayerWeaponSlot)(self.id, slot));
+                          });
+    type["drunkHandling"] = Property<kPlayer>(drunk_handling, [](Self self, UInt32 level) {
+        Check(self.L, VCMP_FN(self, SetPlayerDrunkHandling)(self.id, level));
+    });
+    type["drunkVisuals"] = Property<kPlayer>(drunk_visuals, [](Self self, UInt8 level) {
+        Check(self.L, VCMP_FN(self, SetPlayerDrunkVisuals)(self.id, level));
+    });
 
     // player.vehicle: the vehicle the player is in, or nil. Assigning nil
     // removes the player from it; assigning a vehicle puts them in as driver.
@@ -430,8 +448,8 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
     type["position"] = Property<kPlayer>(
         [](Self self) { return Position(self); },
         [](Self self, Vec3 position) {
-            Check(self.L, VCMP_FN(self, SetPlayerPosition)(self.id, position.x, position.y,
-                                                           position.z));
+            Check(self.L,
+                  VCMP_FN(self, SetPlayerPosition)(self.id, position.x, position.y, position.z));
         });
     type["speed"] = Property<kPlayer>(
         [](Self self) {
@@ -442,9 +460,11 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
         [](Self self, Vec3 speed) {
             Check(self.L, VCMP_FN(self, SetPlayerSpeed)(self.id, speed.x, speed.y, speed.z));
         });
-    type["angle"] = Property<kPlayer>(
-        [](Self self) { return VCMP_FN(self, GetPlayerHeading)(self.id); },
-        [](Self self, Float angle) { Check(self.L, VCMP_FN(self, SetPlayerHeading)(self.id, angle)); });
+    type["angle"] =
+        Property<kPlayer>([](Self self) { return VCMP_FN(self, GetPlayerHeading)(self.id); },
+                          [](Self self, Float angle) {
+                              Check(self.L, VCMP_FN(self, SetPlayerHeading)(self.id, angle));
+                          });
 }
 
 }  // namespace vcmp_lua::bindings

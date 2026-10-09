@@ -231,3 +231,9 @@ test("Sound.play: every v1 form", function()
     Sound.play(2, 50, 1, 2, 3)
     expect_call("PlaySound(2, 50, 1, 2, 3)")
 end)
+
+test("wastedSettings reads its table without metamethods", function()
+    local touched = false
+    Server.wastedSettings = setmetatable({ deathTimer = 1 }, { __index = function() touched = true end })
+    expect_eq(touched, false, "__index ran inside the binding")
+end)

@@ -30,14 +30,28 @@ void Record(FakeServer& server, const std::string& event) {
 TEST_CASE("player events pass v1's arguments") {
     FakeServer server;
     Start(server);
-    for (const char* event :
-         {"onPlayerConnection", "onPlayerModuleList", "onPlayerRequestClass",
-          "onPlayerRequestSpawn", "onPlayerSpawn", "onPlayerUpdate", "onPlayerRequestEnterVehicle",
-          "onPlayerEnterVehicle", "onPlayerExitVehicle", "onPlayerNameChange",
-          "onPlayerStateChange", "onPlayerActionChange", "onPlayerFireChange",
-          "onPlayerCrouchChange", "onPlayerGameKeysChange", "onPlayerBeginTyping",
-          "onPlayerFinishTyping", "onPlayerAwayChange", "onPlayerMessage", "onPlayerPM",
-          "onPlayerSpectate", "onPlayerCrashReport"}) {
+    for (const char* event : {"onPlayerConnection",
+                              "onPlayerModuleList",
+                              "onPlayerRequestClass",
+                              "onPlayerRequestSpawn",
+                              "onPlayerSpawn",
+                              "onPlayerUpdate",
+                              "onPlayerRequestEnterVehicle",
+                              "onPlayerEnterVehicle",
+                              "onPlayerExitVehicle",
+                              "onPlayerNameChange",
+                              "onPlayerStateChange",
+                              "onPlayerActionChange",
+                              "onPlayerFireChange",
+                              "onPlayerCrouchChange",
+                              "onPlayerGameKeysChange",
+                              "onPlayerBeginTyping",
+                              "onPlayerFinishTyping",
+                              "onPlayerAwayChange",
+                              "onPlayerMessage",
+                              "onPlayerPM",
+                              "onPlayerSpectate",
+                              "onPlayerCrashReport"}) {
         Record(server, event);
     }
     const int32_t a = server.Connect("Alice");

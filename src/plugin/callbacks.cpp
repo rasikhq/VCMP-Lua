@@ -1,8 +1,8 @@
 // The server callbacks: thin noexcept wrappers around the runtime (plan
 // B3.4). No exception crosses into the server's C code, and every callback
 // tolerates a missing, closing or dead runtime.
-#include <sol/sol.hpp>
 #include <vcmp.h>
+#include <sol/sol.hpp>
 
 #include <algorithm>
 #include <cstring>
@@ -223,7 +223,8 @@ void OnEntityPoolChange(vcmpEntityPool type, int32_t entity_id, uint8_t is_delet
             return;
         }
         const bool deleted = is_deleted != 0;
-        if (EntityPool* pool = runtime->Entities().FromServerPool(type); pool != nullptr && !deleted) {
+        if (EntityPool* pool = runtime->Entities().FromServerPool(type);
+            pool != nullptr && !deleted) {
             pool->Adopt(entity_id);
         }
         if (runtime->Usable()) {
@@ -636,13 +637,13 @@ void SetPluginName(PluginInfo* info) noexcept {
 }
 
 // Writes a callback only where the server's struct has room for it.
-#define VCMP_LUA_SET_CALLBACK(calls, field, fn)                       \
-    do {                                                              \
-        if (VCMP_LUA_HAS_FIELD(calls, PluginCallbacks, field)) {      \
-            (calls)->field = (fn);                                    \
-        } else {                                                      \
+#define VCMP_LUA_SET_CALLBACK(calls, field, fn)                          \
+    do {                                                                 \
+        if (VCMP_LUA_HAS_FIELD(calls, PluginCallbacks, field)) {         \
+            (calls)->field = (fn);                                       \
+        } else {                                                         \
             log::Warn("this server version has no " #field " callback"); \
-        }                                                             \
+        }                                                                \
     } while (false)
 
 }  // namespace
@@ -699,7 +700,8 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
         plugin.api = ServerApi(funcs);
         plugin.options = std::move(options);
         plugin.shutdown_deferred = false;
-        auto runtime = std::make_unique<Runtime>(std::move(config), plugin.api, ClockOf(plugin.options));
+        auto runtime =
+            std::make_unique<Runtime>(std::move(config), plugin.api, ClockOf(plugin.options));
         if (plugin.options.on_runtime) {
             plugin.options.on_runtime(*runtime);
         }

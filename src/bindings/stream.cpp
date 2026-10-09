@@ -25,8 +25,9 @@ namespace {
 
 void Need(const Stream& stream, std::size_t size, const char* what) {
     if (stream.bytes.size() - stream.read < size) {
-        throw std::out_of_range(fmt::format("Stream: not enough data to read {} ({} of {} bytes left)",
-                                            what, stream.bytes.size() - stream.read, size));
+        throw std::out_of_range(
+            fmt::format("Stream: not enough data to read {} ({} of {} bytes left)", what,
+                        stream.bytes.size() - stream.read, size));
     }
 }
 

@@ -51,7 +51,9 @@ void RegisterPickup(sol::state&, PickupType& type) {
         self.pool().Release(self.id);
         return deleted;
     };
-    type["respawn"] = [](Self self) { return Check(self.L, VCMP_FN(self, RefreshPickup)(self.id)); };
+    type["respawn"] = [](Self self) {
+        return Check(self.L, VCMP_FN(self, RefreshPickup)(self.id));
+    };
     type["streamedForPlayer"] = [](Self self, Live<EntityKind::Player> player) {
         return VCMP_FN(self, IsPickupStreamedForPlayer)(self.id, player.id) != 0;
     };
@@ -72,20 +74,26 @@ void RegisterPickup(sol::state&, PickupType& type) {
     type["quantity"] =
         Property<kPickup>([](Self self) { return VCMP_FN(self, GetPickupQuantity)(self.id); });
 
-    type["world"] = Property<kPickup>(
-        [](Self self) { return VCMP_FN(self, GetPickupWorld)(self.id); },
-        [](Self self, Int32 world) { Check(self.L, VCMP_FN(self, SetPickupWorld)(self.id, world)); });
-    type["alpha"] = Property<kPickup>(
-        [](Self self) { return VCMP_FN(self, GetPickupAlpha)(self.id); },
-        [](Self self, Int32 alpha) { Check(self.L, VCMP_FN(self, SetPickupAlpha)(self.id, alpha)); });
+    type["world"] =
+        Property<kPickup>([](Self self) { return VCMP_FN(self, GetPickupWorld)(self.id); },
+                          [](Self self, Int32 world) {
+                              Check(self.L, VCMP_FN(self, SetPickupWorld)(self.id, world));
+                          });
+    type["alpha"] =
+        Property<kPickup>([](Self self) { return VCMP_FN(self, GetPickupAlpha)(self.id); },
+                          [](Self self, Int32 alpha) {
+                              Check(self.L, VCMP_FN(self, SetPickupAlpha)(self.id, alpha));
+                          });
     type["auto"] = Property<kPickup>(
         [](Self self) { return VCMP_FN(self, IsPickupAutomatic)(self.id) != 0; },
         [](Self self, Boolean on) {
             Check(self.L, VCMP_FN(self, SetPickupIsAutomatic)(self.id, on ? 1 : 0));
         });
-    type["autoTimer"] = Property<kPickup>(
-        [](Self self) { return VCMP_FN(self, GetPickupAutoTimer)(self.id); },
-        [](Self self, UInt32 ms) { Check(self.L, VCMP_FN(self, SetPickupAutoTimer)(self.id, ms)); });
+    type["autoTimer"] =
+        Property<kPickup>([](Self self) { return VCMP_FN(self, GetPickupAutoTimer)(self.id); },
+                          [](Self self, UInt32 ms) {
+                              Check(self.L, VCMP_FN(self, SetPickupAutoTimer)(self.id, ms));
+                          });
     type["position"] = Property<kPickup>(
         [](Self self) {
             Vec3 v;
@@ -93,8 +101,8 @@ void RegisterPickup(sol::state&, PickupType& type) {
             return v;
         },
         [](Self self, Vec3 position) {
-            Check(self.L, VCMP_FN(self, SetPickupPosition)(self.id, position.x, position.y,
-                                                           position.z));
+            Check(self.L,
+                  VCMP_FN(self, SetPickupPosition)(self.id, position.x, position.y, position.z));
         });
 }
 

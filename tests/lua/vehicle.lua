@@ -225,3 +225,11 @@ test("table elements are checked", function()
     expect_error("bad argument #1 to 'resetHandlingRule' (element 2 must be an integer, got string)",
         function() v:resetHandlingRule({ 1, "x" }) end)
 end)
+
+test("tables are read without metamethods", function()
+    local touched = false
+    local sneaky = setmetatable({ 1, 2, 3 }, { __index = function() touched = true end })
+    v.rotation = sneaky
+    expect_call("SetVehicleRotationEuler(" .. id .. ", 1, 2, 3)")
+    expect_eq(touched, false, "__index ran inside the binding")
+end)

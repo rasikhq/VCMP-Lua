@@ -43,8 +43,8 @@ Rgba ReadColour(lua_State* L, int table, std::int32_t alpha) {
 
 Rgba GetColour(const Self& self) {
     Rgba colour;
-    Check(self.L, VCMP_FN(self, GetCheckPointColour)(self.id, &colour.r, &colour.g, &colour.b,
-                                                     &colour.a));
+    Check(self.L,
+          VCMP_FN(self, GetCheckPointColour)(self.id, &colour.r, &colour.g, &colour.b, &colour.a));
     return colour;
 }
 
@@ -103,11 +103,11 @@ void RegisterCheckpoint(sol::state&, CheckpointType& type) {
     type["isSphere"] = sphere;
     type["sphere"] = Property<kCheckpoint>(sphere);
 
-    type["world"] = Property<kCheckpoint>(
-        [](Self self) { return VCMP_FN(self, GetCheckPointWorld)(self.id); },
-        [](Self self, Int32 world) {
-            Check(self.L, VCMP_FN(self, SetCheckPointWorld)(self.id, world));
-        });
+    type["world"] =
+        Property<kCheckpoint>([](Self self) { return VCMP_FN(self, GetCheckPointWorld)(self.id); },
+                              [](Self self, Int32 world) {
+                                  Check(self.L, VCMP_FN(self, SetCheckPointWorld)(self.id, world));
+                              });
     type["radius"] = Property<kCheckpoint>(
         [](Self self) { return VCMP_FN(self, GetCheckPointRadius)(self.id); },
         [](Self self, Float radius) {

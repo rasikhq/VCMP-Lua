@@ -14,7 +14,7 @@ namespace {
 
 struct Removed {
     const char* name;
-    const char* anchor;     // in docs/MIGRATION-v2.md
+    const char* anchor;  // in docs/MIGRATION-v2.md
     const char* replaced;
 };
 

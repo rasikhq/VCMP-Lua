@@ -10,16 +10,17 @@
 //
 //   main.lua:12: bad argument #1 to 'setWeapon' (integer expected, got string)
 //   main.lua:12: bad value for 'health' (number expected, got string)
-//   main.lua:12: bad argument #2 to 'create' (value 5000000000 out of range [-2147483648, 2147483647])
+//   main.lua:12: bad argument #2 to 'create' (value 5000000000 out of range [-2147483648,
+//   2147483647])
 //
 // The conversion happens when sol2 fetches the argument; the error is a C++
 // exception, which sol2's trampoline turns into a Lua error (B3.3), and the
 // exception handler installed by bindings::Register adds the "main.lua:12:"
 // position. Nothing here calls lua_error.
 
+#include <vcmp.h>
 #include <lua.hpp>
 #include <sol/sol.hpp>
-#include <vcmp.h>
 
 #include <cstdint>
 #include <limits>
@@ -87,7 +88,7 @@ template <typename T>
 struct Int {
     static_assert(std::is_integral_v<T> && sizeof(T) <= 4);
     T value;
-    operator T() const noexcept { return value; }  // NOLINT(google-explicit-constructor)
+    operator T() const noexcept { return value; }
 };
 using Int32 = Int<std::int32_t>;
 using UInt32 = Int<std::uint32_t>;
@@ -97,17 +98,17 @@ using UInt8 = Int<std::uint8_t>;
 
 struct Float {
     float value;
-    operator float() const noexcept { return value; }  // NOLINT(google-explicit-constructor)
+    operator float() const noexcept { return value; }
 };
 
 struct Double {
     double value;
-    operator double() const noexcept { return value; }  // NOLINT(google-explicit-constructor)
+    operator double() const noexcept { return value; }
 };
 
 struct Boolean {
     bool value;
-    operator bool() const noexcept { return value; }  // NOLINT(google-explicit-constructor)
+    operator bool() const noexcept { return value; }
 };
 
 struct String {
@@ -117,7 +118,7 @@ struct String {
 
 struct Colour {
     std::uint32_t value;
-    operator std::uint32_t() const noexcept { return value; }  // NOLINT(google-explicit-constructor)
+    operator std::uint32_t() const noexcept { return value; }
 };
 
 // A position or direction. As an argument: a table {x, y, z} (one argument)
@@ -214,20 +215,21 @@ bool sol_lua_check(sol::types<Int<T>>, lua_State*, int, Handler&&, sol::stack::r
 template <typename T>
 Int<T> sol_lua_get(sol::types<Int<T>>, lua_State* L, int index, sol::stack::record& tracking) {
     tracking.use(1);
-    return {static_cast<T>(CheckInteger(L, index, std::numeric_limits<T>::min(),
-                                        std::numeric_limits<T>::max()))};
+    return {static_cast<T>(
+        CheckInteger(L, index, std::numeric_limits<T>::min(), std::numeric_limits<T>::max()))};
 }
 
-#define VCMP_LUA_SIMPLE_ARG(Type, expression)                                                     \
-    template <typename Handler>                                                                   \
-    bool sol_lua_check(sol::types<Type>, lua_State*, int, Handler&&, sol::stack::record& tracking) { \
-        tracking.use(1);                                                                          \
-        return true;                                                                              \
-    }                                                                                             \
-    inline Type sol_lua_get(sol::types<Type>, lua_State* L, int index,                            \
-                            sol::stack::record& tracking) {                                       \
-        tracking.use(1);                                                                          \
-        return {expression};                                                                      \
+#define VCMP_LUA_SIMPLE_ARG(Type, expression)                          \
+    template <typename Handler>                                        \
+    bool sol_lua_check(sol::types<Type>, lua_State*, int, Handler&&,   \
+                       sol::stack::record& tracking) {                 \
+        tracking.use(1);                                               \
+        return true;                                                   \
+    }                                                                  \
+    inline Type sol_lua_get(sol::types<Type>, lua_State* L, int index, \
+                            sol::stack::record& tracking) {            \
+        tracking.use(1);                                               \
+        return {expression};                                           \
     }
 
 VCMP_LUA_SIMPLE_ARG(Float, static_cast<float>(CheckNumber(L, index)))
@@ -312,7 +314,9 @@ public:
     T IntOr(int i, T fallback) const {
         return missing(i) ? fallback : Int<T>(i);
     }
-    [[nodiscard]] float Number(int i) const { return static_cast<float>(CheckNumber(L_, index(i))); }
+    [[nodiscard]] float Number(int i) const {
+        return static_cast<float>(CheckNumber(L_, index(i)));
+    }
     [[nodiscard]] float NumberOr(int i, float fallback) const {
         return missing(i) ? fallback : Number(i);
     }
@@ -341,6 +345,10 @@ float TableNumber(lua_State* L, int index, int i);
 // nil gives fallback when one is passed, else raises "bad argument".
 std::int64_t TableInteger(lua_State* L, int index, int i, std::int64_t min, std::int64_t max,
                           std::optional<std::int64_t> fallback = std::nullopt);
+
+// Pushes t[key] of the table at index without metamethods (B3.3) and
+// returns its type.
+int RawField(lua_State* L, int index, const char* key);
 
 // The number of array elements of the table at index (raw length).
 int TableLength(lua_State* L, int index);

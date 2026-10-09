@@ -34,9 +34,8 @@ struct ServerTag {};
 // A property of Server whose getter and setter take a Ctx.
 template <typename Get>
 auto ServerProperty(Get get) {
-    return sol::property([get](const ServerTag&, sol::this_state L) {
-        return get(Ctx{&Runtime::Require(L), L});
-    });
+    return sol::property(
+        [get](const ServerTag&, sol::this_state L) { return get(Ctx{&Runtime::Require(L), L}); });
 }
 
 template <typename Get, typename Set>
@@ -139,7 +138,9 @@ void RegisterServerTable(sol::state& lua) {
     type["setMaxPlayers"] = set_max_players;
     type["maxPlayers"] = ServerProperty(get_max_players, set_max_players);
 
-    const auto get_game = [](Ctx ctx) { return ReadServerText(ctx, VCMP_FN(ctx, GetGameModeText)); };
+    const auto get_game = [](Ctx ctx) {
+        return ReadServerText(ctx, VCMP_FN(ctx, GetGameModeText));
+    };
     const auto set_game = [](Ctx ctx, String text) {
         Check(ctx.L, VCMP_FN(ctx, SetGameModeText)(text.c_str()));
     };
@@ -192,10 +193,9 @@ void RegisterServerTable(sol::state& lua) {
     // Server.createExplosion(world, type, position[, creator[, atGroundLevel]]).
     type["createExplosion"] = [](Ctx ctx, Int32 world, Int32 explosion, Vec3 at,
                                  Opt<Live<EntityKind::Player>> creator, Opt<Boolean> grounded) {
-        return Check(ctx.L, VCMP_FN(ctx, CreateExplosion)(
-                                world, explosion, at.x, at.y, at.z,
-                                creator.has_value() ? creator->id : -1,
-                                grounded.value_or(false) ? 1 : 0));
+        return Check(ctx.L, VCMP_FN(ctx, CreateExplosion)(world, explosion, at.x, at.y, at.z,
+                                                          creator.has_value() ? creator->id : -1,
+                                                          grounded.value_or(false) ? 1 : 0));
     };
 
     type["getSkinID"] = [](String name) { return SkinId(name.value); };
@@ -207,33 +207,47 @@ void RegisterServerTable(sol::state& lua) {
         return std::nullopt;
     };
 
-    type["fallTimer"] = ServerProperty(
-        [](Ctx ctx) { return VCMP_FN(ctx, GetFallTimer)(); },
-        [](Ctx ctx, UInt16 rate) { VCMP_FN(ctx, SetFallTimer)(rate); });
+    type["fallTimer"] =
+        ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetFallTimer)(); },
+                       [](Ctx ctx, UInt16 rate) { VCMP_FN(ctx, SetFallTimer)
+                                                  (rate); });
     type["timeRate"] = ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetTimeRate)(); },
-                                      [](Ctx ctx, Int32 rate) { VCMP_FN(ctx, SetTimeRate)(rate); });
+                                      [](Ctx ctx, Int32 rate) { VCMP_FN(ctx, SetTimeRate)
+                                                                (rate); });
     type["hour"] = ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetHour)(); },
-                                  [](Ctx ctx, Int32 hour) { VCMP_FN(ctx, SetHour)(hour); });
+                                  [](Ctx ctx, Int32 hour) { VCMP_FN(ctx, SetHour)
+                                                            (hour); });
     type["minute"] = ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetMinute)(); },
-                                    [](Ctx ctx, Int32 minute) { VCMP_FN(ctx, SetMinute)(minute); });
-    type["weather"] = ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetWeather)(); },
-                                     [](Ctx ctx, Int32 weather) { VCMP_FN(ctx, SetWeather)(weather); });
-    type["gravity"] = ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetGravity)(); },
-                                     [](Ctx ctx, Float gravity) { VCMP_FN(ctx, SetGravity)(gravity); });
-    type["waterLevel"] = ServerProperty(
-        [](Ctx ctx) { return VCMP_FN(ctx, GetWaterLevel)(); },
-        [](Ctx ctx, Float level) { VCMP_FN(ctx, SetWaterLevel)(level); });
-    type["gameSpeed"] = ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetGameSpeed)(); },
-                                       [](Ctx ctx, Float speed) { VCMP_FN(ctx, SetGameSpeed)(speed); });
+                                    [](Ctx ctx, Int32 minute) { VCMP_FN(ctx, SetMinute)
+                                                                (minute); });
+    type["weather"] =
+        ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetWeather)(); },
+                       [](Ctx ctx, Int32 weather) { VCMP_FN(ctx, SetWeather)
+                                                    (weather); });
+    type["gravity"] =
+        ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetGravity)(); },
+                       [](Ctx ctx, Float gravity) { VCMP_FN(ctx, SetGravity)
+                                                    (gravity); });
+    type["waterLevel"] =
+        ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetWaterLevel)(); },
+                       [](Ctx ctx, Float level) { VCMP_FN(ctx, SetWaterLevel)
+                                                  (level); });
+    type["gameSpeed"] =
+        ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetGameSpeed)(); },
+                       [](Ctx ctx, Float speed) { VCMP_FN(ctx, SetGameSpeed)
+                                                  (speed); });
     type["flightAltitude"] = ServerProperty(
         [](Ctx ctx) { return VCMP_FN(ctx, GetMaximumFlightAltitude)(); },
-        [](Ctx ctx, Float height) { VCMP_FN(ctx, SetMaximumFlightAltitude)(height); });
+        [](Ctx ctx, Float height) { VCMP_FN(ctx, SetMaximumFlightAltitude)
+                                    (height); });
     type["vehicleRespawnHeight"] = ServerProperty(
         [](Ctx ctx) { return VCMP_FN(ctx, GetVehiclesForcedRespawnHeight)(); },
-        [](Ctx ctx, Float height) { VCMP_FN(ctx, SetVehiclesForcedRespawnHeight)(height); });
-    type["killDelay"] = ServerProperty(
-        [](Ctx ctx) { return VCMP_FN(ctx, GetKillCommandDelay)(); },
-        [](Ctx ctx, Int32 delay) { VCMP_FN(ctx, SetKillCommandDelay)(delay); });
+        [](Ctx ctx, Float height) { VCMP_FN(ctx, SetVehiclesForcedRespawnHeight)
+                                    (height); });
+    type["killDelay"] =
+        ServerProperty([](Ctx ctx) { return VCMP_FN(ctx, GetKillCommandDelay)(); },
+                       [](Ctx ctx, Int32 delay) { VCMP_FN(ctx, SetKillCommandDelay)
+                                                  (delay); });
 
     // Server.wastedSettings: {deathTimer, fadeTimer, fadeInSpeed, fadeOutSpeed,
     // fadeColour, corpseFadeStart, corpseFadeTime}. Assigning a table with
@@ -242,8 +256,8 @@ void RegisterServerTable(sol::state& lua) {
         [](Ctx ctx) {
             std::uint32_t death = 0, fade = 0, colour = 0, corpse_start = 0, corpse_time = 0;
             float fade_in = 0, fade_out = 0;
-            VCMP_FN(ctx, GetWastedSettings)(&death, &fade, &fade_in, &fade_out, &colour,
-                                            &corpse_start, &corpse_time);
+            VCMP_FN(ctx, GetWastedSettings)
+            (&death, &fade, &fade_in, &fade_out, &colour, &corpse_start, &corpse_time);
             return sol::state_view(ctx.L).create_table_with(
                 "deathTimer", death, "fadeTimer", fade, "fadeInSpeed", fade_in, "fadeOutSpeed",
                 fade_out, "fadeColour", colour, "corpseFadeStart", corpse_start, "corpseFadeTime",
@@ -255,18 +269,18 @@ void RegisterServerTable(sol::state& lua) {
             }
             std::uint32_t death = 0, fade = 0, colour = 0, corpse_start = 0, corpse_time = 0;
             float fade_in = 0, fade_out = 0;
-            VCMP_FN(ctx, GetWastedSettings)(&death, &fade, &fade_in, &fade_out, &colour,
-                                            &corpse_start, &corpse_time);
+            VCMP_FN(ctx, GetWastedSettings)
+            (&death, &fade, &fade_in, &fade_out, &colour, &corpse_start, &corpse_time);
             value.push(ctx.L);
             const int table = lua_gettop(ctx.L);
             const auto integer = [&](const char* key, std::uint32_t& field) {
-                if (lua_getfield(ctx.L, table, key) != LUA_TNIL) {
+                if (RawField(ctx.L, table, key) != LUA_TNIL) {
                     field = static_cast<std::uint32_t>(CheckColour(ctx.L, lua_gettop(ctx.L)));
                 }
                 lua_pop(ctx.L, 1);
             };
             const auto number = [&](const char* key, float& field) {
-                if (lua_getfield(ctx.L, table, key) != LUA_TNIL) {
+                if (RawField(ctx.L, table, key) != LUA_TNIL) {
                     field = static_cast<float>(CheckNumber(ctx.L, lua_gettop(ctx.L)));
                 }
                 lua_pop(ctx.L, 1);
@@ -279,8 +293,8 @@ void RegisterServerTable(sol::state& lua) {
             integer("corpseFadeStart", corpse_start);
             integer("corpseFadeTime", corpse_time);
             lua_pop(ctx.L, 1);
-            VCMP_FN(ctx, SetWastedSettings)(death, fade, fade_in, fade_out, colour, corpse_start,
-                                            corpse_time);
+            VCMP_FN(ctx, SetWastedSettings)
+            (death, fade, fade_in, fade_out, colour, corpse_start, corpse_time);
         });
 
     lua["Server"] = ServerTag{};
@@ -330,16 +344,16 @@ void RegisterMap(sol::state& lua) {
     };
     // Map.hideObject(model, x, y, z): a map object at a position in world units.
     map["hideObject"] = [](Ctx ctx, Int32 model, Vec3 at) {
-        VCMP_FN(ctx, HideMapObject)(model, Tenths(ctx.L, at.x, 2), Tenths(ctx.L, at.y, 3),
-                                    Tenths(ctx.L, at.z, 4));
+        VCMP_FN(ctx, HideMapObject)
+        (model, Tenths(ctx.L, at.x, 2), Tenths(ctx.L, at.y, 3), Tenths(ctx.L, at.z, 4));
     };
     // Map.hideObjectRaw(model, x, y, z): the position in tenths, as the server takes it.
     map["hideObjectRaw"] = [](Ctx ctx, Int32 model, Int16 x, Int16 y, Int16 z) {
         VCMP_FN(ctx, HideMapObject)(model, x, y, z);
     };
     const auto show = [](Ctx ctx, Int32 model, Vec3 at) {
-        VCMP_FN(ctx, ShowMapObject)(model, Tenths(ctx.L, at.x, 2), Tenths(ctx.L, at.y, 3),
-                                    Tenths(ctx.L, at.z, 4));
+        VCMP_FN(ctx, ShowMapObject)
+        (model, Tenths(ctx.L, at.x, 2), Tenths(ctx.L, at.y, 3), Tenths(ctx.L, at.z, 4));
     };
     map["showMapObject"] = show;
     map["showObject"] = show;
@@ -348,7 +362,8 @@ void RegisterMap(sol::state& lua) {
     map["getDistrictName"] = [](sol::this_state L, sol::variadic_args args) {
         const ArgReader reader(L, args.stack_index());
         if (reader.type(1) == LUA_TTABLE) {
-            return DistrictName(TableNumber(L, reader.index(1), 1), TableNumber(L, reader.index(1), 2));
+            return DistrictName(TableNumber(L, reader.index(1), 1),
+                                TableNumber(L, reader.index(1), 2));
         }
         return DistrictName(reader.Number(1), reader.Number(2));
     };
@@ -380,7 +395,8 @@ void RegisterRadio(sol::state& lua) {
 void RegisterWeapon(sol::state& lua) {
     sol::table weapon = lua.create_named_table("Weapon");
     // Weapon.data(weapon, field) reads a value; Weapon.data(weapon, field, value) sets it.
-    weapon["data"] = [](Ctx ctx, Int32 id, Int32 field, Opt<Double> value) -> std::optional<double> {
+    weapon["data"] = [](Ctx ctx, Int32 id, Int32 field,
+                        Opt<Double> value) -> std::optional<double> {
         if (value.has_value()) {
             Check(ctx.L, VCMP_FN(ctx, SetWeaponDataValue)(id, field, value->value));
             return std::nullopt;
@@ -445,8 +461,8 @@ std::optional<sol::table> BlipInfo(Ctx ctx, std::int32_t id) {
         return std::nullopt;
     }
     sol::state_view lua(ctx.L);
-    return lua.create_table_with("world", world, "position", Vec3{x, y, z}, "scale", scale,
-                                 "color", colour, "sprite", sprite);
+    return lua.create_table_with("world", world, "position", Vec3{x, y, z}, "scale", scale, "color",
+                                 colour, "sprite", sprite);
 }
 
 bool DestroyBlip(Ctx ctx, std::int32_t id) {
