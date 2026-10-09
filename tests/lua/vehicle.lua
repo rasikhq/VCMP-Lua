@@ -41,6 +41,29 @@ test("the server owns vehicles: collecting the handle deletes nothing", function
     expect_eq(fake.exists(EntityType.vehicle, id), false, "deleted once")
 end)
 
+test("a refused destroy keeps the handle", function()
+    local v = Vehicle.create(130, 0, 0, 0, 0, 0)
+    fake.error("DeleteVehicle", 8)
+    expect_eq(v:destroy(), false, "refused")
+    fake.error("DeleteVehicle", 0)
+    expect_eq(v.valid, true, "valid after a refused destroy")
+    expect_eq(v:destroy(), true, "destroy")
+end)
+
+test("the angle in a position table must be a number", function()
+    expect_error("bad argument #3 to 'create' (angle (element 4) must be a number, got string)",
+        function() Vehicle.create(130, 0, { 1, 2, 3, "90" }) end)
+end)
+
+test("repair reports a refused step", function()
+    local v = Vehicle.create(130, 0, 0, 0, 0, 0)
+    fake.error("SetVehicleHealth", 8)
+    expect_eq(v:repair(), false, "refused")
+    fake.error("SetVehicleHealth", 0)
+    expect_eq(v:repair(), true, "repaired")
+    v:destroy()
+end)
+
 test("a vehicle deleted by someone else is noticed", function()
     local v = Vehicle.create(130, 0, 0, 0, 0, 0)
     local id = v.id

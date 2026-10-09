@@ -44,9 +44,9 @@ Vec3 Position(const Self& self) {
     return position;
 }
 
-void PlaySoundAt(const Self& self, std::int32_t sound, const Vec3& at) {
+bool PlaySoundAt(const Self& self, std::int32_t sound, const Vec3& at) {
     const std::int32_t world = VCMP_FN(self, GetPlayerUniqueWorld)(self.id);
-    Check(self.L, VCMP_FN(self, PlaySound)(world, sound, at.x, at.y, at.z));
+    return Check(self.L, VCMP_FN(self, PlaySound)(world, sound, at.x, at.y, at.z));
 }
 
 // Every connected player, for msgAll and announceAll.
@@ -138,11 +138,11 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
     // player:playSound(sound): for this player only, not positional.
     type["playSound"] = [](Self self, Int32 sound) {
         const float none = std::numeric_limits<float>::quiet_NaN();
-        PlaySoundAt(self, sound, Vec3{none, none, none});
+        return PlaySoundAt(self, sound, Vec3{none, none, none});
     };
     // player:playSound3D(sound[, position]): at the position, or at the player.
     type["playSound3D"] = [](Self self, Int32 sound, Opt<Vec3> at) {
-        PlaySoundAt(self, sound, at.has_value() ? *at : Position(self));
+        return PlaySoundAt(self, sound, at.has_value() ? *at : Position(self));
     };
 
     type["setWeapon"] = [](Self self, Int32 weapon, Int32 ammo) {

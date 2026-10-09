@@ -44,6 +44,23 @@ test("a bind removed by someone else is noticed on use", function()
     expect_eq(b.valid, false, "released")
 end)
 
+test("a refused registration raises", function()
+    local before = Bind.count()
+    fake.error("RegisterKeyBind", 8)
+    expect_error("'create' failed: request denied", function() Bind.create(false, 7) end)
+    fake.error("RegisterKeyBind", 0)
+    expect_eq(Bind.count(), before, "no handle")
+end)
+
+test("a refused destroy keeps the handle", function()
+    local b = Bind.create(false, 6)
+    fake.error("RemoveKeyBind", 8)
+    expect_eq(b:destroy(), false, "refused")
+    fake.error("RemoveKeyBind", 0)
+    expect_eq(b.valid, true, "valid after a refused destroy")
+    expect_eq(b:destroy(), true, "destroy")
+end)
+
 test("clearAllBinds removes only this plugin's binds", function()
     fake.bind(40, false, 1, 0, 0)  -- another plugin's
     Bind.create(false, 1)

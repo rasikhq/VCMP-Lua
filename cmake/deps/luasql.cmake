@@ -5,7 +5,8 @@ vcmp_lua_fetch(luasql
     SHA256 4c5c890b53c5c085329e6d152f1f711c4bbc79234f85ed4371646802c91093a4
     PATCHES
         "${CMAKE_CURRENT_LIST_DIR}/patches/luasql-mysql-safety.patch"
-        "${CMAKE_CURRENT_LIST_DIR}/patches/luasql-mysql-options.patch")
+        "${CMAKE_CURRENT_LIST_DIR}/patches/luasql-mysql-options.patch"
+        "${CMAKE_CURRENT_LIST_DIR}/patches/luasql-sqlite3-empty-result.patch")
 
 set(_luasql_src "${luasql_SOURCE_DIR}/src")
 # A plugin directory that cannot exist (see luasql-mysql-options.patch): a

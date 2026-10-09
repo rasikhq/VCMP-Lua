@@ -241,7 +241,7 @@ end)
 
 test("sounds", function()
     fake.ret("GetPlayerUniqueWorld", 9)
-    p:playSound(50)
+    expect_eq(p:playSound(50), true, "played")
     expect_call("PlaySound(9, 50, nan, nan, nan)")
     p:playSound3D(51, { 1, 2, 3 })
     expect_call("PlaySound(9, 51, 1, 2, 3)")

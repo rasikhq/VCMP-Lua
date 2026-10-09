@@ -5,6 +5,7 @@
 //   object was collected, then deleted again with a reused id (A2).
 // - rotation round-trips: assigning what the getter returns works (A3).
 // - Booleans are true/false (A3); getOccupant of an empty seat is nil.
+#include <fmt/format.h>
 #include <sol/sol.hpp>
 
 #include <cstdint>
@@ -37,9 +38,13 @@ VehicleRef Create(lua_State* L, int first) {
     Vec3 position;
     if (args.type(3) == LUA_TTABLE) {
         position = args.Vector(i);
-        lua_rawgeti(L, args.index(3), 4);
-        const bool has_angle = lua_type(L, -1) == LUA_TNUMBER;
-        angle = has_angle ? static_cast<float>(lua_tonumber(L, -1)) : 0.0f;
+        const int angle_type = lua_rawgeti(L, args.index(3), 4);
+        if (angle_type == LUA_TNUMBER) {
+            angle = static_cast<float>(lua_tonumber(L, -1));
+        } else if (angle_type != LUA_TNIL) {
+            ArgError(L, args.index(3), fmt::format("angle (element 4) must be a number, got {}",
+                                                   TypeName(L, -1)));
+        }
         lua_pop(L, 1);
     } else {
         position = args.Vector(i);
@@ -196,7 +201,9 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
     // vehicle:destroy(): deletes the vehicle; the handle is dead afterwards.
     type["destroy"] = [](Self self) {
         const bool deleted = Check(self.L, VCMP_FN(self, DeleteVehicle)(self.id));
-        self.pool().Release(self.id);  // the server reported it already
+        if (deleted) {
+            self.pool().Release(self.id);
+        }
         return deleted;
     };
     type["respawn"] = [](Self self) {
@@ -207,10 +214,11 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
     };
     // vehicle:repair() / vehicle:fix(): full health, no damage, lights fixed.
     const auto repair = [](Self self) {
-        Check(self.L, VCMP_FN(self, SetVehicleHealth)(self.id, 1000.0f));
-        Check(self.L, VCMP_FN(self, SetVehicleDamageData)(self.id, 0));
+        bool done = Check(self.L, VCMP_FN(self, SetVehicleHealth)(self.id, 1000.0f));
+        done = Check(self.L, VCMP_FN(self, SetVehicleDamageData)(self.id, 0)) && done;
         const std::uint32_t lights = VCMP_FN(self, GetVehicleLightsData)(self.id);
-        return Check(self.L, VCMP_FN(self, SetVehicleLightsData)(self.id, lights & 0xFFFFFF00u));
+        return Check(self.L, VCMP_FN(self, SetVehicleLightsData)(self.id, lights & 0xFFFFFF00u)) &&
+               done;
     };
     type["repair"] = repair;
     type["fix"] = repair;

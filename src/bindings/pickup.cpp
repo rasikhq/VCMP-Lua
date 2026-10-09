@@ -48,7 +48,9 @@ void RegisterPickup(sol::state&, PickupType& type) {
     // pickup:destroy(): deletes the pickup; the handle is dead afterwards.
     type["destroy"] = [](Self self) {
         const bool deleted = Check(self.L, VCMP_FN(self, DeletePickup)(self.id));
-        self.pool().Release(self.id);
+        if (deleted) {
+            self.pool().Release(self.id);
+        }
         return deleted;
     };
     type["respawn"] = [](Self self) {

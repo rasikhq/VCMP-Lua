@@ -275,7 +275,14 @@ void RegisterServerTable(sol::state& lua) {
             const int table = lua_gettop(ctx.L);
             const auto integer = [&](const char* key, std::uint32_t& field) {
                 if (RawField(ctx.L, table, key) != LUA_TNIL) {
-                    field = static_cast<std::uint32_t>(CheckColour(ctx.L, lua_gettop(ctx.L)));
+                    field = static_cast<std::uint32_t>(CheckInteger(
+                        ctx.L, lua_gettop(ctx.L), 0, std::numeric_limits<std::uint32_t>::max()));
+                }
+                lua_pop(ctx.L, 1);
+            };
+            const auto colour_field = [&](const char* key, std::uint32_t& field) {
+                if (RawField(ctx.L, table, key) != LUA_TNIL) {
+                    field = CheckColour(ctx.L, lua_gettop(ctx.L));
                 }
                 lua_pop(ctx.L, 1);
             };
@@ -289,7 +296,7 @@ void RegisterServerTable(sol::state& lua) {
             integer("fadeTimer", fade);
             number("fadeInSpeed", fade_in);
             number("fadeOutSpeed", fade_out);
-            integer("fadeColour", colour);
+            colour_field("fadeColour", colour);
             integer("corpseFadeStart", corpse_start);
             integer("corpseFadeTime", corpse_time);
             lua_pop(ctx.L, 1);
@@ -467,8 +474,11 @@ std::optional<sol::table> BlipInfo(Ctx ctx, std::int32_t id) {
 
 bool DestroyBlip(Ctx ctx, std::int32_t id) {
     const vcmpError error = VCMP_FN(ctx, DestroyCoordBlip)(id);
-    ctx.runtime->Entities().Get(kBlip).Release(id);
-    return error == vcmpErrorNoSuchEntity ? false : Check(ctx.L, error);
+    if (error == vcmpErrorNone || error == vcmpErrorNoSuchEntity) {
+        ctx.runtime->Entities().Get(kBlip).Release(id);
+        return error == vcmpErrorNone;
+    }
+    return Check(ctx.L, error);
 }
 
 void RegisterBlipMembers(BlipType& type) {

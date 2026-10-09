@@ -38,17 +38,21 @@ BindRef Create(Ctx ctx, Boolean on_release, Int32 key1, Opt<Int32> key2, Opt<Int
     if (slot < 0) {
         throw std::runtime_error("'" + CurrentFunction(ctx.L) + "' failed: no free key bind slot");
     }
-    Check(ctx.L, VCMP_FN(ctx, RegisterKeyBind)(slot, on_release ? 1 : 0, key1, key2.value_or(0),
-                                               key3.value_or(0)));
+    if (!Check(ctx.L, VCMP_FN(ctx, RegisterKeyBind)(slot, on_release ? 1 : 0, key1,
+                                                    key2.value_or(0), key3.value_or(0)))) {
+        throw std::runtime_error("'" + CurrentFunction(ctx.L) + "' failed: request denied");
+    }
     return Created<kBind>(ctx.L, *ctx.runtime, slot);
 }
 
-void Remove(const Self& self) {
+// False if the server refused; a bind already gone counts as removed.
+bool Remove(const Self& self) {
     const vcmpError error = VCMP_FN(self, RemoveKeyBind)(self.id);
-    self.pool().Release(self.id);
-    if (error != vcmpErrorNoSuchEntity) {
-        Check(self.L, error);
+    if (error == vcmpErrorNone || error == vcmpErrorNoSuchEntity) {
+        self.pool().Release(self.id);
+        return true;
     }
+    return Check(self.L, error);
 }
 
 }  // namespace
@@ -87,7 +91,7 @@ void RegisterBind(sol::state&, BindType& type) {
     };
 
     // bind:destroy(): removes the bind; the handle is dead afterwards.
-    type["destroy"] = [](Self self) { Remove(self); };
+    type["destroy"] = [](Self self) { return Remove(self); };
 
     // bind:getData(): {keyOne, keyTwo, keyThree, signalsOnRelease}.
     type["getData"] = [](Self self) {

@@ -1,0 +1,20 @@
+LuaSQL SQLite3 driver: a query with no rows returns no row. Upstream candidate.
+
+conn:execute() steps the statement once and creates a cursor also when that
+step returns SQLITE_DONE. The first cursor:fetch() then returned a row of
+NULLs: cursor:fetch({}, "a") returned a table, so code that tests the result
+for nil saw a row. The first fetch now finalizes the cursor when the
+statement has already run to completion.
+
+--- a/src/ls_sqlite3.c	2026-10-09 22:16:36
++++ b/src/ls_sqlite3.c	2026-10-09 22:16:45
+@@ -170,6 +170,9 @@
+           return finalize(L, cur);
+    } else {
+       cur->first_fetch = 0;
++      /* conn:execute() already stepped once: SQLITE_DONE means no rows */
++      if (!sqlite3_stmt_busy(vm))
++          return finalize(L, cur);
+    }
+ 
+   if (lua_istable (L, 2))

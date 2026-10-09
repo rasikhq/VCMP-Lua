@@ -32,7 +32,8 @@ void Need(const Stream& stream, std::size_t size, const char* what) {
 }
 
 void Room(const Stream& stream, std::size_t size, const char* what) {
-    if (Stream::kMaxSize - stream.bytes.size() < size) {
+    // A received stream may be larger than kMaxSize.
+    if (stream.bytes.size() > Stream::kMaxSize || Stream::kMaxSize - stream.bytes.size() < size) {
         throw std::length_error(fmt::format("Stream: no room to write {} ({} of {} bytes used)",
                                             what, stream.bytes.size(), Stream::kMaxSize));
     }

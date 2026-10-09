@@ -86,7 +86,9 @@ void RegisterCheckpoint(sol::state&, CheckpointType& type) {
     // checkpoint:destroy(): deletes it; the handle is dead afterwards.
     type["destroy"] = [](Self self) {
         const bool deleted = Check(self.L, VCMP_FN(self, DeleteCheckPoint)(self.id));
-        self.pool().Release(self.id);
+        if (deleted) {
+            self.pool().Release(self.id);
+        }
         return deleted;
     };
     type["streamedForPlayer"] = [](Self self, Live<EntityKind::Player> player) {

@@ -129,6 +129,11 @@ test("wastedSettings: partial tables keep the other fields", function()
     expect_eq(w.corpseFadeTime, 4000, "corpseFadeTime")
     Server.wastedSettings = { deathTimer = 5000, fadeInSpeed = 0.5 }
     expect_call("SetWastedSettings(5000, 2000, 0.5, 2.5, 255, 3000, 4000)")
+    expect_error("out of range [0, 4294967295]", function()
+        Server.wastedSettings = { deathTimer = -1 }
+    end)
+    Server.wastedSettings = { fadeColour = -1 }
+    expect_call("SetWastedSettings(1000, 2000, 1.5, 2.5, 4294967295, 3000, 4000)")
 end)
 
 test("shutdown", function()
@@ -213,6 +218,10 @@ test("Blip: create returns a handle; destroy and getInfo take a handle or an id"
     expect_eq(Blip.destroy(c_id), true, "Blip.destroy(id)")
     expect_eq(c.valid, false, "c is gone")
     expect_eq(Blip.destroy(c_id), false, "no such blip")
+    fake.error("DestroyCoordBlip", 8)
+    expect_eq(d:destroy(), false, "refused")
+    fake.error("DestroyCoordBlip", 0)
+    expect_eq(d.valid, true, "valid after a refused destroy")
     d:destroy()
     expect_eq(Blip.count(), 0, "count")
 end)

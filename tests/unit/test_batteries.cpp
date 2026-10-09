@@ -204,6 +204,28 @@ TEST_CASE("Hash: v1 digests and the OpenSSL functions") {
     )lua") == "");
 }
 
+TEST_CASE("luasql.sqlite3: a query with no rows fetches nil") {
+    FakeServer server;
+    REQUIRE(server.Load());
+    server.Initialise();
+    CHECK(server.Run(R"lua(
+        local env = assert(require("luasql.sqlite3").sqlite3())
+        local conn = assert(env:connect(":memory:"))
+        assert(conn:execute("CREATE TABLE t (a INTEGER, b TEXT)"))
+        local cursor = assert(conn:execute("SELECT a, b FROM t"))
+        assert(cursor:fetch({}, "a") == nil, "an empty result has no row")
+        assert(conn:execute("INSERT INTO t VALUES (1, 'x')"))
+        cursor = assert(conn:execute("SELECT a, b FROM t"))
+        local row = cursor:fetch({}, "a")
+        assert(row.a == 1 and row.b == "x")
+        assert(cursor:fetch({}, "a") == nil)
+        cursor = assert(conn:execute("SELECT a FROM t WHERE a = 2"))
+        assert(cursor:fetch() == nil)
+        conn:close()
+        env:close()
+    )lua") == "");
+}
+
 TEST_CASE("sql.format fills placeholders with escaped literals") {
     FakeServer server;
     REQUIRE(server.Load());

@@ -89,7 +89,9 @@ void RegisterObject(sol::state&, ObjectType& type) {
     // object:destroy(): deletes the object; the handle is dead afterwards.
     type["destroy"] = [](Self self) {
         const bool deleted = Check(self.L, VCMP_FN(self, DeleteObject)(self.id));
-        self.pool().Release(self.id);
+        if (deleted) {
+            self.pool().Release(self.id);
+        }
         return deleted;
     };
     type["streamedForPlayer"] = [](Self self, Live<EntityKind::Player> player) {

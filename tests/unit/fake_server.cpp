@@ -206,6 +206,14 @@ struct Stub<Tag, R (*)(A...)> {
             FakeServer& server = FakeServer::Current();
             server.calls.push_back(Describe(name, slots));
             server.last_error = vcmpErrorNone;
+            // fake.error() also refuses a replaced function's call.
+            if constexpr (std::is_same_v<R, vcmpError>) {
+                const auto error_it = server.errors.find(name);
+                if (error_it != server.errors.end() && error_it->second != vcmpErrorNone) {
+                    server.last_error = error_it->second;
+                    return error_it->second;
+                }
+            }
             return replacement(args...);
         }
         return Respond<R>(name, slots);

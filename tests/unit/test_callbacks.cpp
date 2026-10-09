@@ -315,6 +315,9 @@ TEST_CASE("onClientData: any size is copied into a Stream of that size") {
         end)
         Event.bind("onClientData", function(player, stream, size)
             record("second handler", stream.remaining)
+            if size > 4096 then
+                record(pcall(stream.writeByte, stream, 1))
+            end
         end)
     )") == "");
     const int32_t id = server.Connect();
@@ -322,9 +325,14 @@ TEST_CASE("onClientData: any size is copied into a Stream of that size") {
     std::vector<uint8_t> data = {0x2A, 0, 0, 0, 0x27, 0x10};
     data.resize(data.size() + 10000, 'z');
     server.plugin.OnClientScriptData(id, data.data(), data.size());
-    REQUIRE(server.records.size() == 2);
+    REQUIRE(server.records.size() == 3);
     CHECK(server.records[0] == "Player(0) 10006 10006 42 " + std::string(10000, 'z'));
     CHECK(server.records[1] == "second handler 0");
+    // A received stream larger than 4096 bytes takes no writes.
+    CHECK(server.records[2].starts_with("false "));
+    CHECK(server.records[2].find("no room to write a byte (10006 of 4096 bytes used)") !=
+          std::string::npos);
+    server.records.clear();
 
     // Truncated data: the handler's read fails, the server goes on.
     const uint8_t short_data[] = {1, 2};
