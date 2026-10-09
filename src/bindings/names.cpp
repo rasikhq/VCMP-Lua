@@ -9,12 +9,6 @@
 #include <string>
 #include <utility>
 
-// The ported switches keep v1's "return ...; break;" shape, which MSVC
-// reports as unreachable code in optimised builds.
-#if defined(_MSC_VER)
-#pragma warning(disable : 4702)
-#endif
-
 namespace vcmp_lua::bindings {
 namespace {
 

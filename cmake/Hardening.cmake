@@ -19,7 +19,11 @@ endfunction()
 function(vcmp_lua_first_party target)
     vcmp_lua_harden(${target})
     if(MSVC)
-        target_compile_options(${target} PRIVATE /W4 /WX /permissive- /utf-8 /bigobj /Zc:__cplusplus)
+        # C4702 (unreachable code) is a backend warning: it is raised inside
+        # sol2's headers when a binding always throws, e.g. the stubs of the
+        # removed v1 globals, and v1's ported switches return before break.
+        target_compile_options(${target} PRIVATE /W4 /WX /permissive- /utf-8 /bigobj /Zc:__cplusplus
+            /wd4702)
     else()
         target_compile_options(${target} PRIVATE -Wall -Wextra -Werror)
         # The sanitizers' instrumentation makes GCC report false positives
