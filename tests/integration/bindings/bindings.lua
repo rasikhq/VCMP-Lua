@@ -163,7 +163,7 @@ check("Vehicle", function()
     v.spawnPosition = { -1002, 1002, 12 }
     vec(v.spawnPosition, -1002, 1002, 12, "spawnPosition")
     v.rotation = { 0, 0, 1.5 }
-    v.rotation = v.rotation  -- round-trips (v1 could not)
+    v.rotation = v.rotation  -- round-trips (2.x could not)
     near(v.rotation.euler[3], 1.5, "rotation z")
     v.idleRespawnTime = 60000
     eq(v.idleRespawnTime, 60000, "idleRespawnTime")
@@ -296,7 +296,7 @@ check("Logger and removed globals", function()
     Logger.info("Logger.info works")
     Logger.setLevel("debug")
     eq(Logger.getLevel(), "debug", "level")
-    raises("MySQL was removed in v2", function() return MySQL.x end)
+    raises("MySQL was removed in 3.0", function() return MySQL.x end)
 end)
 
 -- Leftovers for the reload: run 1 creates entities and a bind that the

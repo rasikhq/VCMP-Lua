@@ -36,5 +36,5 @@ modified copy of the library.
 VCMP-Lua patches some of these components at build time; the patches are in
 `cmake/deps/patches/`.
 
-The full license texts are collected into this file before the first v2
-release.
+The full license texts are in `THIRD_PARTY_LICENSES.txt`, which
+`ci/collect-licenses.py` writes from a configured build tree.

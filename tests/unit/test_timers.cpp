@@ -20,7 +20,7 @@ void Start(FakeServer& server) {
 TEST_CASE("timers keep running across a simulated 72-minute clock") {
     FakeServer server;
     Start(server);
-    // v1 kept microseconds in 32 bits: its timers stalled after ~71.6 minutes.
+    // 2.x kept microseconds in 32 bits: its timers stalled after ~71.6 minutes.
     // The fake clock starts right below that point.
     REQUIRE(server.Run(R"(
         ticks = 0

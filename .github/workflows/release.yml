@@ -57,7 +57,7 @@ jobs:
             local os="$1" binary="$2"
             local stage="stage/VCMP-Lua-$VERSION-$os-x64"
             mkdir -p "$stage"
-            cp "$binary" LICENSE THIRD_PARTY_NOTICES.md examples/luaconfig.lua "$stage/"
+            cp "$binary" LICENSE THIRD_PARTY_NOTICES.md THIRD_PARTY_LICENSES.txt examples/luaconfig.lua "$stage/"
             (cd stage && zip -r -9 "../dist/VCMP-Lua-$VERSION-$os-x64.zip" "VCMP-Lua-$VERSION-$os-x64")
           }
           package linux artifacts/LuaPlugin_x64-linux/LuaPlugin_x64.so
@@ -75,4 +75,4 @@ jobs:
           gh release create "$GITHUB_REF_NAME" dist/* \
             --draft --verify-tag \
             --title "VCMP-Lua $VERSION" \
-            --notes "Lua 5.4 scripting plugin for the VC:MP 0.4 server. Upgrading from v1: see [docs/MIGRATION-v2.md](https://github.com/${{ github.repository }}/blob/$GITHUB_REF_NAME/docs/MIGRATION-v2.md). Verify downloads with \`sha256sum -c SHA256SUMS\`."
+            --notes "Lua 5.4 scripting plugin for the VC:MP 0.4 server. Upgrading from 2.x: see [docs/MIGRATION-v3.md](https://github.com/${{ github.repository }}/blob/$GITHUB_REF_NAME/docs/MIGRATION-v3.md). Verify downloads with \`sha256sum -c SHA256SUMS\`."

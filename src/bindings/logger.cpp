@@ -25,7 +25,7 @@ constexpr std::array<std::pair<std::string_view, spdlog::level::level_enum>, 7> 
     {"off", spdlog::level::off},
 }};
 
-// v1's numbers: 0 debug, 1 info, 2 warn, 3 error, 4 critical; 5 is off.
+// 2.x's numbers: 0 debug, 1 info, 2 warn, 3 error, 4 critical; 5 is off.
 constexpr std::array<spdlog::level::level_enum, 6> kNumbered = {
     spdlog::level::debug, spdlog::level::info,     spdlog::level::warn,
     spdlog::level::err,   spdlog::level::critical, spdlog::level::off,
@@ -59,7 +59,7 @@ void RegisterLogger(sol::state& lua) {
     logger["error"] = &Write<spdlog::level::err>;
     logger["critical"] = &Write<spdlog::level::critical>;
 
-    // Logger.setLevel(level): "debug", "info", ... or v1's 0 (debug) to 4
+    // Logger.setLevel(level): "debug", "info", ... or 2.x's 0 (debug) to 4
     // (critical); messages below it are not logged.
     logger["setLevel"] = [](sol::this_state L) { log::SetLevel(CheckLevel(L, 1)); };
     logger["getLevel"] = []() -> std::string_view {

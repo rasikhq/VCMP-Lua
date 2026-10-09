@@ -103,7 +103,7 @@ bool SetSpeed(const Self& self, const ArgReader& args) {
     }
 }
 
-// {euler = {x, y, z}, quaternion = {x, y, z, w}}, as in v1.
+// {euler = {x, y, z}, quaternion = {x, y, z, w}}, as in 2.x.
 sol::table GetRotation(const Self& self) {
     float x = 0;
     float y = 0;
@@ -441,7 +441,7 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
             SetRotationFromTable(self, -1, true);
             lua_pop(self.L, 1);
         });
-    // vehicle.rotation (and vehicle.angle, as in v1): {euler = {x, y, z},
+    // vehicle.rotation (and vehicle.angle, as in 2.x): {euler = {x, y, z},
     // quaternion = {x, y, z, w}}; accepts that table, {x, y, z} or {x, y, z, w}.
     type["rotation"] =
         Property<kVehicle>([](Self self) { return GetRotation(self); },

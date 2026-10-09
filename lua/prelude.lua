@@ -12,7 +12,7 @@ local error, type = error, type
 local raw_load, raw_loadfile = load, loadfile
 local package = package
 
-local MODULES_HELP = "see docs/MIGRATION-v2.md#modules"
+local MODULES_HELP = "see docs/MIGRATION-v3.md#modules"
 
 -- Text mode only. The variadic tail keeps an explicit nil env apart from a
 -- missing one, as load and loadfile do.

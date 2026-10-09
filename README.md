@@ -50,7 +50,7 @@ return {
 - [Configuration](docs/configuration.md)
 - [Examples](examples/): commands, accounts with hashed passwords in
   SQLite, and a JSON webhook over HTTPS
-- [Migrating from v1](docs/MIGRATION-v2.md)
+- [Migrating from 2.x](docs/MIGRATION-v3.md)
 - [Internals](docs/internals.md): how the server behaves, measured
 
 ## Building
@@ -109,10 +109,11 @@ server.
 
 Pushing a `v*` tag that matches the version in `CMakeLists.txt` builds and
 tests both plugins, and drafts a GitHub release with one zip per platform
-(plugin, `luaconfig.lua`, `LICENSE`, `THIRD_PARTY_NOTICES.md`) and
-`SHA256SUMS`.
+(plugin, `luaconfig.lua`, `LICENSE` and the third-party notices and
+license texts) and `SHA256SUMS`.
 
 ## License
 
 MIT, see [LICENSE](LICENSE). The bundled libraries are listed in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), with their license texts in
+[THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt).

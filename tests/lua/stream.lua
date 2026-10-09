@@ -21,7 +21,7 @@ test("write then read back", function()
     expect_eq(tostring(s), "Stream(18 bytes)", "tostring")
 end)
 
-test("v1's byte layout: little-endian numbers, big-endian string length", function()
+test("2.x's byte layout: little-endian numbers, big-endian string length", function()
     local s = Stream.new()
     s:writeNumber(0x01020304)
     s:writeString("ab")

@@ -29,7 +29,7 @@ add_library(vcmp_lua_core STATIC
     bindings/object.cpp
     bindings/pickup.cpp
     bindings/player.cpp
-    bindings/removed_v1_stubs.cpp
+    bindings/removed_globals.cpp
     bindings/server.cpp
     bindings/stream.cpp
     bindings/timer.cpp
@@ -79,7 +79,7 @@ target_link_libraries(vcmp_lua_core
         unofficial::libmariadb)
 vcmp_lua_first_party(vcmp_lua_core)
 
-# The plugin: LuaPlugin_x64.so / LuaPlugin_x64.dll, the v1 file name.
+# The plugin: LuaPlugin_x64.so / LuaPlugin_x64.dll, the 2.x file name.
 add_library(vcmp_lua MODULE plugin/entry.cpp)
 set_target_properties(vcmp_lua PROPERTIES
     OUTPUT_NAME LuaPlugin_x64

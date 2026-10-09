@@ -1,4 +1,4 @@
-// The v1 globals v2 removed. Each is a table that raises an error
+// The 2.x globals 3.0 removed. Each is a table that raises an error
 // pointing to its replacement as soon as a script uses it, instead of the
 // script failing later with "attempt to index a nil value".
 #include <fmt/format.h>
@@ -14,7 +14,7 @@ namespace {
 
 struct Removed {
     const char* name;
-    const char* anchor;  // in docs/MIGRATION-v2.md
+    const char* anchor;  // in docs/MIGRATION-v3.md
     const char* replaced;
 };
 
@@ -34,7 +34,7 @@ constexpr Removed kRemoved[] = {
 void RegisterRemovedV1Stubs(sol::state& lua) {
     for (const Removed& removed : kRemoved) {
         const std::string message =
-            fmt::format("{} was removed in v2: {} (see docs/MIGRATION-v2.md#{})", removed.name,
+            fmt::format("{} was removed in 3.0: {} (see docs/MIGRATION-v3.md#{})", removed.name,
                         removed.replaced, removed.anchor);
         const auto fail = [message](sol::variadic_args) -> void {
             throw std::runtime_error(message);

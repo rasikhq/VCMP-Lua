@@ -21,7 +21,7 @@ function(vcmp_lua_first_party target)
     if(MSVC)
         # C4702 (unreachable code) is a backend warning: it is raised inside
         # sol2's headers when a binding always throws, e.g. the stubs of the
-        # removed v1 globals, and v1's ported switches return before break.
+        # removed 2.x globals, and 2.x's ported switches return before break.
         target_compile_options(${target} PRIVATE /W4 /WX /permissive- /utf-8 /bigobj /Zc:__cplusplus
             /wd4702)
     else()

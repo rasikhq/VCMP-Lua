@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 project(vcmp_lua
-    VERSION 2.0.0
+    VERSION 3.0.0
     DESCRIPTION "Lua 5.4 scripting plugin for the VC:MP 0.4 server"
     HOMEPAGE_URL "https://github.com/rasikhq/VCMP-Lua"
     LANGUAGES C CXX)

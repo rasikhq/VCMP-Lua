@@ -1,6 +1,6 @@
 -- The constant tables (bindings/enums.cpp).
 
-test("v1 names and values", function()
+test("2.x names and values", function()
     expect_eq(ServerOption.deathMessages, 16, "ServerOption.deathMessages")
     expect_eq(ServerOption.disableCrouch, 22, "ServerOption.disableCrouch")
     expect_eq(DisconnectReason.kick, 2, "DisconnectReason.kick")
@@ -16,12 +16,12 @@ test("v1 names and values", function()
     expect_eq(math.type(EntityType.vehicle), "integer", "integer values")
 end)
 
-test("BodyPart.rightLeg is the right leg (v1 had the right arm)", function()
+test("BodyPart.rightLeg is the right leg (2.x had the right arm)", function()
     expect_eq(BodyPart.rightLeg, 5, "rightLeg")
     expect_eq(BodyPart.rightArm, 3, "rightArm")
 end)
 
-test("new in v2", function()
+test("new in 3.0", function()
     expect_eq(EntityType.player, 5, "EntityType.player")
     expect_eq(NetworkStatistics.packetLossTotal, 16, "NetworkStatistics.packetLossTotal")
 end)

@@ -108,7 +108,7 @@ struct Colour {
 };
 
 // A position or direction. As an argument: a table {x, y, z} (one argument)
-// or three numbers. As a result: a table {x, y, z}, as in v1.
+// or three numbers. As a result: a table {x, y, z}, as in 2.x.
 struct Vec3 {
     float x = 0;
     float y = 0;

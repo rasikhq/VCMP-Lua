@@ -1,4 +1,4 @@
-# digestpp (header-only, no releases; pinned commit): the v1-compatible
+# digestpp (header-only, no releases; pinned commit): the 2.x-compatible
 # digests of the Hash module.
 vcmp_lua_fetch(digestpp
     URL https://github.com/kerukuro/digestpp/archive/4beae7541f5c280389898ae6e6111028852f466a.tar.gz

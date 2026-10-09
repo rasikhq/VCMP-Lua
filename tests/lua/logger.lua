@@ -1,6 +1,6 @@
--- Logger (bindings/logger.cpp) and the removed v1 globals (removed_v1_stubs.cpp).
+-- Logger (bindings/logger.cpp) and the removed 2.x globals (removed_globals.cpp).
 
-test("levels by name and by v1's numbers", function()
+test("levels by name and by 2.x's numbers", function()
     Logger.setLevel("warn")
     expect_eq(Logger.getLevel(), "warn", "warn")
     Logger.setLevel(0)
@@ -20,14 +20,14 @@ test("messages", function()
     expect_error("bad argument #1 to 'error' (string expected, got table)", function() Logger.error({}) end)
 end)
 
-test("removed v1 globals explain what replaces them", function()
-    expect_error("MySQL was removed in v2: use require \"luasql.mysql\" (see docs/MIGRATION-v2.md#mysql)",
+test("removed 2.x globals explain what replaces them", function()
+    expect_error("MySQL was removed in 3.0: use require \"luasql.mysql\" (see docs/MIGRATION-v3.md#mysql)",
         function() return MySQL.createConnection end)
-    expect_error("SQLite was removed in v2", function() SQLite.openDatabase("x.db") end)
-    expect_error("Remote was removed in v2: use require \"http\"", function() Remote.fetch("x") end)
-    expect_error("JSON was removed in v2: use require \"cjson\"", function() return JSON.encode end)
-    expect_error("Thread was removed in v2", function() Thread() end)
-    expect_error("dbg was removed in v2", function() dbg() end)
-    expect_error("SqLite was removed in v2", function() SqLite.x = 1 end)
+    expect_error("SQLite was removed in 3.0", function() SQLite.openDatabase("x.db") end)
+    expect_error("Remote was removed in 3.0: use require \"http\"", function() Remote.fetch("x") end)
+    expect_error("JSON was removed in 3.0: use require \"cjson\"", function() return JSON.encode end)
+    expect_error("Thread was removed in 3.0", function() Thread() end)
+    expect_error("dbg was removed in 3.0", function() dbg() end)
+    expect_error("SqLite was removed in 3.0", function() SqLite.x = 1 end)
     expect_eq(getmetatable(MySQL), false, "the metatable is protected")
 end)

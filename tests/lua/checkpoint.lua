@@ -24,7 +24,7 @@ end)
 local cp = Checkpoint.create(p, 0, true, 0, 0, 0, { 1, 2, 3, 4 }, 5)
 local id = cp.id
 
-test("radius is set (v1 compared it with the world first)", function()
+test("radius is set (2.x compared it with the world first)", function()
     fake.ret("GetCheckPointWorld", 7)
     cp.radius = 7
     expect_call("SetCheckPointRadius(" .. id .. ", 7)")

@@ -21,4 +21,4 @@ script is logged with its traceback and never stops the server.
 - [Modules](modules.md): `http`, `Hash`, `sql`, LuaSQL, cjson, LuaSocket,
   Copas, lfs, inspect
 
-Upgrading from v1: see the [migration guide](../MIGRATION-v2.md).
+Upgrading from 2.x: see the [migration guide](../MIGRATION-v3.md).

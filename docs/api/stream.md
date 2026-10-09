@@ -82,7 +82,7 @@ Returns `"Stream(<size> bytes)"`.
 
 ## Byte layout
 
-The layout matches v1 and the client's streams:
+The layout matches 2.x and the client's streams:
 
 | Value | Bytes |
 |---|---|

@@ -328,7 +328,7 @@ void RegisterMap(sol::state& lua) {
     map["setBounds"] = [](Ctx ctx, Float max_x, Float min_x, Float max_y, Float min_y) {
         VCMP_FN(ctx, SetWorldBounds)(max_x, min_x, max_y, min_y);
     };
-    // Map.getBounds(): {max_x, min_x, max_y, min_y}, as in v1.
+    // Map.getBounds(): {max_x, min_x, max_y, min_y}, as in 2.x.
     map["getBounds"] = [](Ctx ctx) {
         float max_x = 0, min_x = 0, max_y = 0, min_y = 0;
         VCMP_FN(ctx, GetWorldBounds)(&max_x, &min_x, &max_y, &min_y);
@@ -431,7 +431,7 @@ EntityRef<kBlip> CreateBlip(Ctx ctx, const ArgReader& args) {
     return Created<kBlip>(ctx.L, *ctx.runtime, id);
 }
 
-// A blip argument: a Blip handle, or a blip id as v1's Blip.create returned.
+// A blip argument: a Blip handle, or a blip id as 2.x's Blip.create returned.
 std::int32_t BlipId(Ctx ctx, int index) {
     if (lua_type(ctx.L, index) == LUA_TNUMBER) {
         return static_cast<std::int32_t>(CheckInteger(ctx.L, index, -1, 0x7FFFFFFF));

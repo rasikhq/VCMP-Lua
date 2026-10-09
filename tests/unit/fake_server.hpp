@@ -38,7 +38,7 @@ namespace vcmp_lua::test {
 
 class FakeServer {
 public:
-    // The clock starts just below 2^32 microseconds, where v1's timers stopped.
+    // The clock starts just below 2^32 microseconds, where 2.x's timers stopped.
     static constexpr std::int64_t kStartMs = 4'294'000;
 
     FakeServer();

@@ -2,7 +2,7 @@
 
 Scripts react to the server through events. The `Event` table binds handler
 functions to an event by name, and lets scripts create and trigger their own
-events. Differences from v1 are listed in the [migration guide](../MIGRATION-v2.md#events).
+events. Differences from 2.x are listed in the [migration guide](../MIGRATION-v3.md#events).
 
 ## Functions
 

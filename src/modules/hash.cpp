@@ -1,4 +1,4 @@
-// Hash: v1's digests, unchanged, so stored hashes still verify; and OpenSSL's
+// Hash: 2.x's digests, unchanged, so stored hashes still verify; and OpenSSL's
 // HMAC, PBKDF2, scrypt and random bytes for new password storage.
 #include <digestpp.hpp>
 #include <fmt/format.h>
@@ -85,7 +85,7 @@ std::string Digest(String input) {
     return Hasher().absorb(input.value).hexdigest();
 }
 
-// v1's keyed XOFs: 64 bytes of output, as hex.
+// 2.x's keyed XOFs: 64 bytes of output, as hex.
 template <typename Hasher>
 std::string KeyedXof(String key, String input) {
     return Hasher().set_key(key.value).absorb(input.value).hexsqueeze(64);

@@ -1,6 +1,6 @@
 # Internals
 
-Behaviour of the VC:MP 0.4 server that the v2 runtime is built on, measured
+Behaviour of the VC:MP 0.4 server that the runtime is built on, measured
 with a probe plugin and the integration tests. These facts determine how the
 runtime tracks entities and the order in which it shuts down. The later
 sections describe how the bindings, the runtime and the bundled modules rely
@@ -296,7 +296,7 @@ too (only those: key binds are shared by every plugin).
   run.
 - Fixed rate, without catch-up: after a long stall a timer runs once, then
   keeps its rate from that moment.
-- `thisTimer` is the running timer, as in v1.
+- `thisTimer` is the running timer, as in 2.x.
 
 ### Entities
 

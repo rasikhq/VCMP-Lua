@@ -230,10 +230,10 @@ end)
 
 ## Removed globals
 
-These v1 globals no longer exist. Each name is still defined, but any use
+These 2.x globals no longer exist. Each name is still defined, but any use
 (reading a field, assigning a field or calling it) raises an error that names
 the replacement, for example
-`MySQL was removed in v2: use require "luasql.mysql" (see docs/MIGRATION-v2.md#mysql)`.
+`MySQL was removed in 3.0: use require "luasql.mysql" (see docs/MIGRATION-v3.md#mysql)`.
 
 | Global | Replacement named in the error |
 |---|---|
@@ -244,4 +244,4 @@ the replacement, for example
 | `Thread` | none: Lua runs on the server's thread only |
 | `dbg` | none: it blocked the server waiting for console input |
 
-See [MIGRATION-v2.md](../MIGRATION-v2.md#removed) for details.
+See [MIGRATION-v3.md](../MIGRATION-v3.md#removed) for details.

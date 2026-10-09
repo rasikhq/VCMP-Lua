@@ -311,7 +311,7 @@ void OnPlayerSpawn(int32_t player_id) noexcept {
 }
 
 // onPlayerKill(killer, player, reason, bodyPart) when another player killed
-// the player, else onPlayerWasted(player, reason) with v1's reasons.
+// the player, else onPlayerWasted(player, reason) with 2.x's reasons.
 void OnPlayerDeath(int32_t player_id, int32_t killer_id, int32_t reason,
                    vcmpBodyPart body_part) noexcept {
     OnEvent("OnPlayerDeath", [&](Runtime& runtime) {
@@ -429,7 +429,7 @@ uint8_t OnPlayerMessage(int32_t player_id, const char* message) noexcept {
     });
 }
 
-// onPlayerCommand(player, command, args, text), as in v1: "/give 5 100"
+// onPlayerCommand(player, command, args, text), as in 2.x: "/give 5 100"
 // gives "give", {"5", "100"}; args is nil without arguments, and command is
 // nil for an empty message. text is everything after the command ("5 100"),
 // for commands whose argument contains spaces.

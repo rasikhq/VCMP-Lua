@@ -1,5 +1,5 @@
 // The server callbacks of plugin/callbacks.cpp: the events they dispatch,
-// their arguments (v1's), and what cancellable ones return to the server.
+// their arguments (2.x's), and what cancellable ones return to the server.
 #include <doctest/doctest.h>
 
 #include <string>
@@ -27,7 +27,7 @@ void Record(FakeServer& server, const std::string& event) {
 
 }  // namespace
 
-TEST_CASE("player events pass v1's arguments") {
+TEST_CASE("player events pass 2.x's arguments") {
     FakeServer server;
     Start(server);
     for (const char* event : {"onPlayerConnection",
@@ -209,7 +209,7 @@ TEST_CASE("Event.cancel() makes a cancellable callback refuse") {
     server.plugin.OnPlayerSpawn(id);
 }
 
-TEST_CASE("deaths: onPlayerKill with a killer, else onPlayerWasted with v1's reasons") {
+TEST_CASE("deaths: onPlayerKill with a killer, else onPlayerWasted with 2.x's reasons") {
     FakeServer server;
     Start(server);
     Record(server, "onPlayerKill");
@@ -234,7 +234,7 @@ TEST_CASE("deaths: onPlayerKill with a killer, else onPlayerWasted with v1's rea
     CHECK(server.records == expected);
 }
 
-TEST_CASE("onPlayerCommand splits the command like v1 and adds the raw text") {
+TEST_CASE("onPlayerCommand splits the command like 2.x and adds the raw text") {
     FakeServer server;
     Start(server);
     Record(server, "onPlayerCommand");
@@ -321,7 +321,7 @@ TEST_CASE("onClientData: any size is copied into a Stream of that size") {
         end)
     )") == "");
     const int32_t id = server.Connect();
-    // 4 + 2 + 10000 bytes: v1 copied this into a 4096-byte stack array.
+    // 4 + 2 + 10000 bytes: 2.x copied this into a 4096-byte stack array.
     std::vector<uint8_t> data = {0x2A, 0, 0, 0, 0x27, 0x10};
     data.resize(data.size() + 10000, 'z');
     server.plugin.OnClientScriptData(id, data.data(), data.size());

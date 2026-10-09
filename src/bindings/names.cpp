@@ -1,5 +1,5 @@
 // Names and ids of skins and weapons. The name heuristics come from SqMod via
-// v1.
+// 2.x.
 #include "bindings/names.hpp"
 
 #include <array>
@@ -10,7 +10,7 @@
 namespace vcmp_lua::bindings {
 namespace {
 
-// The SKIN_ID_* constants of v1's Constants.h.
+// The SKIN_ID_* constants of 2.x's Constants.h.
 enum SkinIdValue : int {
     SKIN_ID_UNKNOWN = -1,
     SKIN_ID_TOMMY_VERCETTI = 0,
@@ -437,7 +437,7 @@ int SkinId(std::string_view name) {
     int id = SKIN_ID_UNKNOWN;
     const int len = static_cast<int>(str.size());
 
-    // The most significant characters (of the name as written, as in v1).
+    // The most significant characters (of the name as written, as in 2.x).
     const char a = Lower(name[0]);
     const char b = name.size() >= 2 ? Lower(name[1]) : 0;
     const char c = name.size() >= 3 ? Lower(name[2]) : 0;

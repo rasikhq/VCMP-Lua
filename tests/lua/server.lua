@@ -226,7 +226,7 @@ test("Blip: create returns a handle; destroy and getInfo take a handle or an id"
     expect_eq(Blip.count(), 0, "count")
 end)
 
-test("Sound.play: every v1 form", function()
+test("Sound.play: every 2.x form", function()
     Sound.play(50)
     expect_call("PlaySound(0, 50, nan, nan, nan)")
     Sound.play(50, { 1, 2, 3 })

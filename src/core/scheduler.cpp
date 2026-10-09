@@ -113,7 +113,7 @@ void Scheduler::Run(lua_State* L, std::uint64_t id, Timer& timer, std::int64_t n
     }
 
     // While the callback runs: timer.running is set (Destroy only marks the
-    // timer), and thisTimer is the timer, as in v1. Both are undone also when
+    // timer), and thisTimer is the timer, as in 2.x. Both are undone also when
     // the call throws. thisTimer is set and restored with raw accesses, so no
     // metamethod of the globals table runs here.
     class RunningScope {

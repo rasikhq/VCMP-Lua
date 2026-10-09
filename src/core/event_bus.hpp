@@ -15,7 +15,7 @@
 
 namespace vcmp_lua {
 
-// The built-in events, with their v1 names.
+// The built-in events, with their 2.x names.
 #define VCMP_LUA_EVENTS(X)                                   \
     X(ServerInit, "onServerInit")                            \
     X(ServerShutdown, "onServerShutdown")                    \

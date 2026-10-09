@@ -6,8 +6,8 @@ value that names one entity of one class. This page lists the members every
 entity class has, and the argument rules every binding follows.
 
 The entity classes are `Player`, `Vehicle`, `Object`, `Pickup`,
-`Checkpoint`, `Blip` and `Bind`. Changes from v1 are listed in
-[MIGRATION-v2.md](../MIGRATION-v2.md).
+`Checkpoint`, `Blip` and `Bind`. Changes from 2.x are listed in
+[MIGRATION-v3.md](../MIGRATION-v3.md).
 
 ## Handles
 

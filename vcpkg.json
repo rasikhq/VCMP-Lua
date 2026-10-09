@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "vcmp-lua",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Lua 5.4 scripting plugin for the Vice City: Multiplayer 0.4 server",
   "homepage": "https://github.com/rasikhq/VCMP-Lua",
   "license": "MIT",

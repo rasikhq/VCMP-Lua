@@ -155,7 +155,7 @@ TEST_CASE("every built-in module is preloaded, and nothing internal is") {
     )lua") == "");
 }
 
-TEST_CASE("Hash: v1 digests and the OpenSSL functions") {
+TEST_CASE("Hash: 2.x digests and the OpenSSL functions") {
     FakeServer server;
     REQUIRE(server.Load());
     server.Initialise();

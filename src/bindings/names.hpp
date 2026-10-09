@@ -11,7 +11,7 @@ int SkinId(std::string_view name);
 const char* SkinName(int id);
 
 // The weapon id a name refers to ("M4", "uzi", ...); 255 if unknown, 0 for
-// an empty name (v1's values).
+// an empty name (2.x's values).
 int WeaponId(std::string_view name);
 
 // The weapon's (or death reason's) name; "Unknown" for an unknown id.

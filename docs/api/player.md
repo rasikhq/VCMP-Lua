@@ -7,8 +7,8 @@ disconnects.
 
 See [entities](entities.md) for the members every entity has (`id`, `valid`,
 `data`, `Player.findByID`, `Player.count`, `tostring`, ...) and for how
-arguments are checked. Changes from v1 are listed in the
-[migration guide](../MIGRATION-v2.md).
+arguments are checked. Changes from 2.x are listed in the
+[migration guide](../MIGRATION-v3.md).
 
 Types used below:
 
