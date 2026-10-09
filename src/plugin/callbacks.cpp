@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include "bindings/stream.hpp"
 #include "plugin/api_guard.hpp"
 #include "plugin/plugin.hpp"
 #include "runtime/config.hpp"
@@ -577,6 +578,23 @@ void OnPlayerKeyBindUp(int32_t player_id, int32_t bind_id) noexcept {
     });
 }
 
+// onClientData(player, stream, size). The data is copied into a Stream of
+// its own size: the client controls size (v1 overflowed a stack buffer).
+void OnClientScriptData(int32_t player_id, const uint8_t* data, size_t size) noexcept {
+    OnEvent("OnClientScriptData", [&](Runtime& runtime) {
+        if (!runtime.Events().HasHandlers(EventBus::Index(Event::ClientData))) {
+            return false;
+        }
+        bindings::Stream stream;
+        if (data != nullptr && size > 0) {
+            stream.bytes.assign(data, data + size);
+        }
+        // One Lua object for every handler: each reads the same stream.
+        sol::main_object object(runtime.state(), sol::in_place, std::move(stream));
+        return Emit(runtime, Event::ClientData, SeenPlayer(runtime, player_id), object, size);
+    });
+}
+
 void SetPluginName(PluginInfo* info) noexcept {
     const std::size_t length = std::min(std::strlen(kPluginName), sizeof(info->name) - 1);
     std::memcpy(info->name, kPluginName, length);
@@ -678,6 +696,7 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerPrivateMessage, &OnPlayerPrivateMessage);
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerSpectate, &OnPlayerSpectate);
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerCrashReport, &OnPlayerCrashReport);
+        VCMP_LUA_SET_CALLBACK(calls, OnClientScriptData, &OnClientScriptData);
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerKeyBindDown, &OnPlayerKeyBindDown);
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerKeyBindUp, &OnPlayerKeyBindUp);
         VCMP_LUA_SET_CALLBACK(calls, OnVehicleUpdate, &OnVehicleUpdate);

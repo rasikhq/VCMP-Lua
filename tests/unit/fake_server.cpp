@@ -303,6 +303,17 @@ void InstallStateful(PluginFuncs& funcs) {
     Override<&PluginFuncs::KickPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
     Override<&PluginFuncs::BanPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
 
+    // Records the bytes, in hex: SendClientScriptData(0, 01ff, 2).
+    Override<&PluginFuncs::SendClientScriptData>([](int32_t id, const void* data, size_t size) {
+        FakeServer& server = FakeServer::Current();
+        std::string hex;
+        for (size_t i = 0; i < size; ++i) {
+            hex += fmt::format("{:02x}", static_cast<const uint8_t*>(data)[i]);
+        }
+        server.calls.back() = fmt::format("SendClientScriptData({}, {}, {})", id, hex, size);
+        return server.Connected(id) ? vcmpErrorNone : vcmpErrorNoSuchEntity;
+    });
+
     // Key binds: slots 0-255, shared by every plugin, no pool events.
     Override<&PluginFuncs::GetKeyBindUnusedSlot>([]() -> int32_t {
         const auto& binds = FakeServer::Current().key_binds;

@@ -21,6 +21,7 @@ add_library(vcmp_lua_core STATIC
     bindings/pickup.cpp
     bindings/player.cpp
     bindings/server.cpp
+    bindings/stream.cpp
     bindings/timer.cpp
     bindings/vehicle.cpp
     core/entity_pool.cpp

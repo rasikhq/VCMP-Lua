@@ -287,3 +287,34 @@ TEST_CASE("key bind events; a reload removes our binds only") {
 }
 
 }  // namespace vcmp_lua::test
+
+namespace vcmp_lua::test {
+
+TEST_CASE("onClientData: any size is copied into a Stream of that size") {
+    FakeServer server;
+    Start(server);
+    REQUIRE(server.Run(R"(
+        Event.bind("onClientData", function(player, stream, size)
+            record(tostring(player), size, stream.size, stream:readNumber(), stream:readString())
+        end)
+        Event.bind("onClientData", function(player, stream, size)
+            record("second handler", stream.remaining)
+        end)
+    )") == "");
+    const int32_t id = server.Connect();
+    // 4 + 2 + 10000 bytes: v1 copied this into a 4096-byte stack array.
+    std::vector<uint8_t> data = {0x2A, 0, 0, 0, 0x27, 0x10};
+    data.resize(data.size() + 10000, 'z');
+    server.plugin.OnClientScriptData(id, data.data(), data.size());
+    REQUIRE(server.records.size() == 2);
+    CHECK(server.records[0] == "Player(0) 10006 10006 42 " + std::string(10000, 'z'));
+    CHECK(server.records[1] == "second handler 0");
+
+    // Truncated data: the handler's read fails, the server goes on.
+    const uint8_t short_data[] = {1, 2};
+    server.plugin.OnClientScriptData(id, short_data, sizeof(short_data));
+    CHECK(server.LogText().find("not enough data to read a number") != std::string::npos);
+    server.plugin.OnClientScriptData(id, nullptr, 0);
+}
+
+}  // namespace vcmp_lua::test

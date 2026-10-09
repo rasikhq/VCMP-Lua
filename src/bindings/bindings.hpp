@@ -13,6 +13,7 @@ void RegisterEvent(sol::state& lua);
 void RegisterTimer(sol::state& lua);
 void RegisterEntities(sol::state& lua);
 void RegisterServer(sol::state& lua);
+void RegisterStream(sol::state& lua);
 
 // The function in value; throws "<where>: argument <n> must be a function
 // (got <type>)" for anything else.

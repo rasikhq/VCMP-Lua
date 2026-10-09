@@ -155,6 +155,23 @@ In v2 the server owns them, as in Squirrel:
   that another plugin registered (v1 passed `nil`).
 - `Server.reload()` removes the binds the scripts created.
 
+## Stream
+
+- Same members and byte layout as v1. `Stream()` and `Stream.new()`
+  create one.
+- Reading past the end raises "Stream: not enough data to read ..."
+  instead of returning 0 or an empty string; writing past 4096 bytes
+  raises "Stream: no room to write ...". A failed read or write changes
+  nothing.
+- `writeByte` takes -128 to 255; `writeNumber` takes any 32-bit integer,
+  signed or unsigned.
+- `stream:send()` without a player sends to every player, as
+  `stream:send(nil)` did.
+- `onClientData(player, stream, size)` accepts data of any size from the
+  client. In v1 more than 4096 bytes overflowed a buffer on the server's
+  stack.
+- New: `stream.size` and `stream.remaining`.
+
 ## New
 
 - `Server.reload()` reloads `luaconfig.lua` and every script.
