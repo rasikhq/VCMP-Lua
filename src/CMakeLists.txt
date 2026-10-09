@@ -9,6 +9,17 @@ vcmp_lua_embed("${_generated}/embedded_modules.cpp"
 
 # Everything except the entry point. The plugin and the tests link it.
 add_library(vcmp_lua_core STATIC
+    bindings/bindings.cpp
+    bindings/convert.cpp
+    bindings/entities.cpp
+    bindings/event.cpp
+    bindings/server.cpp
+    bindings/timer.cpp
+    core/entity_pool.cpp
+    core/event_bus.cpp
+    core/frame_pump.cpp
+    core/scheduler.cpp
+    plugin/callbacks.cpp
     runtime/config.cpp
     runtime/errors.cpp
     runtime/libraries.cpp
@@ -20,7 +31,8 @@ target_include_directories(vcmp_lua_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" "$
 target_include_directories(vcmp_lua_core SYSTEM PUBLIC "${PROJECT_SOURCE_DIR}/third_party/vcmp")
 # Build-wide definitions (plan B3.10). SOL_ALL_SAFETIES_ON decides whether
 # sol::function calls are protected, so it must be the same in every file.
-target_compile_definitions(vcmp_lua_core PUBLIC SOL_ALL_SAFETIES_ON=1)
+# SOL_PRINT_ERRORS=0: errors reach Lua and the plugin log, not stderr.
+target_compile_definitions(vcmp_lua_core PUBLIC SOL_ALL_SAFETIES_ON=1 SOL_PRINT_ERRORS=0)
 if(WIN32)
     target_compile_definitions(vcmp_lua_core PUBLIC NOMINMAX WIN32_LEAN_AND_MEAN)
 endif()

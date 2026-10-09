@@ -11,6 +11,7 @@ if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif()
 
 option(VCMP_LUA_BUILD_TESTS "Build the tests" ON)
+option(VCMP_LUA_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer (GCC/Clang)" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,6 +26,17 @@ if(MSVC)
     # /EHs, not /EHsc: Lua is compiled as C, and the panic handler throws a
     # C++ exception through its frames, so extern "C" calls may throw.
     string(REPLACE "/EHsc" "/EHs" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
+
+# Everything compiled here, third-party Lua modules included. The vcpkg
+# libraries are not instrumented. Any finding fails the test (no recovery).
+if(VCMP_LUA_SANITIZE)
+    if(MSVC)
+        message(FATAL_ERROR "VCMP_LUA_SANITIZE is for GCC and Clang")
+    endif()
+    add_compile_options(-fsanitize=address,undefined -fno-sanitize-recover=all
+                        -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=address,undefined)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -60,5 +72,6 @@ add_subdirectory(src)
 
 if(VCMP_LUA_BUILD_TESTS)
     enable_testing()
+    add_subdirectory(tests/unit)
     add_subdirectory(tests/host)
 endif()

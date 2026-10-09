@@ -109,6 +109,52 @@ jobs:
           path: build/linux-release/bin/LuaPlugin_x64.so
           if-no-files-found: error
 
+  linux-asan:
+    name: Linux x64 unit tests (ASan + UBSan)
+    # After the release job, so a cold cache is built once and shared.
+    needs: linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ci
+          file: ci/manylinux.Dockerfile
+          tags: vcmp-lua-build
+          load: true
+          cache-from: type=gha,scope=manylinux
+
+      - name: vcpkg cache key
+        id: key
+        run: echo "key=vcpkg-linux-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json', 'cmake/triplets/x64-linux-plugin.cmake', 'ci/manylinux.Dockerfile') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore vcpkg packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/vcpkg-archives
+          key: ${{ steps.key.outputs.key }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ steps.key.outputs.key }}-
+            vcpkg-linux-
+
+      - name: Build and run the unit tests under ASan + UBSan
+        run: docker run --rm -v "$PWD:/src" -w /src vcmp-lua-build ci/test-asan.sh
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: linux-asan-logs
+          path: |
+            build/linux-asan/CMakeFiles/CMakeConfigureLog.yaml
+            build/linux-asan/Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
+
   windows:
     name: Windows x64 (MSVC)
     if: github.event_name != 'workflow_dispatch' || inputs.jobs != 'linux'

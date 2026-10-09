@@ -178,11 +178,11 @@ Config ReadConfig(lua_State* L, const std::string& file) {
         } else if (key == "log") {
             reader.Fields(value, "log", [&](std::string_view log_key, int log_value) {
                 if (log_key == "level") {
-                    config.log_level = ParseLevel(reader, log_value);
+                    config.log.level = ParseLevel(reader, log_value);
                 } else if (log_key == "file") {
-                    reader.String(log_value, "log.file");
+                    config.log.file = reader.String(log_value, "log.file");
                 } else if (log_key == "daily") {
-                    reader.Boolean(log_value, "log.daily");
+                    config.log.daily = reader.Boolean(log_value, "log.daily");
                 } else {
                     reader.Unknown(fmt::format("log.{}", log_key));
                 }

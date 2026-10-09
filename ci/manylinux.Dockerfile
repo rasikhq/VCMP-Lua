@@ -7,11 +7,14 @@
 FROM quay.io/pypa/manylinux_2_28_x86_64:2026.10.03-1@sha256:39df0042d5cc900b085aa25a0659368b42a0006c54c474299b785b44c1b4ff82
 
 # perl-IPC-Cmd, perl-Time-Piece: OpenSSL's Configure. bison, flex: libpq.
-# patch: cmake/deps. The image already has Python 3.12 (meson needs 3.7+);
-# AlmaLinux's python3 package would replace it with 3.6.
+# patch: cmake/deps. libasan, libubsan: the linux-asan preset. The image
+# already has Python 3.12 (meson needs 3.7+); AlmaLinux's python3 package
+# would replace it with 3.6.
 RUN dnf install -y \
         bison \
         flex \
+        gcc-toolset-14-libasan-devel \
+        gcc-toolset-14-libubsan-devel \
         git \
         patch \
         perl-IPC-Cmd \

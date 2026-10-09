@@ -4,6 +4,8 @@
 
 #include <utility>
 
+#include "runtime/config.hpp"
+
 namespace vcmp_lua::log {
 
 // Creates the process-wide logger (console). Call once, first thing in
@@ -15,6 +17,11 @@ void Init();
 spdlog::logger* Logger() noexcept;
 
 void SetLevel(spdlog::level::level_enum level) noexcept;
+
+// Applies luaconfig.lua's log settings: the level, and the log file, which
+// replaces the previous one (a reload may change it). A file that cannot be
+// opened is reported, and logging continues on the console.
+void Configure(const LogConfig& config) noexcept;
 
 // Logging never throws: callers include noexcept server callbacks.
 template <typename... Args>

@@ -8,6 +8,7 @@
 #include <string_view>
 #include <utility>
 
+#include "bindings/bindings.hpp"
 #include "runtime/errors.hpp"
 #include "runtime/log.hpp"
 #include "runtime/preload.hpp"
@@ -53,6 +54,8 @@ int SetupState(lua_State* L) {
     return 0;
 }
 
+Runtime::Remains* g_remains = nullptr;
+
 // Arg 1: light userdata, NUL-terminated path. Returns the loaded chunk.
 // Text mode only: crafted bytecode can crash Lua 5.4 (plan B6).
 int LoadScriptFile(lua_State* L) {
@@ -65,49 +68,86 @@ int LoadScriptFile(lua_State* L) {
 
 }  // namespace
 
-class Runtime::CallScope {
-public:
-    explicit CallScope(Runtime& runtime) noexcept : runtime_(runtime) { ++runtime_.call_depth_; }
-    ~CallScope() { --runtime_.call_depth_; }
-
-    CallScope(const CallScope&) = delete;
-    CallScope& operator=(const CallScope&) = delete;
-
-private:
-    Runtime& runtime_;
+// What a runtime that died in a Lua panic leaves behind. It is leaked on
+// purpose, but stays reachable from g_remains, so leak checkers do not report
+// it. Allocated up front: the dead path must not depend on an allocation.
+struct Runtime::Remains {
+    std::optional<sol::state> lua;
+    std::unique_ptr<Invoker> invoker;
+    std::unique_ptr<EntityPools> entities;
+    std::unique_ptr<EventBus> events;
+    std::unique_ptr<Scheduler> timers;
+    std::unique_ptr<FramePump> pump;
+    Remains* next = nullptr;
 };
 
-Runtime::Runtime(Config config) : config_(std::move(config)) {
+Runtime::Runtime(Config config, ServerApi api, Clock clock)
+    : config_(std::move(config)), api_(api), remains_(std::make_unique<Remains>()) {
     lua_.emplace(&Panic);
     lua_State* L = lua_->lua_state();
     *static_cast<Runtime**>(lua_getextraspace(L)) = this;
+    try {
+        invoker_ = std::make_unique<Invoker>(L);
+        entities_ = std::make_unique<EntityPools>();
+        events_ = std::make_unique<EventBus>(*invoker_);
+        timers_ = std::make_unique<Scheduler>(*invoker_, std::move(clock));
+        pump_ = std::make_unique<FramePump>();
+        pump_->Add([this](lua_State* thread) { timers_->Tick(thread); });
 
-    lua_pushcfunction(L, &SetupState);
-    lua_pushlightuserdata(L, &config_);
-    if (auto error = ProtectedCall(L, 1, 0)) {
-        throw std::runtime_error("cannot set up the Lua state: " + *error);
+        lua_pushcfunction(L, &SetupState);
+        lua_pushlightuserdata(L, &config_);
+        if (auto error = ProtectedCall(L, 1, 0)) {
+            throw std::runtime_error("cannot set up the Lua state: " + *error);
+        }
+        bindings::Register(*lua_);
+    } catch (...) {
+        Shutdown(ShutdownReason::Server);
+        throw;
     }
 }
 
 Runtime::~Runtime() {
-    Shutdown();
+    Shutdown(ShutdownReason::Server);
 }
 
 bool Runtime::Usable() const noexcept {
     return lua_.has_value() && !closing_ && !dead_;
 }
 
+bool Runtime::InLuaCall() const noexcept {
+    return invoker_ != nullptr && invoker_->depth() > 0;
+}
+
+void Runtime::MarkDead() noexcept {
+    dead_ = true;
+    if (invoker_ != nullptr) {
+        invoker_->MarkDead();
+    }
+}
+
 Runtime* Runtime::FromState(lua_State* L) noexcept {
     return *static_cast<Runtime**>(lua_getextraspace(L));
 }
 
+Runtime& Runtime::Require(lua_State* L) {
+    Runtime* runtime = FromState(L);
+    if (runtime == nullptr || !runtime->Usable()) {
+        throw std::runtime_error("runtime shutting down");
+    }
+    return *runtime;
+}
+
 void Runtime::LoadScripts() {
+    if (!Usable()) {
+        return;
+    }
+    entities_->Enumerate(api_);
     for (const std::string& script : config_.scripts) {
         if (!Usable()) {
             return;
         }
         lua_State* L = lua_->lua_state();
-        CallScope scope(*this);
+        Invoker::Scope scope(*invoker_);
         log::Info("Loading {}", script);
 
         lua_pushcfunction(L, &LoadScriptFile);
@@ -121,34 +161,109 @@ void Runtime::LoadScripts() {
             log::Error("{}", *error);
         }
     }
+    if (Usable()) {
+        events_->Emit(lua_->lua_state(), Event::ServerInit);
+    }
 }
 
-void Runtime::Frame([[maybe_unused]] float elapsed_seconds) {
+void Runtime::Frame(float elapsed_seconds) {
     if (!Usable()) {
         return;
     }
-    // Phase 2: timers, deferred work and the HTTP/Copas pumps run here.
+    lua_State* L = lua_->lua_state();
+    pump_->Run(L);
+    if (Usable()) {
+        events_->Emit(L, Event::ServerFrame, elapsed_seconds);
+    }
 }
 
-void Runtime::Shutdown() noexcept {
+void Runtime::NotifyServerShutdown() {
+    if (!Usable()) {
+        return;
+    }
+    lua_State* L = lua_->lua_state();
+    events_->Emit(L, Event::ServerShutdown);
+    EntityPool& players = entities_->Players();
+    for (const std::int32_t id : players.AliveIds()) {
+        if (!Usable()) {
+            return;
+        }
+        if (!players.Alive(id)) {
+            continue;  // a handler kicked this player meanwhile
+        }
+        events_->Emit(L, Event::PlayerDisconnect, players.Ref<EntityKind::Player>(id),
+                      vcmpDisconnectReasonTimeout);
+        players.Release(id);
+    }
+}
+
+void Runtime::Shutdown(ShutdownReason reason) noexcept {
     if (!lua_.has_value()) {
         return;
     }
-    // 1. From here on bindings raise "runtime shutting down".
+    if (InLuaCall()) {
+        // A caller bug: Lua is still running. The plugin defers shutdowns
+        // and reloads until no call is active, so this is never reached.
+        log::Error("Runtime::Shutdown during a call into Lua; ignored");
+        return;
+    }
+    // 1. From here on bindings raise "runtime shutting down" and no new
+    //    entity handle is made.
     closing_ = true;
 
-    // 2. Release every Lua reference C++ holds (handlers, timers, entity
-    //    handles and data tables, pending HTTP callbacks). None exist yet.
+    // After a panic the Lua state is inconsistent: not even releasing a
+    // reference is safe. The state and everything that refers into it are
+    // leaked instead.
+    if (dead_) {
+        Remains* remains = remains_.release();
+        remains->lua = std::move(lua_);
+        remains->invoker = std::move(invoker_);
+        remains->entities = std::move(entities_);
+        remains->events = std::move(events_);
+        remains->timers = std::move(timers_);
+        remains->pump = std::move(pump_);
+        remains->next = std::exchange(g_remains, remains);
+        lua_.reset();  // moved from: closes nothing
+        return;
+    }
+
+    // A reload removes what this runtime created. The server reports those
+    // deletions while closing_ is set, so they only update the pools.
+    if (entities_ != nullptr) {
+        entities_->Close();
+        if (reason == ShutdownReason::Reload) {
+            try {
+                entities_->DeleteCreated(api_);
+            } catch (...) {
+                log::Error("cannot delete the entities of the old runtime");
+            }
+        }
+    }
+
+    // 2. Release every Lua reference C++ holds.
+    if (pump_ != nullptr) {
+        pump_->Clear();
+    }
+    if (timers_ != nullptr) {
+        timers_->Clear();
+    }
+    if (events_ != nullptr) {
+        events_->Clear();
+    }
+    if (entities_ != nullptr) {
+        entities_->ReleaseRefs();
+    }
 
     // 3. Close the Lua state: __gc and __close run while the subsystems are
-    //    still alive. After a panic the state is inconsistent, so it is
-    //    leaked instead.
-    if (dead_) {
-        [[maybe_unused]] auto* leaked = new (std::nothrow) sol::state(std::move(*lua_));
-    }
+    //    still alive (and empty).
     lua_.reset();
 
-    // 4. Destroy the subsystems. None exist yet.
+    // 4. Destroy the subsystems.
+    pump_.reset();
+    timers_.reset();
+    events_.reset();
+    entities_.reset();
+    invoker_.reset();
 }
 
 }  // namespace vcmp_lua

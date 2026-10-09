@@ -2,7 +2,7 @@
 
 Facts about the VC:MP server that the v2 runtime is built on, measured in
 phase 1. They settle the entity design (plan B4) and the shutdown order
-(plan B3.1).
+(plan B3.1). The last section describes how the runtime (phase 2) uses them.
 
 ## How the facts were measured
 
@@ -130,9 +130,8 @@ Consequences:
   binding. The event bus must allow nested dispatch (B3.6), and the kick
   binding must not use the player after the server call returns.
 - Players are still connected during `OnServerShutdown`, and their
-  disconnects arrive after the runtime has closed. Phase 2 decides whether
-  the runtime dispatches a disconnect for every connected player before it
-  closes; otherwise scripts must save player data in their shutdown handler.
+  disconnects arrive after the runtime has closed. The runtime therefore
+  dispatches them itself (see "Runtime" below).
 - In a container on macOS the server sees the NAT gateway's address
   (192.168.215.1), not the client's, so player IPs are not meaningful there.
 
@@ -161,3 +160,88 @@ Behaviour to document for users:
   plugin statically, and the plugin never loads one from disk.
 - `LIBMYSQL_PLUGINS`, an environment variable the operator controls, can
   still make the connector load plugins when it initialises.
+
+## Runtime
+
+How the phase 2 core (`src/core`, `src/runtime`, `src/plugin`) behaves. The
+unit tests in `tests/unit` check each point against `FakeServer`, an
+in-memory server that reproduces the behaviour measured above.
+
+### Lifetime
+
+- `VcmpPluginInit` reads `luaconfig.lua` and creates the `Runtime`; scripts
+  run in `OnServerInitialise`, after the runtime adopts the players and
+  entities that already exist. `onServerInit` follows the scripts.
+- Each frame runs the frame pump (timers; HTTP and Copas from phase 4), then
+  `onServerFrame(elapsedSeconds)`.
+- `OnServerShutdown`: `onServerShutdown`, then `onPlayerDisconnect` for
+  every player still online, with reason 0 (`vcmpDisconnectReasonTimeout`,
+  the reason the server itself reports later), then the shutdown. Scripts
+  can save player data in their disconnect handler in every case. The
+  server's own disconnects arrive after the runtime has closed and are
+  ignored.
+- Shutdown order: mark closing (bindings raise "runtime shutting down", no
+  new entity handles); release every Lua reference C++ holds (handlers,
+  timers, entity handles and data tables); close the Lua state, so `__gc`
+  runs while the subsystems still exist; destroy the subsystems.
+- If `OnServerShutdown` arrives during a call into Lua, the shutdown runs
+  when that call returns. (No frame follows `OnServerShutdown`, so it cannot
+  wait for the end of the frame.)
+- After a Lua panic the runtime is dead: every callback does nothing, and
+  the Lua state is leaked at shutdown instead of closed.
+
+### Reload
+
+`Server.reload()` sets a flag. At the end of the frame, once no call into Lua
+is active, the plugin reads `luaconfig.lua` again (if it is now invalid, the
+error is logged and the old scripts keep running), deletes the vehicles,
+objects, pickups, checkpoints and blips the old runtime created, closes the
+old Lua state and starts a new runtime, which adopts the existing players and
+entities and runs the scripts. Player classes cannot be removed through the
+server API, so they stay. Phase 3 adds key binds to what a reload deletes.
+
+### Events
+
+- Built-in events are indexed by an enum; `Event.create` adds custom events
+  after them. Handlers run in bind order.
+- A dispatch calls only the handlers that existed when it started. A
+  handler bound during the dispatch runs from the next one on; a handler
+  unbound before its turn does not run.
+- `Event.cancel()` stops the remaining handlers of the innermost active
+  dispatch (from phase 3 it also makes a cancellable server callback return
+  0). Outside a dispatch it raises an error. `Event.trigger` returns false
+  when a handler cancelled.
+- A handler that raises an error is logged with its traceback, and the next
+  handler runs.
+- Server callbacks can nest: `KickPlayer` reports the disconnect
+  synchronously, so the disconnect handlers run inside the kicking handler.
+
+### Timers
+
+- `Timer.create(fn, intervalMs, repeats, ...)`: `repeats` is -1 (forever) or
+  a positive count; the interval is 0 to 2^40 ms. Integral floats such as
+  `1000 / 2` are accepted.
+- Times are 64-bit `steady_clock` milliseconds, so they never wrap.
+- A tick collects the due timers first, then calls them. A timer created in
+  a callback waits for the next tick; one destroyed in a callback does not
+  run.
+- Fixed rate, without catch-up: after a long stall a timer runs once, then
+  keeps its rate from that moment.
+- `thisTimer` is the running timer, as in v1.
+
+### Entities
+
+- One pool per kind with the server's limits (players 100, vehicles
+  1-1000, objects 3000, pickups 2000, checkpoints 2000, blips 100). Ids
+  outside a pool are logged and ignored.
+- A slot holds a generation, the cached Lua handle (created when Lua first
+  sees the entity), the `data` table and whether this runtime created the
+  entity. The generation changes once per lifetime.
+- Lua gets an entity only through the cached handle, so `==` and table keys
+  work; a dead entity or id -1 becomes nil. Every member of a handle checks
+  the generation and raises "<kind> no longer exists".
+- Adopt and release are idempotent: the pool event inside `Create*` adopts
+  the entity before the binding that called `Create*` adopts it again.
+- Players are released after the disconnect dispatch, entities after the
+  "deleted" dispatch of `onEntityPoolChange`.
+

@@ -8,12 +8,20 @@
 
 namespace vcmp_lua {
 
-// Settings from luaconfig.lua (plan B7). Phase 1 uses scripts, package_path
-// and log.level; log.file, log.daily and http.cafile are only type-checked.
+struct LogConfig {
+    spdlog::level::level_enum level = spdlog::level::info;
+    // Also log to this file, if set. With daily, one file per day:
+    // "logs/vcmp-lua.log" becomes "logs/vcmp-lua_2026-10-09.log".
+    std::string file;
+    bool daily = false;
+};
+
+// Settings from luaconfig.lua (plan B7). http.cafile is only type-checked
+// until the HTTP module arrives in phase 4.
 struct Config {
     std::vector<std::string> scripts;
     std::string package_path = "lua/?.lua;lua/?/init.lua";
-    spdlog::level::level_enum log_level = spdlog::level::info;
+    LogConfig log;
 };
 
 class ConfigError : public std::runtime_error {

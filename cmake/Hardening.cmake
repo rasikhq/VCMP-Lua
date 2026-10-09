@@ -22,6 +22,11 @@ function(vcmp_lua_first_party target)
         target_compile_options(${target} PRIVATE /W4 /WX /permissive- /utf-8 /bigobj /Zc:__cplusplus)
     else()
         target_compile_options(${target} PRIVATE -Wall -Wextra -Werror)
+        # The sanitizers' instrumentation makes GCC report false positives
+        # here (in sol2's headers); the release build keeps the warning.
+        if(VCMP_LUA_SANITIZE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+            target_compile_options(${target} PRIVATE -Wno-maybe-uninitialized)
+        endif()
     endif()
 endfunction()
 
