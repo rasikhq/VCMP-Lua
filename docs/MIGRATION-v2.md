@@ -1,6 +1,56 @@
 # Migrating from v1 to v2
 
-Draft: each phase adds the changes it makes; phase 5 completes this guide.
+v2 rebuilds the plugin around one rule: a script can not crash the server.
+Most scripts keep working; this guide lists every change. The full API is in
+[docs/api](api/).
+
+## Installing
+
+- The plugin is one file per platform: `plugins/LuaPlugin_x64.dll`
+  (Windows) or `plugins/LuaPlugin_x64.so` (Linux, glibc 2.28 or newer). It
+  needs no other files and no VC++ redistributable. The DLLs and `.so`
+  files v1 needed (OpenSSL, MySQL, LuaSocket, Lanes) can go.
+- Only 64-bit servers are supported.
+
+## Configuration: luaconfig.ini becomes luaconfig.lua
+
+`luaconfig.ini` is no longer read. Put `luaconfig.lua` in the same place;
+it returns a table ([configuration](configuration.md) lists every field):
+
+```ini
+[config]
+loglevel=0
+logfile=DailyLogs.logs
+
+[modules]
+lanes=false
+
+[scripts]
+script=lua/script.lua
+```
+
+becomes
+
+```lua
+return {
+  scripts = { "lua/script.lua" },
+  log = { level = "debug", file = "DailyLogs.logs", daily = true },
+}
+```
+
+- `loglevel` becomes `log.level`, a name: `"trace"`, `"debug"`, `"info"`,
+  `"warn"`, `"error"`, `"critical"` or `"off"`.
+- `logfile` becomes `log.file`; `daily = true` starts a new file every day,
+  as v1 did.
+- `[modules]` is gone: every library is built in and loads with `require`.
+- `experimental` is gone, and so are `__experimental__` and
+  `__reload_scripts`. Use `Server.reload()`.
+- A mistake in the file keeps the plugin from starting, with a message
+  such as `luaconfig.lua: scripts[2] must be a string (got number)`. During
+  `Server.reload()` the old scripts keep running instead. Unknown settings
+  are logged and ignored.
+- Scripts run when the server has started (`onServerInit`), not while the
+  plugin loads.
 
 ## Errors
 
@@ -224,9 +274,10 @@ replacement, e.g. "MySQL was removed in v2: use require "luasql.mysql"
 ### MySQL
 
 `MySQL.createConnection` and its connection objects ran queries on worker
-threads, which crashed the server (plan A1). Use LuaSQL:
+threads, which crashed the server. Use LuaSQL:
 `require "luasql.mysql"` (MariaDB Connector/C, linked into the plugin).
-Queries run synchronously on the server thread. LuaSQL has no prepared
+Queries run synchronously on the server thread; non-blocking queries will
+follow once LuaSQL releases its asynchronous API. LuaSQL has no prepared
 statements; build queries with `sql.format` (see "SQL values" below)
 instead of concatenating values. v1 bound every number as a float, so
 integers above 2^24 were corrupted; `sql.format` writes integers exactly.
@@ -293,9 +344,15 @@ instead of raising).
 
 ### Thread
 
-`Thread` ran Lua on worker threads, which a Lua state does not allow
-(plan A1). There is no replacement: scripts run on the server's thread.
+`Thread` ran Lua on worker threads, which a Lua state does not allow.
+There is no replacement: scripts run on the server's thread.
 Use timers, and the non-blocking `http` module.
+
+### Lanes
+
+The `lanes` module ran Lua in other threads, and it is gone for the same
+reason as `Thread`. Copas (`require "copas"`) runs coroutines on the server
+thread, for scripts that wait on sockets.
 
 ### Debugger
 
@@ -343,24 +400,23 @@ value such as a table or NaN, raises an error.
 ## Modules
 
 Every library is built into the plugin and loads with `require`, without
-files on disk: `lfs`, `cjson`, `cjson.safe`, `socket` (and `socket.http`,
-`socket.url`, `ltn12`, `mime`, ...), `copas` (and `copas.http`,
-`copas.timer`, ...), `luasql.sqlite3`, `luasql.postgres`, `luasql.mysql`,
-`inspect`, `http`, `hash` and `sql`. Lua modules on `package_path` (from
-`luaconfig.lua`) load as before.
+files on disk: `lfs`, `cjson`, `socket`, `copas`, `luasql.*`, `inspect`,
+`http`, `hash` and `sql`. Lua modules on `package_path` (from
+`luaconfig.lua`) load as before. See [modules](api/modules.md) for the list
+and the limits:
 
-- C modules cannot be loaded from disk (`package.cpath` is empty and
-  `package.loadlib` raises an error): the plugin's Lua is linked into it
-  and hidden, so an external C module could not use it.
+- C modules cannot be loaded from disk.
 - `load`, `loadfile`, `dofile` and `require` accept Lua source only, not
-  precompiled bytecode, which can crash Lua 5.4.
+  precompiled bytecode.
 - `loadfile()` and `dofile()` without a file name raise an error instead of
   waiting for console input.
-- Copas runs one step per server frame once a script requires it; start
-  work with `copas.addthread` and never call `copas.loop()`, which would
-  block the server. LuaSocket and Copas resolve host names on the server
-  thread, which blocks it; `http` does not.
+- Never call `copas.loop()`: the plugin runs Copas every frame.
 
 ## New
 
 - `Server.reload()` reloads `luaconfig.lua` and every script.
+- Entity handles have `valid`. Their `data` table is dropped with the
+  entity, so a new entity with the same id starts with an empty one.
+- The `http` module, `sql.format`, and `Hash.pbkdf2`, `scrypt`, `hmac` and
+  `randomBytes`.
+- `Logger.getLevel()`.
