@@ -26,7 +26,7 @@ public:
 // The server's PluginFuncs, PluginCallbacks and PluginInfo grew over time:
 // fields were appended (e.g. OnPlayerModuleList). An older server passes a
 // smaller struct and reports its size in structSize, so a field may be read or
-// written only when it lies inside that size (plan B3.5).
+// written only when it lies inside that size.
 #define VCMP_LUA_HAS_FIELD(ptr, Type, field) \
     ::vcmp_lua::FieldFits((ptr)->structSize, offsetof(Type, field), sizeof(Type::field))
 

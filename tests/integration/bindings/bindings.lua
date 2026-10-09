@@ -1,4 +1,4 @@
--- Phase 3 bindings against a real VC:MP 0.4 server, without players: every
+-- Bindings against a real VC:MP 0.4 server, without players: every
 -- class is created, read back after writing, and destroyed; then the
 -- scripts reload once and the server shuts down. Prints BINDINGS PASS or
 -- BINDINGS FAIL with the failed checks. See run.sh.

@@ -1,7 +1,5 @@
-// Names and ids of skins and weapons: v1's Server.getSkinID/getSkinName and
-// Weapon.getID/getName, ported unchanged except for memory handling (v1
-// returned NULL as a std::string for an unknown skin id, which crashed).
-// The name heuristics come from SqMod via v1.
+// Names and ids of skins and weapons. The name heuristics come from SqMod via
+// v1.
 #include "bindings/names.hpp"
 
 #include <array>
@@ -445,7 +443,7 @@ int SkinId(std::string_view name) {
     const char c = name.size() >= 3 ? Lower(name[2]) : 0;
     const char d = str[len - 1];
 
-    // Search for a pattern in the name
+    // Search for a pattern in the name.
     switch (a) {
             // [A]lex Srub, [A]rabic guy, [A]rmy
         case 'a':

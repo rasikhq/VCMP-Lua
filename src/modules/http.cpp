@@ -1,14 +1,4 @@
-// require "http": non-blocking HTTP(S) requests (plan B5, decision 5).
-//
-//   local http = require "http"
-//   http.request({ url = "https://example.com/api", method = "POST",
-//                  headers = { ["Content-Type"] = "application/json" },
-//                  body = cjson.encode(data), timeout = 10 },
-//                function(res, err)
-//                  if not res then print("failed: " .. err) return end
-//                  print(res.status, res.headers["content-type"], #res.body)
-//                end)
-//   http.request("https://example.com/", function(res, err) ... end)  -- GET
+// require "http": non-blocking HTTP(S) requests.
 #include "modules/http.hpp"
 
 #include <curl/curl.h>
@@ -92,7 +82,6 @@ struct Http::Transfer {
     CURLcode result = CURLE_OK;
     char error[CURL_ERROR_SIZE] = {};
     bool too_large = false;
-    // The response.
     std::vector<std::pair<std::string, std::string>> response_headers;
     std::string body;
 
@@ -367,8 +356,6 @@ void Http::Clear() noexcept {
     transfers_.clear();
 }
 
-// --- The Lua module ------------------------------------------------------------
-
 namespace modules {
 namespace {
 
@@ -393,8 +380,8 @@ std::string_view View(lua_State* L, int idx) {
     return {text, length};
 }
 
-// Pushes options[field] (a raw read: no metamethod runs, plan B3.3) and
-// returns its type.
+// Pushes options[field] with a raw read, so no metamethod runs, and returns
+// its type.
 int Field(lua_State* L, const char* field) {
     lua_pushstring(L, field);
     return lua_rawget(L, 1);

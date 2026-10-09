@@ -14,8 +14,8 @@
 
 namespace vcmp_lua {
 
-// The server entities scripts get handles to (plan B4). Key binds are not
-// in the server's entity pools (no pool events), but are held the same way.
+// The server entities scripts get handles to. Key binds are not in the
+// server's entity pools (no pool events), but are held the same way.
 enum class EntityKind : std::uint8_t { Player, Vehicle, Object, Pickup, Checkpoint, Blip, Bind };
 inline constexpr std::size_t kEntityKindCount = 7;
 
@@ -107,7 +107,7 @@ public:
         return {id, Slot(id).generation};
     }
 
-    // Entities this runtime created are deleted when it reloads (B4).
+    // Entities this runtime created are deleted when it reloads.
     void MarkCreatedByUs(std::int32_t id) noexcept;
     [[nodiscard]] std::vector<std::int32_t> CreatedByUs() const;
     [[nodiscard]] std::vector<std::int32_t> AliveIds() const;

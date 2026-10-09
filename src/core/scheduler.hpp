@@ -16,12 +16,12 @@ namespace vcmp_lua {
 using Clock = std::function<std::int64_t()>;
 Clock SteadyClock();
 
-// Timers (plan B3.8). Times are 64-bit milliseconds, so the clock never wraps,
-// and Lua holds a timer by its id, never by a pointer.
+// Timers. Times are 64-bit milliseconds, so the clock never wraps, and Lua
+// holds a timer by its id, never by a pointer.
 //
-// Tick() first collects the timers that are due, then calls them (B3.7). A
-// timer created during a tick waits for the next one. A timer destroyed while
-// it runs is only marked, and removed once its callback returns (B3.6).
+// Tick() first collects the timers that are due, then calls them. A timer
+// created during a tick waits for the next one. A timer destroyed while it
+// runs is only marked, and removed once its callback returns.
 class Scheduler {
 public:
     static constexpr std::int64_t kForever = -1;

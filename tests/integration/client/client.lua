@@ -1,4 +1,4 @@
--- Phase 3 with a real VC:MP client: the player-facing bindings and events,
+-- Real-client test: the player-facing bindings and events,
 -- which the fake server and the player-less run (tests/integration/bindings)
 -- cannot cover. See README.md in this directory.
 --
@@ -35,7 +35,7 @@ local function expect(actual, expected, what)
     end
 end
 
--- --- Event log ------------------------------------------------------------------
+-- Event log
 
 local function describe(v)
     if type(v) == "table" then
@@ -72,10 +72,10 @@ for _, name in ipairs({
     end
 end
 
--- --- Automatic checks on the first spawn -----------------------------------------
+-- Automatic checks on the first spawn
 
 local function automatic(p)
-    p:msg("VCMP-Lua phase 3 client test: automatic checks", 0xFFFF00FF)
+    p:msg("VCMP-Lua client test: automatic checks", 0xFFFF00FF)
     check(p, "name, ip, uid, uid2, key", function()
         print(("[client] name=%s ip=%s uid=%s uid2=%s key=%d"):format(p.name, p.ip, p.uid, p.uid2, p.key))
         return #p.name > 0 and #p.ip > 0 and #p.uid > 0
@@ -173,7 +173,7 @@ local function automatic(p)
     end)
     check(p, "messages, announcements, sounds", function()
         p:msg("chat with a %n and a %s stays literal")
-        p:announce("~b~VCMP-Lua ~w~phase 3", 1)
+        p:announce("~b~VCMP-Lua ~w~client test", 1)
         p:playSound(50)
     end)
     check(p, "Player.findByName and getActive(true)", function()
@@ -185,7 +185,7 @@ local function automatic(p)
     print(("[client] automatic checks: %d passed, %d failed"):format(results.pass, results.fail))
 end
 
--- --- Commands for the rest ----------------------------------------------------------
+-- Commands for the rest
 
 local made = { vehicles = {} }
 local commands = {}
@@ -317,5 +317,5 @@ Server.addClass(1, 0x0088FF, 1, { -657.0, 762.0, 11.6, 0.0 }, 19, 50)
 Server.setClassPosition(-657.0, 762.0, 11.6)
 Server.setClassCameraPosition(-653.0, 762.0, 13.0)
 Server.setClassCameraLook(-657.0, 762.0, 11.6)
-Server.gamemode = "VCMP-Lua P3 test"
+Server.gamemode = "VCMP-Lua client test"
 print("[client] ready: join the server; /help after spawning")

@@ -1,12 +1,7 @@
-// Bind (key binds): v1's members, ported with fixes:
-// - Key binds are shared by every plugin and raise no pool events, so a
-//   handle is checked against the server (GetKeyBindData) on every use; a
-//   slot whose keys are all 0 is free (docs/internals.md).
-// - The server owns binds: Bind.create (also Bind.new and Bind(...))
-//   returns a handle; the bind stays until bind:destroy(). v1 removed it
-//   when the Lua object was collected (A2).
-// - Bind.clearAllBinds() removes only this plugin's binds; v1 called
-//   RemoveAllKeyBinds and removed other plugins' binds too (A2).
+// Key binds are shared by every plugin and raise no pool events, so a handle
+// is checked against the server (GetKeyBindData) on every use; a slot whose
+// keys are all 0 is free (docs/internals.md). A bind stays until
+// bind:destroy(), not until its handle is collected.
 #include <sol/sol.hpp>
 
 #include <cstdint>
@@ -81,7 +76,7 @@ void RegisterBind(sol::state&, BindType& type) {
         return BindRef{};
     };
 
-    // Bind.clearAllBinds(): removes the binds this plugin created.
+    // Removes only the binds this plugin created, not other plugins' binds.
     type["clearAllBinds"] = [](Ctx ctx) {
         EntityPool& pool = ctx.runtime->Entities().Get(kBind);
         for (const std::int32_t id : pool.CreatedByUs()) {
@@ -90,10 +85,8 @@ void RegisterBind(sol::state&, BindType& type) {
         }
     };
 
-    // bind:destroy(): removes the bind; the handle is dead afterwards.
     type["destroy"] = [](Self self) { return Remove(self); };
 
-    // bind:getData(): {keyOne, keyTwo, keyThree, signalsOnRelease}.
     type["getData"] = [](Self self) {
         BindData data;
         if (!ReadBind(self.api(), self.id, data)) {

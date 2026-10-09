@@ -65,8 +65,6 @@ int PushEntity(lua_State* L, EntityKind kind, std::int32_t id, std::uint32_t gen
     return runtime->Entities().Get(kind).Push(L, id, generation);
 }
 
-// --- EntityPool --------------------------------------------------------------
-
 EntityPool::EntityPool(EntityKind kind)
     : kind_(kind),
       traits_(Traits(kind)),
@@ -200,8 +198,6 @@ void EntityPool::ReleaseRefs() noexcept {
         slot.data.reset();
     }
 }
-
-// --- EntityPools -------------------------------------------------------------
 
 EntityPools::EntityPools()
     : pools_{{EntityPool(EntityKind::Player), EntityPool(EntityKind::Vehicle),

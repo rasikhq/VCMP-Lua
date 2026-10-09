@@ -1,6 +1,5 @@
 // Hash: v1's digests, unchanged, so stored hashes still verify; and OpenSSL's
-// HMAC, PBKDF2, scrypt and random bytes for new password storage (plan B5).
-// The global Hash and require "hash" are the same table.
+// HMAC, PBKDF2, scrypt and random bytes for new password storage.
 #include <digestpp.hpp>
 #include <fmt/format.h>
 #include <lua.hpp>

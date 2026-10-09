@@ -1,4 +1,4 @@
-# Helpers for the Lua modules built from pinned release tarballs (plan B2).
+# Helpers for the Lua modules built from pinned release tarballs.
 # Native libraries come from vcpkg; these small modules are compiled here
 # against vcpkg's Lua so they can be registered in package.preload.
 include(FetchContent)

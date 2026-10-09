@@ -72,7 +72,7 @@ enum class Event : std::uint16_t {
         Count
 };
 
-// Handlers per event, in bind order (plan B3.6).
+// Handlers per event, in bind order.
 //
 // - Events are indexed: the built-ins by their enum value, custom events
 //   (Event.create) after them. Names are looked up only by the Lua API.

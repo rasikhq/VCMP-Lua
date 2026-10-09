@@ -1,10 +1,5 @@
-// Vehicle: v1's members, ported with fixes:
-// - The server owns vehicles: Vehicle.create (also Vehicle.new and
-//   Vehicle(...), as in v1) returns a handle and the vehicle stays until
-//   vehicle:destroy() or the server deletes it. v1 deleted it when the Lua
-//   object was collected, then deleted again with a reused id (A2).
-// - rotation round-trips: assigning what the getter returns works (A3).
-// - Booleans are true/false (A3); getOccupant of an empty seat is nil.
+// A vehicle stays until vehicle:destroy() or the server deletes it, not until
+// its handle is collected.
 #include <fmt/format.h>
 #include <sol/sol.hpp>
 
@@ -162,15 +157,13 @@ void SetRotation(const Self& self, sol::object value) {
 }  // namespace
 
 void RegisterVehicle(sol::state&, VehicleType& type) {
-    // --- Creation and static functions ----------------------------------------
-
     type["create"] = [](sol::this_state L, sol::variadic_args args) {
         return Create(L, args.stack_index());
     };
     type["new"] = [](sol::this_state L, sol::variadic_args args) {
         return Create(L, args.stack_index());
     };
-    // Vehicle(...), as in v1 (sol2 drops the class table).
+    // Vehicle(...); sol2 drops the class table from the arguments.
     type[sol::call_constructor] = [](sol::this_state L, sol::variadic_args args) {
         return Create(L, args.stack_index());
     };
@@ -196,9 +189,6 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
         return Check(ctx.L, VCMP_FN(ctx, SetHandlingRule)(model, rule, value));
     };
 
-    // --- Methods ---------------------------------------------------------------
-
-    // vehicle:destroy(): deletes the vehicle; the handle is dead afterwards.
     type["destroy"] = [](Self self) {
         const bool deleted = Check(self.L, VCMP_FN(self, DeleteVehicle)(self.id));
         if (deleted) {
@@ -322,8 +312,6 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
                      VCMP_FN(self, SetVehicle3DArrowForPlayer)(self.id, player.id, on ? 1 : 0));
     };
 
-    // --- Read-only -------------------------------------------------------------
-
     const auto model = [](Self self) { return VCMP_FN(self, GetVehicleModel)(self.id); };
     type["getModel"] = model;
     type["model"] = Property<kVehicle>(model);
@@ -346,8 +334,6 @@ void RegisterVehicle(sol::state&, VehicleType& type) {
     };
     type["wrecked"] =
         Property<kVehicle>([](Self self) { return VCMP_FN(self, IsVehicleWrecked)(self.id) != 0; });
-
-    // --- Properties ------------------------------------------------------------
 
     type["world"] =
         Property<kVehicle>([](Self self) { return VCMP_FN(self, GetVehicleWorld)(self.id); },

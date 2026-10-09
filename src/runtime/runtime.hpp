@@ -16,8 +16,8 @@
 
 namespace vcmp_lua {
 
-// Owns the Lua state and everything that refers into it (plan B3.1). Created
-// in VcmpPluginInit (or by a reload), scripts run in OnServerInitialise, and
+// Owns the Lua state and everything that refers into it. Created in
+// VcmpPluginInit (or by a reload), scripts run in OnServerInitialise, and
 // Shutdown() tears everything down in a fixed order. Only the server's main
 // thread uses it.
 class Runtime {

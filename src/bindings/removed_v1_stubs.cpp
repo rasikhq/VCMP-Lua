@@ -1,4 +1,4 @@
-// The v1 globals v2 removed (plan B5). Each is a table that raises an error
+// The v1 globals v2 removed. Each is a table that raises an error
 // pointing to its replacement as soon as a script uses it, instead of the
 // script failing later with "attempt to index a nil value".
 #include <fmt/format.h>

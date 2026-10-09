@@ -1,4 +1,4 @@
-// Runtime lifecycle (plan B3.1): server events, shutdown with live
+// Runtime lifecycle: server events, shutdown with live
 // finalizers, deferred shutdown and reload, Lua panics.
 #include <doctest/doctest.h>
 

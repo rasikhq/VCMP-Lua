@@ -1,6 +1,4 @@
-// The constant tables of v1 (ServerOption, PlayerOption, ...), read-only.
-// Fixed from v1: BodyPart.rightLeg was RightArm, ServerOption listed
-// deathMessages twice. New: EntityType.player and NetworkStatistics.
+// The read-only constant tables (ServerOption, PlayerOption, ...).
 #include <vcmp.h>
 #include <sol/sol.hpp>
 
@@ -169,7 +167,7 @@ void RegisterEnums(sol::state& lua) {
              {"checkpoint", vcmpEntityPoolCheckPoint},
          });
 
-    // Player:getNetworkStatistics(option); new in v2 (plugin API 2.1).
+    // For Player:getNetworkStatistics(option); needs plugin API 2.1.
     Enum(lua, "NetworkStatistics",
          {
              {"dataSentPerSecond", vcmpNetworkStatisticsOptionDataSentPerSecond},

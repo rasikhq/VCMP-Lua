@@ -1,5 +1,4 @@
--- MySQL gate (plan, Part C, P1): runs inside the plugin and decides whether
--- MySQL/MariaDB support stays in v2. It must show that
+-- MySQL gate, run inside the plugin. It checks that
 --   - caching_sha2_password (statically linked) works against MySQL 8.4,
 --   - mysql_native_password works against MariaDB 11,
 --   - no authentication plugin is loaded from disk (run.sh plants fake ones),
@@ -57,7 +56,7 @@ local function with(options)
   return merged
 end
 
--- MySQL 8.4 -----------------------------------------------------------------
+-- MySQL 8.4
 
 check("mysql84 caching_sha2_password: full authentication over TLS", function()
   local conn = assert(connect("sha2_tls", "gate-sha2-tls", "mysql84", with({ ssl = "require" })))
@@ -105,7 +104,7 @@ check("mysql84 queries: integers, NULL, escaping", function()
   conn:close()
 end)
 
--- MariaDB 11 ----------------------------------------------------------------
+-- MariaDB 11
 
 check("mariadb11 mysql_native_password: default TLS settings", function()
   local conn = assert(connect("native", "gate-native", "mariadb11", timeouts))
@@ -146,7 +145,7 @@ check("no client plugin is mapped into the process", function()
   end
 end)
 
--- Timeouts (LuaSQL patch) ---------------------------------------------------
+-- Timeouts (LuaSQL patch)
 
 local function timed(fn)
   local started = socket.gettime()

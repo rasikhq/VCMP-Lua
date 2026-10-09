@@ -1,11 +1,3 @@
-// Stream: v1's members, ported with fixes (plan A0):
-// - Received data is copied into a vector of its size. v1 copied it into a
-//   fixed 4096-byte array on the stack without checking the size the client
-//   sent: a remote stack overflow.
-// - Reads check that the whole value is there (v1 checked only that one
-//   byte was left) and raise an error instead of returning 0.
-// - Writes check the space for the whole value (v1's writeString could
-//   write one byte past the buffer) and raise an error when it is full.
 #include "bindings/stream.hpp"
 
 #include <fmt/format.h>
@@ -139,7 +131,6 @@ void RegisterStream(sol::state& lua) {
             return true;
         },
 
-        // stream:clear(): empty, ready to write again.
         "clear",
         [](Stream& stream) {
             stream.bytes.clear();

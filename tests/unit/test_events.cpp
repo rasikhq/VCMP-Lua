@@ -1,4 +1,4 @@
-// EventBus (plan B3.6): bind, unbind and cancel during nested dispatch,
+// EventBus: bind, unbind and cancel during nested dispatch,
 // handlers that error, handlers bound inside coroutines.
 #include <doctest/doctest.h>
 

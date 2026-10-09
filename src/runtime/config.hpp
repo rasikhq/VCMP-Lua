@@ -23,7 +23,7 @@ struct HttpConfig {
     std::string cafile;
 };
 
-// Settings from luaconfig.lua (plan B7).
+// Settings from luaconfig.lua.
 struct Config {
     std::vector<std::string> scripts;
     std::string package_path = "lua/?.lua;lua/?/init.lua";

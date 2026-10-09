@@ -13,12 +13,12 @@
 
 namespace vcmp_lua {
 
-// HTTP(S) requests over libcurl's multi interface (plan B5). Nothing blocks:
-// curl resolves names on its own thread, Pump() moves every transfer forward
-// once per server frame, and callbacks run on the main thread, from Pump().
+// HTTP(S) requests over libcurl's multi interface. Nothing blocks: curl
+// resolves names on its own thread, Pump() moves every transfer forward once
+// per server frame, and callbacks run on the main thread, from Pump().
 class Http {
 public:
-    // What a script asked for, already checked (modules/http.cpp).
+    // What a script asked for, already checked.
     struct Request {
         std::string url;
         std::string method;  // upper case
@@ -46,7 +46,7 @@ public:
     void Start(const Request& request, sol::main_protected_function callback);
 
     // Moves the transfers forward. Collects the finished ones first, then
-    // calls their callbacks (plan B3.7).
+    // calls their callbacks.
     void Pump(lua_State* L);
 
     // Cancels every transfer without calling back, and releases the

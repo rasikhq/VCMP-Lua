@@ -1,6 +1,5 @@
-// Pickup: v1's members. The server owns pickups: Pickup.create (also
-// Pickup.new and Pickup(...)) returns a handle; the pickup stays until
-// pickup:destroy() or the server deletes it (A2).
+// A pickup stays until pickup:destroy() or the server deletes it, not until
+// its handle is collected.
 #include <sol/sol.hpp>
 
 #include <cstdint>
@@ -45,7 +44,6 @@ void RegisterPickup(sol::state&, PickupType& type) {
         return Create(L, args.stack_index());
     };
 
-    // pickup:destroy(): deletes the pickup; the handle is dead afterwards.
     type["destroy"] = [](Self self) {
         const bool deleted = Check(self.L, VCMP_FN(self, DeletePickup)(self.id));
         if (deleted) {

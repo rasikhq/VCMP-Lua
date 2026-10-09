@@ -1,4 +1,4 @@
--- Phase 4 smoke test in a real VC:MP 0.4 server (tests/integration/compose.yml):
+-- Smoke test in a real VC:MP 0.4 server (tests/integration/compose.yml):
 --
 -- Stage 1, with the default CA certificates:
 --   - CRUD through LuaSQL and sql.format on SQLite, Postgres 17, MySQL 8.4
@@ -85,7 +85,7 @@ local function async(name, start)
   if not ok then done(err) end
 end
 
--- Databases -------------------------------------------------------------------
+-- Databases
 
 local mysql_timeouts = { connect_timeout = 10, read_timeout = 30, write_timeout = 30 }
 
@@ -180,7 +180,7 @@ local function databases()
   end
 end
 
--- Stage 1 ---------------------------------------------------------------------
+-- Stage 1
 
 local function stage1()
   -- One timer callback is one server frame.
@@ -240,7 +240,7 @@ return {
   end
 end
 
--- Stage 2 ---------------------------------------------------------------------
+-- Stage 2
 
 local function stage2(state)
   for _, failure in ipairs(state.failures) do
@@ -295,8 +295,6 @@ local function stage2(state)
     Timer.create(function() Server.shutdown() end, 100, 1)
   end
 end
-
--- -----------------------------------------------------------------------------
 
 Event.bind("onServerInit", function()
   local state = read_state()

@@ -29,7 +29,7 @@ struct Options {
 };
 
 // VcmpPluginInit: creates the runtime and installs the server callbacks.
-// Returns 1 on success and 0 on failure; never throws (plan B3.4).
+// Returns 1 on success and 0 on failure; never throws.
 //
 // The server callbacks (callbacks.cpp) tolerate a missing, closing or dead
 // runtime, since the server sends events after OnServerShutdown. A shutdown

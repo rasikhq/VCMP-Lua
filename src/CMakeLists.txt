@@ -51,8 +51,8 @@ add_library(vcmp_lua_core STATIC
     ${_embedded_files})
 target_include_directories(vcmp_lua_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" "${_generated}")
 target_include_directories(vcmp_lua_core SYSTEM PUBLIC "${PROJECT_SOURCE_DIR}/third_party/vcmp")
-# Build-wide definitions (plan B3.10). SOL_ALL_SAFETIES_ON decides whether
-# sol::function calls are protected, so it must be the same in every file.
+# Build-wide definitions. SOL_ALL_SAFETIES_ON decides whether sol::function
+# calls are protected, so it must be the same in every file.
 # SOL_PRINT_ERRORS=0: errors reach Lua and the plugin log, not stderr.
 target_compile_definitions(vcmp_lua_core PUBLIC SOL_ALL_SAFETIES_ON=1 SOL_PRINT_ERRORS=0)
 if(WIN32)

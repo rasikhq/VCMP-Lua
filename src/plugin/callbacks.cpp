@@ -1,6 +1,6 @@
-// The server callbacks: thin noexcept wrappers around the runtime (plan
-// B3.4). No exception crosses into the server's C code, and every callback
-// tolerates a missing, closing or dead runtime.
+// The server callbacks: thin noexcept wrappers around the runtime. No
+// exception crosses into the server's C code, and every callback tolerates a
+// missing, closing or dead runtime.
 #include <vcmp.h>
 #include <sol/sol.hpp>
 
@@ -129,15 +129,13 @@ void Reload() {
 }
 
 // After every callback: a deferred shutdown runs once no call into Lua is
-// active anymore (plan B3.1).
+// active anymore.
 void AfterCallback() noexcept {
     State& plugin = Plugin();
     if (plugin.shutdown_deferred && plugin.runtime != nullptr && !plugin.runtime->InLuaCall()) {
         FinishShutdown();
     }
 }
-
-// --- Server callbacks ----------------------------------------------------------
 
 uint8_t OnServerInitialise() noexcept {
     Guarded("OnServerInitialise", [] {
@@ -240,8 +238,6 @@ void OnEntityPoolChange(vcmpEntityPool type, int32_t entity_id, uint8_t is_delet
     AfterCallback();
 }
 
-// --- Event callbacks -----------------------------------------------------------
-
 // The runtime an event may be dispatched to: live and not closing.
 Runtime* Dispatchable() noexcept {
     Runtime* runtime = Live();
@@ -263,8 +259,8 @@ uint8_t OnEvent(const char* where, Body&& body) noexcept {
     return cancelled ? 0 : 1;
 }
 
-// The handle of an entity the server reports, adopted on first sight (plan
-// B4); none for -1 or any id outside the pool.
+// The handle of an entity the server reports, adopted on first sight; none
+// for -1 or any id outside the pool.
 template <EntityKind K>
 EntityRef<K> Seen(Runtime& runtime, int32_t id) {
     EntityPool& pool = runtime.Entities().Get(K);
@@ -315,8 +311,7 @@ void OnPlayerSpawn(int32_t player_id) noexcept {
 }
 
 // onPlayerKill(killer, player, reason, bodyPart) when another player killed
-// the player, else onPlayerWasted(player, reason) with v1's reasons. v1 ran
-// only the first onPlayerWasted handler; every handler runs now.
+// the player, else onPlayerWasted(player, reason) with v1's reasons.
 void OnPlayerDeath(int32_t player_id, int32_t killer_id, int32_t reason,
                    vcmpBodyPart body_part) noexcept {
     OnEvent("OnPlayerDeath", [&](Runtime& runtime) {
@@ -436,8 +431,8 @@ uint8_t OnPlayerMessage(int32_t player_id, const char* message) noexcept {
 
 // onPlayerCommand(player, command, args, text), as in v1: "/give 5 100"
 // gives "give", {"5", "100"}; args is nil without arguments, and command is
-// nil for an empty message. New: text is everything after the command
-// ("5 100"), for commands whose argument contains spaces.
+// nil for an empty message. text is everything after the command ("5 100"),
+// for commands whose argument contains spaces.
 uint8_t OnPlayerCommand(int32_t player_id, const char* message) noexcept {
     return OnEvent("OnPlayerCommand", [&](Runtime& runtime) {
         const std::string_view text = message != nullptr ? message : "";
@@ -581,7 +576,7 @@ void OnPlayerKeyBindUp(int32_t player_id, int32_t bind_id) noexcept {
 }
 
 // onClientData(player, stream, size). The data is copied into a Stream of
-// its own size: the client controls size (v1 overflowed a stack buffer).
+// its own size, because the client controls size.
 void OnClientScriptData(int32_t player_id, const uint8_t* data, size_t size) noexcept {
     OnEvent("OnClientScriptData", [&](Runtime& runtime) {
         if (!runtime.Events().HasHandlers(EventBus::Index(Event::ClientData))) {
@@ -604,7 +599,7 @@ uint8_t OnPluginCommand(uint32_t command, const char* message) noexcept {
 }
 
 // onServerPerformanceReport(count, descriptions, times): two arrays of
-// count entries. v1 passed the raw C pointers.
+// count entries.
 void OnServerPerformanceReport(size_t count, const char** descriptions, uint64_t* times) noexcept {
     OnEvent("OnServerPerformanceReport", [&](Runtime& runtime) {
         if (!runtime.Events().HasHandlers(EventBus::Index(Event::ServerPerformanceReport))) {

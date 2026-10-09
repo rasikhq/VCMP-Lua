@@ -1,4 +1,4 @@
-# Throwaway probe plugin (plan P1, docs/internals.md). Standalone project, not
+# Throwaway probe plugin (docs/internals.md). Standalone project, not
 # part of the main build; needs only the SDK header:
 #
 #   cmake -S tests/probe -B build/probe -G Ninja && cmake --build build/probe

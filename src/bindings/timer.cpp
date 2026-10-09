@@ -1,5 +1,4 @@
-// Timer: create and destroy (v1 names and arguments), with thisTimer set
-// while a timer's callback runs.
+// The global thisTimer is set while a timer's callback runs.
 #include <fmt/format.h>
 #include <lua.hpp>
 #include <sol/sol.hpp>
@@ -15,7 +14,7 @@
 namespace vcmp_lua::bindings {
 namespace {
 
-// What scripts hold: the timer's id, never a pointer (plan B3.8).
+// What scripts hold: the timer's id, never a pointer.
 struct TimerHandle {
     std::uint64_t id;
 };

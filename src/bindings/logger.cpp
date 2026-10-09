@@ -1,5 +1,3 @@
-// Logger: v1's script logging, fixed (A3). v1 compared an unsigned level
-// with >= 0 (always true) and showed more the higher the level was set; here
 // Logger.setLevel sets the least severe level that is logged, the same
 // setting as luaconfig.lua's log.level.
 #include <sol/sol.hpp>
@@ -64,7 +62,6 @@ void RegisterLogger(sol::state& lua) {
     // Logger.setLevel(level): "debug", "info", ... or v1's 0 (debug) to 4
     // (critical); messages below it are not logged.
     logger["setLevel"] = [](sol::this_state L) { log::SetLevel(CheckLevel(L, 1)); };
-    // Logger.getLevel(): the current level's name.
     logger["getLevel"] = []() -> std::string_view {
         const spdlog::logger* current = log::Logger();
         const auto level = current != nullptr ? current->level() : spdlog::level::info;

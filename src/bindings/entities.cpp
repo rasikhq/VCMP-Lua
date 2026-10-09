@@ -1,6 +1,5 @@
-// The members every entity class has: handles whose every member checks
-// that the entity still exists (plan B4). The kinds' own files add the
-// members that call the server.
+// The members every entity class has. Every member checks that the entity
+// still exists; the kinds' own files add the members that call the server.
 #include <fmt/format.h>
 #include <sol/sol.hpp>
 
@@ -50,15 +49,13 @@ EntityType<K> RegisterKind(sol::state& lua) {
                 PoolOf<K>(L).SetData(self.id, self.generation, std::move(data));
             }),
 
-        // Kind.type() and handle:getType(): the class name, as in v1.
+        // Kind.type() and handle:getType(): the class name.
         "type", [] { return Traits(K).type_name; }, "getType",
         [](const Handle&) { return Traits(K).type_name; },
 
-        // Kind.findByID(id): the entity's handle, or nil.
         "findByID",
         [](Ctx ctx, Int32 id) { return ctx.runtime->Entities().Get(K).template Ref<K>(id); },
 
-        // Kind.count(): how many exist.
         "count", [](Ctx ctx) { return ctx.runtime->Entities().Get(K).AliveIds().size(); },
 
         // Kind.getActive(): {[id] = handle} of every entity of this kind.

@@ -1,5 +1,5 @@
 -- require "sql": builds SQL text with values for LuaSQL, which has no
--- prepared statements (plan B5).
+-- prepared statements.
 --
 --   local sql = require "sql"
 --   conn:execute(sql.format(conn, "SELECT * FROM users WHERE name = ? AND age > ?", name, 18))

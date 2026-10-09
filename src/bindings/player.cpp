@@ -1,16 +1,5 @@
-// Player: v1's members, ported with fixes:
-// - Handles are cached per lifetime and checked on every use, never
-//   pointers into a vector (A2).
-// - Messages are sent with a "%s" format: v1 passed the text as the format,
-//   so a "%n" in a chat message reached printf (A0-class bug).
-// - name is read from the server, not cached (it went stale); setting it
-//   checks the length instead of strcpy into 24 bytes (A0).
-// - ip, uid and uid2 check the server's result (A2).
-// - vehicle = nil and spectateTarget = nil work instead of dereferencing
-//   null (A2).
-// - ammo is the current weapon's ammo (v1's always raised an error), and
-//   getActive(true) returns only spawned players (A3).
-// - Booleans are true/false, not 0/1 (A3).
+// Messages are sent with a "%s" format so that the text is never read as a
+// printf format.
 #include <sol/sol.hpp>
 
 #include <cmath>
@@ -62,8 +51,6 @@ void ForEachPlayer(Ctx ctx, Fn&& fn) {
 }  // namespace
 
 void RegisterPlayer(sol::state&, PlayerType& type) {
-    // --- Static ----------------------------------------------------------------
-
     // Player.getActive([spawnedOnly]): {[id] = player}.
     type["getActive"] = [](Ctx ctx, Opt<Boolean> spawned_only) {
         EntityPool& players = ctx.runtime->Entities().Players();
@@ -97,8 +84,6 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
             (player.id, announce_type.value_or(0), "%s", text.c_str());
         });
     };
-
-    // --- Methods ---------------------------------------------------------------
 
     type["msg"] = [](Self self, String text, Opt<Colour> colour) {
         return Message(self, colour.value_or(kWhite), text.value);
@@ -202,7 +187,6 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
     type["restoreCamera"] = [](Self self) {
         return Check(self.L, VCMP_FN(self, RestoreCamera)(self.id));
     };
-    // player:interpolateCamLookAt(lookAt, ms).
     type["interpolateCamLookAt"] = [](Self self, Vec3 look_at, UInt32 ms) {
         return Check(self.L, VCMP_FN(self, InterpolateCameraLookAt)(self.id, look_at.x, look_at.y,
                                                                     look_at.z, ms));
@@ -236,7 +220,7 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
         return Check(self.L, VCMP_FN(self, SetPlayerDrunkVisuals)(self.id, level));
     };
 
-    // player:getNetworkStatistics(NetworkStatistics.x): new (plugin API 2.1).
+    // player:getNetworkStatistics(NetworkStatistics.x); needs plugin API 2.1.
     type["getNetworkStatistics"] = [](Self self, Int32 option) {
         const double value = VCMP_FN(self, GetNetworkStatistics)(
             self.id, static_cast<vcmpNetworkStatisticsOption>(option.value));
@@ -248,8 +232,6 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
     type["getModules"] = [](Self self) {
         return Check(self.L, VCMP_FN(self, GetPlayerModuleList)(self.id));
     };
-
-    // --- Read-only, as v1's get*/is* methods and as properties -----------------
 
     const auto ip = [](Self self) { return ReadText(self.L, VCMP_FN(self, GetPlayerIP), self.id); };
     const auto uid = [](Self self) {
@@ -345,8 +327,6 @@ void RegisterPlayer(sol::state&, PlayerType& type) {
         return RefOf<EntityKind::Object>(*self.runtime,
                                          VCMP_FN(self, GetPlayerStandingOnObject)(self.id));
     });
-
-    // --- Properties ------------------------------------------------------------
 
     type["admin"] =
         Property<kPlayer>([](Self self) { return VCMP_FN(self, IsPlayerAdmin)(self.id) != 0; },

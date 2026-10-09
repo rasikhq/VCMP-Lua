@@ -1,7 +1,7 @@
 -- Runs once in every new Lua state, after the standard libraries and the
 -- package.preload entries, before the bindings and scripts
--- (src/runtime/runtime.cpp). It applies the module sandbox (plan B6) and
--- returns the functions the frame pump calls.
+-- (src/runtime/runtime.cpp). It applies the module sandbox and returns the
+-- functions the frame pump calls.
 --
 -- Not a security boundary: scripts still have io, os and debug. It keeps
 -- scripts from loading bytecode by accident, which can crash Lua 5.4, and

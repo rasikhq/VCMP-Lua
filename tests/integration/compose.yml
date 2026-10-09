@@ -1,7 +1,7 @@
 # Integration services. Build the plugin first (ci/build-linux.sh in the
 # vcmp-lua-build image), then:
 #
-# Smoke test (plan, Verification): the real VC:MP 0.4 Linux x64 server runs
+# Smoke test: the real VC:MP 0.4 Linux x64 server runs
 # tests/integration/smoke/smoke.lua against Postgres 17, MySQL 8.4,
 # MariaDB 11 and a local TLS server. VCMP_SERVER_DIR is a directory with the
 # unzipped server (mpsvrrel64); tests/integration/run.sh unzips the
@@ -10,7 +10,7 @@
 #   VCMP_SERVER_DIR=/path/to/server docker compose -f tests/integration/compose.yml up --exit-code-from vcmp
 #   docker compose -f tests/integration/compose.yml down --volumes
 #
-# MySQL gate (phase 1):
+# MySQL gate:
 #
 #   docker compose -f tests/integration/compose.yml --profile gate run --rm mysql-gate
 #   docker compose -f tests/integration/compose.yml --profile gate down --volumes

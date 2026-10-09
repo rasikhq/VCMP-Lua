@@ -1,4 +1,4 @@
-// Entity handles (plan B4): identity, invalidation, and adopt/release during
+// Entity handles: identity, invalidation, and adopt/release during
 // the synchronous pool events of Create*/Delete*.
 #include <doctest/doctest.h>
 

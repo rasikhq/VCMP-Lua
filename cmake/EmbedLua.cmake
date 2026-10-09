@@ -1,5 +1,5 @@
 # Embeds pure-Lua modules in the plugin as byte arrays, so `require` finds them
-# without any file on disk (plan B6). The runtime loads them in text mode, so
+# without any file on disk. The runtime loads them in text mode, so
 # precompiled bytecode is rejected here.
 #
 #   vcmp_lua_embed(<output.cpp> MODULES <module.name> <file.lua> [...])

@@ -89,7 +89,7 @@ public:
     // Everything the plugin logged while this server existed.
     [[nodiscard]] std::string LogText() const { return log_.str(); }
 
-    // --- The recorder ----------------------------------------------------------
+    // The recorder.
 
     // Server calls in order, e.g. SetPlayerHealth(0, 50) or
     // GetPlayerPosition(0, *, *, *). GetLastError is not recorded.

@@ -50,7 +50,7 @@ void Step(const std::string& message) {
     std::fflush(stdout);
 }
 
-// --- Loading the plugin ------------------------------------------------------
+// Loading the plugin.
 
 class Library {
 public:
@@ -105,7 +105,7 @@ private:
     std::string path_;
 };
 
-// --- Fake server API ---------------------------------------------------------
+// Fake server API.
 
 const auto g_start = std::chrono::steady_clock::now();
 
@@ -231,7 +231,7 @@ private:
     uint32_t size_;
 };
 
-// --- Expected result files ---------------------------------------------------
+// Expected result files.
 
 void CheckResultFile(const std::string& path) {
     std::ifstream file(path);

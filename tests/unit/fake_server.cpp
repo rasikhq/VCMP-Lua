@@ -25,7 +25,7 @@ namespace {
 
 FakeServer* g_current = nullptr;
 
-// --- The recorder --------------------------------------------------------------
+// The recorder.
 
 // One argument of a server call, as the recorder sees it.
 struct Slot {
@@ -279,7 +279,7 @@ vcmpError FakeSendGameMessage(int32_t player, int32_t type, const char* format, 
     return server.Connected(player) || player == -1 ? vcmpErrorNone : vcmpErrorNoSuchEntity;
 }
 
-// --- Stateful functions --------------------------------------------------------
+// Stateful functions.
 
 void InstallStateful(PluginFuncs& funcs) {
     funcs.LogMessage = &FakeLogMessage;
@@ -426,7 +426,7 @@ void InstallStateful(PluginFuncs& funcs) {
     });
 }
 
-// --- Test hooks installed in every runtime -------------------------------------
+// Test hooks installed in every runtime.
 
 // tostring() without metamethods: a __tostring could raise a Lua error
 // through this C++ frame.
@@ -550,7 +550,7 @@ void InstallHooks(Runtime& runtime) {
     };
     lua["record_count"] = [] { return FakeServer::Current().records.size(); };
 
-    // What a phase 3 Vehicle.create binding does: the server reports the new
+    // What the Vehicle.create binding does: the server reports the new
     // vehicle inside CreateVehicle, so the adopt after it must be a no-op.
     lua["test_create_vehicle"] = [](sol::this_state L) {
         Runtime& rt = Runtime::Require(L);

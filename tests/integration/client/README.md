@@ -1,4 +1,4 @@
-# Real-client test (phase 3)
+# Real-client test
 
 `client.lua` checks the player-facing bindings and events with a real
 VC:MP 0.4 client, which the unit tests (fake server) and
@@ -29,7 +29,7 @@ VC:MP 0.4 client, which the unit tests (fake server) and
    `server.cfg` (keep your other settings):
 
    ```
-   gamemode VCMP-Lua P3 test
+   gamemode VCMP-Lua client test
    port 8192
    maxplayers 10
    plugins LuaPlugin_x64

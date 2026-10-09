@@ -1,4 +1,4 @@
-// Scheduler (plan B3.8): 64-bit millisecond timers on a fake clock.
+// Scheduler: 64-bit millisecond timers on a fake clock.
 #include <doctest/doctest.h>
 
 #include <string>

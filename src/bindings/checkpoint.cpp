@@ -1,10 +1,5 @@
-// Checkpoint: v1's members, ported with fixes:
-// - The server owns checkpoints: Checkpoint.create (also Checkpoint.new and
-//   Checkpoint(...)) returns a handle; the checkpoint stays until
-//   checkpoint:destroy() or the server deletes it (A2).
-// - radius = r sets the radius; v1 compared it with the world id first (A3).
-// - alpha = a no longer reads freed memory (v1 kept a reference to a
-//   destroyed temporary, A2).
+// A checkpoint stays until checkpoint:destroy() or the server deletes it,
+// not until its handle is collected.
 #include <sol/sol.hpp>
 
 #include <cstdint>
@@ -83,7 +78,6 @@ void RegisterCheckpoint(sol::state&, CheckpointType& type) {
         return Create(L, args.stack_index());
     };
 
-    // checkpoint:destroy(): deletes it; the handle is dead afterwards.
     type["destroy"] = [](Self self) {
         const bool deleted = Check(self.L, VCMP_FN(self, DeleteCheckPoint)(self.id));
         if (deleted) {

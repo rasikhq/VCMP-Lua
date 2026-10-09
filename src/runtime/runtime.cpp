@@ -59,7 +59,7 @@ int SetupState(lua_State* L) {
 Runtime::Remains* g_remains = nullptr;
 
 // Arg 1: light userdata, NUL-terminated path. Returns the loaded chunk.
-// Text mode only: crafted bytecode can crash Lua 5.4 (plan B6).
+// Text mode only: crafted bytecode can crash Lua 5.4.
 int LoadScriptFile(lua_State* L) {
     const auto* path = static_cast<const char*>(lua_touserdata(L, 1));
     if (luaL_loadfilex(L, path, "t") != LUA_OK) {

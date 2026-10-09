@@ -1,8 +1,10 @@
 # Internals
 
-Facts about the VC:MP server that the v2 runtime is built on, measured in
-phase 1. They settle the entity design (plan B4) and the shutdown order
-(plan B3.1). The last section describes how the runtime (phase 2) uses them.
+Behaviour of the VC:MP 0.4 server that the v2 runtime is built on, measured
+with a probe plugin and the integration tests. These facts determine how the
+runtime tracks entities and the order in which it shuts down. The later
+sections describe how the bindings, the runtime and the bundled modules rely
+on them.
 
 ## How the facts were measured
 
@@ -14,9 +16,8 @@ phase 1. They settle the entity design (plan B4) and the shutdown order
   sees of another plugin's entities. Every line says whether the callback
   arrived *inside* a server function the probe was calling.
 - **Real plugin:** `LuaPlugin_x64.so` was loaded next to `probe_a` with
-  `tests/host/smoke.lua` as its script. Phase 3 adds
-  `tests/integration/bindings/run.sh`, which runs every class against the
-  server without players.
+  `tests/host/smoke.lua` as its script. `tests/integration/bindings/run.sh`
+  runs every class against the server without players.
 - **To run it again:** build `tests/probe` (see its CMakeLists.txt), put
   `mpsvrrel64`, `server.cfg` (`port 5192`, `plugins probe_a probe_b`) and
   `plugins/` in one directory, and start the server with
@@ -31,12 +32,12 @@ phase 1. They settle the entity design (plan B4) and the shutdown order
 | `PluginCallbacks` | 376 bytes | 376 bytes |
 | `PluginInfo` | 48 bytes | 48 bytes |
 
-The server had one more function and one more callback than the phase 1
-SDK header (API 2.0). Phase 3 replaced it with the API 2.1 header that SqMod
-ships (`module/VCMP/vcmp21.h`), whose structs are exactly the server's size:
-it appends `GetNetworkStatistics` and `OnEntityStreamingChange`, and adds
+The server has one more function and one more callback than the API 2.0
+SDK header. The plugin therefore uses the API 2.1 header that SqMod ships
+(`module/VCMP/vcmp21.h`), whose structs are exactly the server's size: it
+appends `GetNetworkStatistics` and `OnEntityStreamingChange`, and adds
 `vcmpEntityPoolPlayer`. Fields are only ever appended, and the `structSize`
-checks (plan B3.5) handle older and newer servers in both directions.
+checks handle older and newer servers in both directions.
 
 ## Entities
 
@@ -68,8 +69,9 @@ Not entities in this sense:
   `vcmpErrorArgumentOutOfBounds`.
 - Key binds raise no pool events (`RegisterKeyBind`, `RemoveKeyBind`).
 
-Consequences for B4: the pool feed is complete, including other plugins'
-entities, so "adopt on first sight" works from `OnEntityPoolChange` alone.
+Consequences for the runtime: the pool feed is complete, including other
+plugins' entities, so "adopt on first sight" works from `OnEntityPoolChange`
+alone.
 Adopt and release must be idempotent, because the event arrives while the
 binding's `Create*`/`Delete*` call is still on the stack.
 
@@ -83,7 +85,7 @@ in 8 s). The first frame reports 0 s elapsed.
 - `ShutdownServer()` returns at once. `OnServerShutdown` arrives later in the
   same frame, after the current `OnServerFrame` callback has returned, so a
   script that shuts the server down does not re-enter Lua. The runtime still
-  defers a shutdown requested during a Lua call (B3.1), as a safeguard.
+  defers a shutdown requested during a Lua call, as a safeguard.
 - Plugins receive `OnServerShutdown` in load order.
 - **After** `OnServerShutdown`, the server deletes the remaining entities and
   sends an `OnEntityPoolChange` "deleted" event for each (pickups, objects,
@@ -100,9 +102,9 @@ in 8 s). The first frame reports 0 s elapsed.
 
 ## LuaPlugin_x64 in the real server
 
-The phase 1 plugin loads (`Loaded plugin: LuaPlugin_x64`), runs every check
-of `tests/host/smoke.lua` (`SMOKE PASS`), shuts down on `ShutdownServer()`
-and on Ctrl+C with its Lua finalizers running, and the server exits with 0.
+The plugin loads (`Loaded plugin: LuaPlugin_x64`), runs every check of
+`tests/host/smoke.lua` (`SMOKE PASS`) and shuts down on `ShutdownServer()`
+and on Ctrl+C with its Lua finalizers running; the server exits with 0.
 
 ## Players
 
@@ -128,11 +130,12 @@ the probe called `ShutdownServer()` with the player still online.
 
 Consequences:
 
-- B4's rule "players are invalidated after the disconnect dispatch" matches
-  the server: the player is valid during the event and gone right after it.
+- The runtime invalidates a player after the disconnect dispatch, which
+  matches the server: the player is valid during the event and gone right
+  after it.
 - A script's kick call runs the disconnect handlers re-entrantly, inside the
-  binding. The event bus must allow nested dispatch (B3.6), and the kick
-  binding must not use the player after the server call returns.
+  binding. The event bus must allow nested dispatch, and the kick binding
+  must not use the player after the server call returns.
 - Players are still connected during `OnServerShutdown`, and their
   disconnects arrive after the runtime has closed. The runtime therefore
   dispatches them itself (see "Runtime" below).
@@ -141,8 +144,8 @@ Consequences:
 
 ## MySQL gate
 
-Phase 1 kept MySQL only if all four gate conditions held. They do
-(`tests/integration/compose.yml`, service `mysql-gate`):
+MySQL support depends on four conditions, checked by the `mysql-gate`
+service in `tests/integration/compose.yml`. All of them hold:
 
 | Check | Result |
 |---|---|
@@ -151,7 +154,7 @@ Phase 1 kept MySQL only if all four gate conditions held. They do
 | No authentication plugin is loaded from disk: fake plugins planted in `$MARIADB_PLUGIN_DIR` and in the connector's default directory are never loaded; an ed25519 account fails with "Plugin client_ed25519 could not be loaded" | pass |
 | Timeouts patch: a server that never answers gives up after 2.0 s (`connect_timeout = 2`), `SELECT SLEEP(20)` gives up after 2.0 s (`read_timeout = 2`), `write_timeout` is accepted, invalid options raise errors | pass |
 
-Behaviour to document for users:
+Behaviour that affects users:
 
 - MariaDB Connector/C 3.4 uses TLS and verifies the server certificate by
   default. A self-signed certificate is accepted only for local connections
@@ -165,7 +168,7 @@ Behaviour to document for users:
 - `LIBMYSQL_PLUGINS`, an environment variable the operator controls, can
   still make the connector load plugins when it initialises.
 
-## Server quirks found in phase 3
+## Server quirks
 
 Measured with `tests/integration/bindings/run.sh` (no players needed):
 
@@ -186,10 +189,10 @@ Measured with `tests/integration/bindings/run.sh` (no players needed):
 - `GetLastError` reflects the last call: the getters that check it
   (options, handling rules, occupants, ...) work as expected.
 
-## A real client on a Windows server (phase 3)
+## A real client on a Windows server
 
-The owner ran `tests/integration/client/client.lua` on a Windows VC:MP 0.4
-server and joined with a real client:
+`tests/integration/client/client.lua` was run on a Windows VC:MP 0.4 server,
+with a real client joining:
 
 - Every player event arrived with the expected arguments: connection,
   connect, class and spawn requests, spawn, state and action changes,
@@ -211,7 +214,7 @@ server and joined with a real client:
 
 ## Bindings
 
-How the phase 3 classes (`src/bindings`) use the server:
+How the binding classes (`src/bindings`) use the server:
 
 - Every member of an entity class takes its handle as `Live<K>`, which
   raises "<kind> no longer exists" for a dead handle; arguments convert
@@ -225,10 +228,11 @@ How the phase 3 classes (`src/bindings`) use the server:
   and marks it created by this runtime; `destroy()` releases it after
   `Delete*` returns.
 
+## Runtime
 
-How the phase 2 core (`src/core`, `src/runtime`, `src/plugin`) behaves. The
-unit tests in `tests/unit` check each point against `FakeServer`, an
-in-memory server that reproduces the behaviour measured above.
+How the core (`src/core`, `src/runtime`, `src/plugin`) behaves. The unit
+tests in `tests/unit` check each point against `FakeServer`, an in-memory
+server that reproduces the behaviour measured above.
 
 ### Lifetime
 
@@ -246,8 +250,8 @@ in-memory server that reproduces the behaviour measured above.
 - Shutdown order: mark closing (bindings raise "runtime shutting down", no
   new entity handles); release every Lua reference C++ holds (handlers,
   timers, entity handles and data tables, the callbacks of pending HTTP
-  requests, which are cancelled and never called); close the Lua state, so `__gc`
-  runs while the subsystems still exist; destroy the subsystems.
+  requests, which are cancelled and never called); close the Lua state, so
+  `__gc` runs while the subsystems still exist; destroy the subsystems.
 - If `OnServerShutdown` arrives during a call into Lua, the shutdown runs
   when that call returns. (No frame follows `OnServerShutdown`, so it cannot
   wait for the end of the frame.)
@@ -273,8 +277,8 @@ too (only those: key binds are shared by every plugin).
   handler bound during the dispatch runs from the next one on; a handler
   unbound before its turn does not run.
 - `Event.cancel()` stops the remaining handlers of the innermost active
-  dispatch (from phase 3 it also makes a cancellable server callback return
-  0). Outside a dispatch it raises an error. `Event.trigger` returns false
+  dispatch, and makes a cancellable server callback return 0. Outside a
+  dispatch it raises an error. `Event.trigger` returns false
   when a handler cancelled.
 - A handler that raises an error is logged with its traceback, and the next
   handler runs.
@@ -314,11 +318,10 @@ too (only those: key binds are shared by every plugin).
 - Players are released after the disconnect dispatch, entities after the
   "deleted" dispatch of `onEntityPoolChange`.
 
-
 ## Modules
 
-How the phase 4 batteries (`src/modules`, `src/runtime/preload.cpp`,
-`lua/`) work.
+How the bundled modules (`src/modules`, `src/runtime/preload.cpp`, `lua/`)
+work.
 
 ### Loading and the sandbox
 

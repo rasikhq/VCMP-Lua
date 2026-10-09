@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MySQL gate (plan, Part C, P1). Runs inside the vcmp-lua-build image next to
+# MySQL gate. Runs inside the vcmp-lua-build image next to
 # MySQL 8.4 and MariaDB 11; see tests/integration/compose.yml. Uses the Linux
 # build in build/linux-release.
 set -euo pipefail

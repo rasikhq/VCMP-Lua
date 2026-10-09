@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Checks the Linux plugin against the single-binary rules (plan B8):
+# Checks the Linux plugin against the single-binary rules:
 #   - it needs only glibc's own libraries (no libstdc++, OpenSSL, ...);
 #   - VcmpPluginInit is its only exported symbol;
 #   - it needs no glibc symbol version newer than 2.28;

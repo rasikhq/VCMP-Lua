@@ -1,8 +1,8 @@
-// Throwaway probe plugin (plan P1). Runs on a real VC:MP 0.4 server and logs
+// Throwaway probe plugin. Runs on a real VC:MP 0.4 server and logs
 // the order of server callbacks around entity creation and deletion, kicks,
 // disconnects and shutdown, and whether OnEntityPoolChange fires for the
 // plugin's own entities. The results are in docs/internals.md and settle the
-// entity design (plan B4). Not part of the plugin.
+// entity design. Not part of the plugin.
 //
 // Two copies are built: probe_a runs the scenario, probe_b only listens, so
 // the log shows what one plugin sees of another plugin's entities.
@@ -80,7 +80,7 @@ const char* PoolName(vcmpEntityPool pool) {
     }
 }
 
-// --- Scenario (probe_a only) -------------------------------------------------
+// Scenario (probe_a only).
 
 struct Kept {
     int32_t vehicle = -1;
@@ -162,7 +162,7 @@ void PoolBounds() {
     }
 }
 
-// --- Callbacks ---------------------------------------------------------------
+// Callbacks.
 
 uint8_t OnServerInitialise() {
     Log("OnServerInitialise");

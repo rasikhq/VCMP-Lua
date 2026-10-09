@@ -1,4 +1,4 @@
-# Checks the Windows plugin against the single-binary rules (plan B8):
+# Checks the Windows plugin against the single-binary rules:
 #   - it depends only on DLLs that ship with Windows (no VC++ runtime,
 #     no OpenSSL or other third-party DLL);
 #   - VcmpPluginInit is its only export.

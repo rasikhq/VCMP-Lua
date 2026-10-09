@@ -1,4 +1,4 @@
-// Phase 4 batteries: the module sandbox (plan B6), Hash, sql.format, the http
+// Batteries: the module sandbox, Hash, sql.format, the http
 // module and the Copas pump. HTTP runs against a Copas server in the same
 // Lua state, so every request also exercises the Copas pump; no network
 // beyond 127.0.0.1 is used.

@@ -1,4 +1,3 @@
-// Event: bind, unbind, cancel, create and trigger (v1 names and arguments).
 #include <fmt/format.h>
 #include <lua.hpp>
 #include <sol/sol.hpp>

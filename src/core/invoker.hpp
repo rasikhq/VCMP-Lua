@@ -11,9 +11,9 @@
 
 namespace vcmp_lua {
 
-// The one way C++ calls a Lua function (plan B3.3): in protected mode, with a
-// traceback, never after a panic, and counted, so that a shutdown or reload
-// requested meanwhile can be deferred until the outermost call returns.
+// The one way C++ calls a Lua function: in protected mode, with a traceback,
+// never after a panic, and counted, so that a shutdown or reload requested
+// meanwhile can be deferred until the outermost call returns.
 class Invoker {
 public:
     explicit Invoker(lua_State* main) noexcept : main_(main) {}

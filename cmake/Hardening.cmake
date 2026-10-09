@@ -14,8 +14,8 @@ function(vcmp_lua_harden target)
     endif()
 endfunction()
 
-# Our own code builds warning-free (plan B3.10). Third-party code does not get
-# these flags: its warnings are not ours to fix.
+# Our own code builds warning-free. Third-party code does not get these
+# flags: its warnings are not ours to fix.
 function(vcmp_lua_first_party target)
     vcmp_lua_harden(${target})
     if(MSVC)
@@ -34,7 +34,7 @@ function(vcmp_lua_first_party target)
     endif()
 endfunction()
 
-# Link rules for the plugin binary itself (plan B8).
+# Link rules for the plugin binary itself.
 function(vcmp_lua_plugin_link target)
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         set(map "${PROJECT_SOURCE_DIR}/cmake/plugin.map")

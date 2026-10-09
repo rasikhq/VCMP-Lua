@@ -6,7 +6,7 @@ namespace vcmp_lua::libraries {
 
 // Process-wide set-up of the C libraries the plugin links. Must run before
 // any of them is used: OpenSSL is initialised first, without an atexit
-// handler and without reading openssl.cnf (plan B3.1). Throws on failure.
+// handler and without reading openssl.cnf. Throws on failure.
 void Init();
 
 // Process-wide clean-up once no runtime exists anymore (OnServerShutdown).

@@ -4,8 +4,6 @@
 
 namespace vcmp_lua::modules {
 
-// The first-party modules (plan B5), registered with the bindings.
-
 // The global Hash table, also require "hash".
 void RegisterHash(sol::state& lua);
 

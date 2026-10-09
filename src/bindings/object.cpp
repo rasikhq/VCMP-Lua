@@ -1,10 +1,5 @@
-// Object: v1's members, ported with fixes:
-// - The server owns objects: Object.create (also Object.new and
-//   Object(...)) returns a handle; the object stays until object:destroy()
-//   or the server deletes it (A2).
-// - object.angle = {x, y, z} rotates to that angle; v1 rotated by it (A3).
-// - rotateTo/rotateBy take a quaternion when the table has four elements;
-//   v1 treated w = -1 as "no w".
+// An object stays until object:destroy() or the server deletes it, not until
+// its handle is collected.
 #include <sol/sol.hpp>
 
 #include <cstdint>
@@ -86,7 +81,6 @@ void RegisterObject(sol::state&, ObjectType& type) {
         return Create(L, args.stack_index());
     };
 
-    // object:destroy(): deletes the object; the handle is dead afterwards.
     type["destroy"] = [](Self self) {
         const bool deleted = Check(self.L, VCMP_FN(self, DeleteObject)(self.id));
         if (deleted) {

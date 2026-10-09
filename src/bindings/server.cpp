@@ -1,12 +1,4 @@
-// Server, Map, Radio, Weapon, Blip and Sound: v1's Server.cpp, ported with
-// fixes:
-// - Server.addClass reads the optional weapons from the right arguments
-//   (v1 was off by one), and the {x, y, z, angle} form is no longer
-//   shadowed by the {x, y, z}, angle form (A3).
-// - banIP/unbanIP/isIPBanned accept strings (A3: v1 refused them).
-// - getSkinName of an unknown id is nil (v1 returned NULL as a string).
-// - Blip.create returns a Blip handle (see docs/MIGRATION-v2.md).
-// - Booleans are true/false.
+// Server, Map, Radio, Weapon, Blip and Sound.
 #include <fmt/format.h>
 #include <sol/sol.hpp>
 
@@ -28,7 +20,7 @@ namespace vcmp_lua::bindings {
 namespace {
 
 // The global Server is the single instance of this usertype, so that
-// Server.name and the other properties work like v1's static properties.
+// Server.name and the other properties work as static properties.
 struct ServerTag {};
 
 // A property of Server whose getter and setter take a Ctx.
@@ -110,7 +102,6 @@ void RegisterServerTable(sol::state& lua) {
                                 static_cast<vcmpServerOption>(option.value), on ? 1 : 0));
     };
 
-    // Server.getSettings(): {maxPlayers, port, serverName, serverPassword, flags}.
     type["getSettings"] = [](Ctx ctx) {
         ServerSettings settings{};
         settings.structSize = sizeof(settings);
@@ -199,7 +190,6 @@ void RegisterServerTable(sol::state& lua) {
     };
 
     type["getSkinID"] = [](String name) { return SkinId(name.value); };
-    // Server.getSkinName(id): the name, or nil for an unknown id.
     type["getSkinName"] = [](Int32 id) -> std::optional<std::string> {
         if (const char* name = SkinName(id)) {
             return std::string(name);
@@ -307,8 +297,6 @@ void RegisterServerTable(sol::state& lua) {
     lua["Server"] = ServerTag{};
 }
 
-// --- Map -------------------------------------------------------------------------
-
 const char* DistrictName(float x, float y) {
     if (x > -1613.03f && y > 413.218f && x < -213.73f && y < 1677.32f) return "Downtown Vice City";
     if (x > 163.656f && y > -351.153f && x < 1246.03f && y < 1398.85f) return "Vice Point";
@@ -327,8 +315,6 @@ const char* DistrictName(float x, float y) {
 }
 
 // World units to the tenths HideMapObject takes, rounded to the nearest.
-// (v1 truncated floor(x * 10) + 0.5, which is off by one for negative
-// coordinates: -2.0 became -19.)
 std::int16_t Tenths(lua_State* L, float value, int index) {
     const double tenths = std::round(static_cast<double>(value) * 10.0);
     if (!(tenths >= -32768.0 && tenths <= 32767.0)) {
@@ -376,8 +362,6 @@ void RegisterMap(sol::state& lua) {
     };
 }
 
-// --- Radio -----------------------------------------------------------------------
-
 void RegisterRadio(sol::state& lua) {
     sol::table radio = lua.create_named_table("Radio");
     // Radio.createStream([id,] name, url[, listed]): true on success. Without
@@ -396,8 +380,6 @@ void RegisterRadio(sol::state& lua) {
         return Check(ctx.L, VCMP_FN(ctx, RemoveRadioStream)(id));
     };
 }
-
-// --- Weapon ----------------------------------------------------------------------
 
 void RegisterWeapon(sol::state& lua) {
     sol::table weapon = lua.create_named_table("Weapon");
@@ -427,8 +409,6 @@ void RegisterWeapon(sol::state& lua) {
     weapon["getName"] = [](Int32 id) { return WeaponName(id); };
     weapon["getID"] = [](String name) { return WeaponId(name.value); };
 }
-
-// --- Blip ------------------------------------------------------------------------
 
 constexpr EntityKind kBlip = EntityKind::Blip;
 
@@ -495,8 +475,6 @@ void RegisterBlipMembers(BlipType& type) {
         return BlipInfo(ctx, BlipId(ctx, args.stack_index()));
     };
 }
-
-// --- Sound -----------------------------------------------------------------------
 
 void RegisterSound(sol::state& lua) {
     sol::table sound = lua.create_named_table("Sound");

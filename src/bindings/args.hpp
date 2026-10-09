@@ -1,22 +1,14 @@
 #pragma once
 
-// Checked binding arguments (plan B3.9) and the errors bindings raise.
+// Checked binding arguments and the errors bindings raise.
 //
 // A binding declares what it accepts with the types below instead of plain
-// int/float/bool, e.g. [](Live<EntityKind::Player> self, Int32 weapon,
-// Opt<Int32> ammo). Each type converts one Lua argument (Vec3: one table or
+// int/float/bool. Each type converts one Lua argument (Vec3: one table or
 // three numbers) and raises an error in the style of luaL_argerror when the
-// value does not fit:
-//
-//   main.lua:12: bad argument #1 to 'setWeapon' (integer expected, got string)
-//   main.lua:12: bad value for 'health' (number expected, got string)
-//   main.lua:12: bad argument #2 to 'create' (value 5000000000 out of range [-2147483648,
-//   2147483647])
-//
-// The conversion happens when sol2 fetches the argument; the error is a C++
-// exception, which sol2's trampoline turns into a Lua error (B3.3), and the
-// exception handler installed by bindings::Register adds the "main.lua:12:"
-// position. Nothing here calls lua_error.
+// value does not fit. The error is a C++ exception, which sol2's trampoline
+// turns into a Lua error; the exception handler installed by
+// bindings::Register adds the "main.lua:12:" position. Nothing here calls
+// lua_error.
 
 #include <vcmp.h>
 #include <lua.hpp>
@@ -33,8 +25,6 @@
 #include "runtime/runtime.hpp"
 
 namespace vcmp_lua::bindings {
-
-// --- Errors ------------------------------------------------------------------
 
 // The Lua-facing name of the function running on L: 'setWeapon' for a
 // method, 'health' for a property assignment, or '?'.
@@ -69,8 +59,6 @@ bool CheckLast(lua_State* L, const ServerApi& api);
 // api(); raises "<field> is not supported by this server version" if missing.
 #define VCMP_FN(self, field) VCMP_LUA_API((self).api(), field)
 
-// --- Primitive conversions ---------------------------------------------------
-
 // An integer, or a float with an integral value, within [min, max].
 std::int64_t CheckInteger(lua_State* L, int index, std::int64_t min, std::int64_t max);
 double CheckNumber(lua_State* L, int index);
@@ -81,8 +69,6 @@ std::string CheckString(lua_State* L, int index);
 // An RGB(A) colour as 32 bits: [-2^31, 2^32), so both 0xFF0000FF and the
 // same bits as a negative int32 are accepted.
 std::uint32_t CheckColour(lua_State* L, int index);
-
-// --- Argument types ----------------------------------------------------------
 
 template <typename T>
 struct Int {
@@ -143,8 +129,6 @@ struct Opt {
     }
 };
 
-// --- Context -----------------------------------------------------------------
-
 // The usable runtime and the running thread, for bindings without an entity
 // self (Server.*, Vehicle.create, ...). Takes no Lua argument; raises
 // "runtime shutting down" when the runtime is closing.
@@ -155,11 +139,9 @@ struct Ctx {
     [[nodiscard]] const ServerApi& api() const noexcept { return runtime->api(); }
 };
 
-// --- Entities ----------------------------------------------------------------
-
 // A live entity of kind K: the argument must be a handle of that kind whose
 // entity still exists ("vehicle no longer exists" otherwise). Used for self
-// in every entity method, so no method can forget the check (plan B4).
+// in every entity method, so no method can forget the check.
 template <EntityKind K>
 struct Live {
     Runtime* runtime;
@@ -201,11 +183,10 @@ Live<K> CheckLive(lua_State* L, int index) {
     return {&runtime, L, handle->id, handle->generation};
 }
 
-// --- sol2 customization points -----------------------------------------------
-//
-// The checks accept everything and only count stack slots; the getters
-// validate and throw. Bindings therefore never use sol::overload with these
-// types: a binding that accepts several forms inspects its arguments itself.
+// sol2 customization points. The checks accept everything and only count
+// stack slots; the getters validate and throw. Bindings therefore never use
+// sol::overload with these types: a binding that accepts several forms
+// inspects its arguments itself.
 
 template <typename T, typename Handler>
 bool sol_lua_check(sol::types<Int<T>>, lua_State*, int, Handler&&, sol::stack::record& tracking) {
@@ -288,8 +269,6 @@ Live<K> sol_lua_get(sol::types<Live<K>>, lua_State* L, int index, sol::stack::re
     return CheckLive<K>(L, lua_absindex(L, index));
 }
 
-// --- Reading arguments by position ---------------------------------------------
-
 // For bindings that accept several forms (a table or numbers, optional
 // arguments in the middle): reads the arguments of the running function by
 // position, with the same checks and messages as the argument types.
@@ -335,10 +314,8 @@ private:
     int first_;
 };
 
-// --- Tables ------------------------------------------------------------------
-
 // Element i (1-based) of the table at index as a number; raises "bad
-// argument" when it is missing or not a number. Uses raw access (B3.3).
+// argument" when it is missing or not a number. Uses raw access.
 float TableNumber(lua_State* L, int index, int i);
 
 // Element i (1-based) of the table at index as an integer in [min, max];
@@ -346,8 +323,8 @@ float TableNumber(lua_State* L, int index, int i);
 std::int64_t TableInteger(lua_State* L, int index, int i, std::int64_t min, std::int64_t max,
                           std::optional<std::int64_t> fallback = std::nullopt);
 
-// Pushes t[key] of the table at index without metamethods (B3.3) and
-// returns its type.
+// Pushes t[key] of the table at index without metamethods and returns its
+// type.
 int RawField(lua_State* L, int index, const char* key);
 
 // The number of array elements of the table at index (raw length).
