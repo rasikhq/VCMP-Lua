@@ -2,6 +2,31 @@
 
 Draft: each phase adds the changes it makes; phase 5 completes this guide.
 
+## Errors
+
+Bindings check their arguments and raise errors instead of logging and
+carrying on, or crashing. The messages read like Lua's own and carry the
+script position:
+
+```
+main.lua:12: bad argument #1 to 'setWeapon' (integer expected, got string)
+main.lua:13: bad value for 'health' (number expected, got string)
+main.lua:14: bad argument #2 to 'create' (value 5000000000 out of range [-2147483648, 2147483647])
+```
+
+- Integers must be integral: `1000 / 2` (500.0) is accepted, `1.5` is not,
+  and a value that does not fit the server's type is refused instead of
+  being cut down.
+- Booleans must be `true` or `false`; `0` is not false.
+- Colours accept 32-bit values written as unsigned (`0xFF0000FF`) or as
+  signed integers (`-16776961`).
+- Positions and vectors are a table `{x, y, z}` or three numbers, wherever
+  v1 accepted one of them.
+- When the server refuses a request (for example `setVehicle` for a player
+  who is not spawned), the method returns `false`. Any other error the
+  server reports raises "'name' failed: argument out of bounds" and the
+  like. Getters return booleans as `true`/`false`, never `0`/`1`.
+
 ## Events
 
 - `Event.bind`, `Event.unbind`, `Event.create`, `Event.cancel` and
@@ -17,6 +42,14 @@ Draft: each phase adds the changes it makes; phase 5 completes this guide.
 - `onServerInit` also runs after `Server.reload()`.
 - At server shutdown, `onPlayerDisconnect` runs for every player still
   online, with reason 0, after `onServerShutdown`.
+- `onPlayerWasted` runs every handler (v1 ran only the first one).
+- `onPlayerFireChange`, `onPlayerCrouchChange` and `onPlayerAwayChange`
+  pass `true`/`false` instead of `1`/`0`.
+- `onPlayerCommand(player, command, args, text)` has a fourth argument: the
+  text after the command, with its spaces (`"/pm Bob hi there"` gives
+  `"Bob hi there"`).
+- An event about an entity the scripts have not seen yet (for example one
+  that another plugin created) passes its handle instead of `nil`.
 
 ## Timers
 
@@ -31,6 +64,28 @@ Draft: each phase adds the changes it makes; phase 5 completes this guide.
 - A script holds a handle; the same entity is always the same handle, so
   `==` and table keys work. Using a handle after its entity is gone raises
   "<kind> no longer exists" instead of crashing or touching another entity.
+- `handle.valid` is new: `false` once the entity is gone, without raising.
+
+## Player
+
+- The members keep their v1 names and arguments.
+- `ammo` is the ammo of the current weapon (v1's always raised an error).
+- `name` is always the server's current name (v1 cached it and could
+  return an old one); a name the server refuses raises an error.
+- `Player.getActive(true)` returns only spawned players (v1 ignored the
+  argument).
+- `player.vehicle = nil` removes the player from the vehicle and
+  `player.spectateTarget = nil` stops spectating (both crashed in v1).
+- `ip`, `uid` and `uid2` raise an error if the server cannot provide them.
+- `setAlpha(alpha[, fadeTime])` and `redirect(ip, port[, serverPassword[,
+  userPassword]])`: the last arguments are optional.
+- Methods that only send a request to the server (`setVehicle`,
+  `forceSpawn`, `setCamera`, `kill`, ...) return `true`, or `false` when
+  the server refuses.
+- New: `Player.findByName(name)`, `speed`, `addSpeed(v)`, `away`, `onFire`,
+  `gameKeys`, `standingOnVehicle`, `standingOnObject`, `giveMoney(amount)`,
+  `getWeaponAtSlot(slot)`, `getAmmoAtSlot(slot)` and
+  `getNetworkStatistics(NetworkStatistics.x)`.
 
 ## New
 

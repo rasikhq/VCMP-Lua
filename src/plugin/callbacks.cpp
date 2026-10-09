@@ -1,13 +1,17 @@
 // The server callbacks: thin noexcept wrappers around the runtime (plan
 // B3.4). No exception crosses into the server's C code, and every callback
 // tolerates a missing, closing or dead runtime.
+#include <sol/sol.hpp>
 #include <vcmp.h>
 
 #include <algorithm>
 #include <cstring>
 #include <exception>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 #include "plugin/api_guard.hpp"
 #include "plugin/plugin.hpp"
@@ -233,6 +237,258 @@ void OnEntityPoolChange(vcmpEntityPool type, int32_t entity_id, uint8_t is_delet
     AfterCallback();
 }
 
+// --- Event callbacks -----------------------------------------------------------
+
+// The runtime an event may be dispatched to: live and not closing.
+Runtime* Dispatchable() noexcept {
+    Runtime* runtime = Live();
+    return runtime != nullptr && runtime->Usable() ? runtime : nullptr;
+}
+
+// Runs body(runtime) for an event callback and returns what the server
+// expects from a cancellable one: 0 when a handler called Event.cancel().
+// body returns true when the event was cancelled.
+template <typename Body>
+uint8_t OnEvent(const char* where, Body&& body) noexcept {
+    bool cancelled = false;
+    Guarded(where, [&] {
+        if (Runtime* runtime = Dispatchable()) {
+            cancelled = body(*runtime);
+        }
+    });
+    AfterCallback();
+    return cancelled ? 0 : 1;
+}
+
+// The handle of an entity the server reports, adopted on first sight (plan
+// B4); none for -1 or any id outside the pool.
+template <EntityKind K>
+EntityRef<K> Seen(Runtime& runtime, int32_t id) {
+    EntityPool& pool = runtime.Entities().Get(K);
+    if (!pool.InRange(id)) {
+        return {};
+    }
+    return pool.Seen<K>(id);
+}
+
+PlayerRef SeenPlayer(Runtime& runtime, int32_t id) {
+    return Seen<EntityKind::Player>(runtime, id);
+}
+
+template <typename... Args>
+bool Emit(Runtime& runtime, Event event, const Args&... args) {
+    return runtime.Events().Emit(runtime.state(), event, args...);
+}
+
+uint8_t OnIncomingConnection(char* name, size_t name_size, const char* password,
+                             const char* ip) noexcept {
+    return OnEvent("OnIncomingConnection", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerConnection, name, name_size, password, ip);
+    });
+}
+
+void OnPlayerModuleList(int32_t player_id, const char* list) noexcept {
+    OnEvent("OnPlayerModuleList", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerModuleList, SeenPlayer(runtime, player_id), list);
+    });
+}
+
+uint8_t OnPlayerRequestClass(int32_t player_id, int32_t offset) noexcept {
+    return OnEvent("OnPlayerRequestClass", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerRequestClass, SeenPlayer(runtime, player_id), offset);
+    });
+}
+
+uint8_t OnPlayerRequestSpawn(int32_t player_id) noexcept {
+    return OnEvent("OnPlayerRequestSpawn", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerRequestSpawn, SeenPlayer(runtime, player_id));
+    });
+}
+
+void OnPlayerSpawn(int32_t player_id) noexcept {
+    OnEvent("OnPlayerSpawn", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerSpawn, SeenPlayer(runtime, player_id));
+    });
+}
+
+// onPlayerKill(killer, player, reason, bodyPart) when another player killed
+// the player, else onPlayerWasted(player, reason) with v1's reasons. v1 ran
+// only the first onPlayerWasted handler; every handler runs now.
+void OnPlayerDeath(int32_t player_id, int32_t killer_id, int32_t reason,
+                   vcmpBodyPart body_part) noexcept {
+    OnEvent("OnPlayerDeath", [&](Runtime& runtime) {
+        const PlayerRef player = SeenPlayer(runtime, player_id);
+        const auto connected = VCMP_LUA_FIND(runtime.api(), IsPlayerConnected);
+        if (killer_id >= 0 && connected != nullptr && connected(killer_id) != 0) {
+            return Emit(runtime, Event::PlayerKill, SeenPlayer(runtime, killer_id), player, reason,
+                        static_cast<int32_t>(body_part));
+        }
+        if (reason == 43 || reason == 50) {
+            reason = 43;  // drowned
+        } else if (reason == 39 && body_part == vcmpBodyPartInVehicle) {
+            reason = 39;  // car crash
+        } else if (reason == 39 || reason == 40 || reason == 44) {
+            reason = 44;  // fell
+        }
+        return Emit(runtime, Event::PlayerWasted, player, reason);
+    });
+}
+
+void OnPlayerUpdate(int32_t player_id, vcmpPlayerUpdate update) noexcept {
+    OnEvent("OnPlayerUpdate", [&](Runtime& runtime) {
+        if (!runtime.Events().HasHandlers(EventBus::Index(Event::PlayerUpdate))) {
+            return false;  // many per second: skip the adoption too
+        }
+        return Emit(runtime, Event::PlayerUpdate, SeenPlayer(runtime, player_id),
+                    static_cast<int32_t>(update));
+    });
+}
+
+uint8_t OnPlayerRequestEnterVehicle(int32_t player_id, int32_t vehicle_id, int32_t slot) noexcept {
+    return OnEvent("OnPlayerRequestEnterVehicle", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerRequestEnterVehicle, SeenPlayer(runtime, player_id),
+                    Seen<EntityKind::Vehicle>(runtime, vehicle_id), slot);
+    });
+}
+
+void OnPlayerEnterVehicle(int32_t player_id, int32_t vehicle_id, int32_t slot) noexcept {
+    OnEvent("OnPlayerEnterVehicle", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerEnterVehicle, SeenPlayer(runtime, player_id),
+                    Seen<EntityKind::Vehicle>(runtime, vehicle_id), slot);
+    });
+}
+
+void OnPlayerExitVehicle(int32_t player_id, int32_t vehicle_id) noexcept {
+    OnEvent("OnPlayerExitVehicle", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerExitVehicle, SeenPlayer(runtime, player_id),
+                    Seen<EntityKind::Vehicle>(runtime, vehicle_id));
+    });
+}
+
+void OnPlayerNameChange(int32_t player_id, const char* old_name, const char* new_name) noexcept {
+    OnEvent("OnPlayerNameChange", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerNameChange, SeenPlayer(runtime, player_id), old_name,
+                    new_name);
+    });
+}
+
+void OnPlayerStateChange(int32_t player_id, vcmpPlayerState old_state,
+                         vcmpPlayerState new_state) noexcept {
+    OnEvent("OnPlayerStateChange", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerStateChange, SeenPlayer(runtime, player_id),
+                    static_cast<int32_t>(old_state), static_cast<int32_t>(new_state));
+    });
+}
+
+void OnPlayerActionChange(int32_t player_id, int32_t old_action, int32_t new_action) noexcept {
+    OnEvent("OnPlayerActionChange", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerActionChange, SeenPlayer(runtime, player_id), old_action,
+                    new_action);
+    });
+}
+
+void OnPlayerOnFireChange(int32_t player_id, uint8_t on_fire) noexcept {
+    OnEvent("OnPlayerOnFireChange", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerFireChange, SeenPlayer(runtime, player_id), on_fire != 0);
+    });
+}
+
+void OnPlayerCrouchChange(int32_t player_id, uint8_t crouching) noexcept {
+    OnEvent("OnPlayerCrouchChange", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerCrouchChange, SeenPlayer(runtime, player_id),
+                    crouching != 0);
+    });
+}
+
+void OnPlayerGameKeysChange(int32_t player_id, uint32_t old_keys, uint32_t new_keys) noexcept {
+    OnEvent("OnPlayerGameKeysChange", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerGameKeysChange, SeenPlayer(runtime, player_id), old_keys,
+                    new_keys);
+    });
+}
+
+void OnPlayerBeginTyping(int32_t player_id) noexcept {
+    OnEvent("OnPlayerBeginTyping", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerBeginTyping, SeenPlayer(runtime, player_id));
+    });
+}
+
+void OnPlayerEndTyping(int32_t player_id) noexcept {
+    OnEvent("OnPlayerEndTyping", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerFinishTyping, SeenPlayer(runtime, player_id));
+    });
+}
+
+void OnPlayerAwayChange(int32_t player_id, uint8_t away) noexcept {
+    OnEvent("OnPlayerAwayChange", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerAwayChange, SeenPlayer(runtime, player_id), away != 0);
+    });
+}
+
+uint8_t OnPlayerMessage(int32_t player_id, const char* message) noexcept {
+    return OnEvent("OnPlayerMessage", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerMessage, SeenPlayer(runtime, player_id), message);
+    });
+}
+
+// onPlayerCommand(player, command, args, text), as in v1: "/give 5 100"
+// gives "give", {"5", "100"}; args is nil without arguments, and command is
+// nil for an empty message. New: text is everything after the command
+// ("5 100"), for commands whose argument contains spaces.
+uint8_t OnPlayerCommand(int32_t player_id, const char* message) noexcept {
+    return OnEvent("OnPlayerCommand", [&](Runtime& runtime) {
+        const std::string_view text = message != nullptr ? message : "";
+        std::vector<std::string_view> words;
+        std::size_t rest = text.size();
+        for (std::size_t pos = 0; pos < text.size();) {
+            const std::size_t start = text.find_first_not_of(' ', pos);
+            if (start == std::string_view::npos) {
+                break;
+            }
+            const std::size_t end = std::min(text.find(' ', start), text.size());
+            if (words.size() == 1) {
+                rest = start;
+            }
+            words.push_back(text.substr(start, end - start));
+            pos = end;
+        }
+        const PlayerRef player = SeenPlayer(runtime, player_id);
+        if (words.empty()) {
+            return Emit(runtime, Event::PlayerCommand, player, sol::lua_nil, sol::lua_nil,
+                        std::string_view());
+        }
+        const std::string_view arguments = text.substr(std::min(rest, text.size()));
+        if (words.size() == 1) {
+            return Emit(runtime, Event::PlayerCommand, player, words[0], sol::lua_nil, arguments);
+        }
+        sol::main_table args(runtime.state(), sol::create);
+        for (std::size_t i = 1; i < words.size(); ++i) {
+            args.raw_set(static_cast<int>(i), words[i]);
+        }
+        return Emit(runtime, Event::PlayerCommand, player, words[0], args, arguments);
+    });
+}
+
+uint8_t OnPlayerPrivateMessage(int32_t player_id, int32_t target_id, const char* message) noexcept {
+    return OnEvent("OnPlayerPrivateMessage", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerPM, SeenPlayer(runtime, player_id),
+                    SeenPlayer(runtime, target_id), message);
+    });
+}
+
+void OnPlayerSpectate(int32_t player_id, int32_t target_id) noexcept {
+    OnEvent("OnPlayerSpectate", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerSpectate, SeenPlayer(runtime, player_id),
+                    SeenPlayer(runtime, target_id));
+    });
+}
+
+void OnPlayerCrashReport(int32_t player_id, const char* report) noexcept {
+    OnEvent("OnPlayerCrashReport", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PlayerCrashReport, SeenPlayer(runtime, player_id), report);
+    });
+}
+
 void SetPluginName(PluginInfo* info) noexcept {
     const std::size_t length = std::min(std::strlen(kPluginName), sizeof(info->name) - 1);
     std::memcpy(info->name, kPluginName, length);
@@ -310,6 +566,30 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerConnect, &OnPlayerConnect);
         VCMP_LUA_SET_CALLBACK(calls, OnPlayerDisconnect, &OnPlayerDisconnect);
         VCMP_LUA_SET_CALLBACK(calls, OnEntityPoolChange, &OnEntityPoolChange);
+        VCMP_LUA_SET_CALLBACK(calls, OnIncomingConnection, &OnIncomingConnection);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerModuleList, &OnPlayerModuleList);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerRequestClass, &OnPlayerRequestClass);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerRequestSpawn, &OnPlayerRequestSpawn);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerSpawn, &OnPlayerSpawn);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerDeath, &OnPlayerDeath);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerUpdate, &OnPlayerUpdate);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerRequestEnterVehicle, &OnPlayerRequestEnterVehicle);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerEnterVehicle, &OnPlayerEnterVehicle);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerExitVehicle, &OnPlayerExitVehicle);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerNameChange, &OnPlayerNameChange);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerStateChange, &OnPlayerStateChange);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerActionChange, &OnPlayerActionChange);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerOnFireChange, &OnPlayerOnFireChange);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerCrouchChange, &OnPlayerCrouchChange);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerGameKeysChange, &OnPlayerGameKeysChange);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerBeginTyping, &OnPlayerBeginTyping);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerEndTyping, &OnPlayerEndTyping);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerAwayChange, &OnPlayerAwayChange);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerMessage, &OnPlayerMessage);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerCommand, &OnPlayerCommand);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerPrivateMessage, &OnPlayerPrivateMessage);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerSpectate, &OnPlayerSpectate);
+        VCMP_LUA_SET_CALLBACK(calls, OnPlayerCrashReport, &OnPlayerCrashReport);
         plugin.runtime = runtime.release();
         return 1;
     } catch (...) {
