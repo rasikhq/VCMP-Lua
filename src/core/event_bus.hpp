@@ -62,7 +62,8 @@ namespace vcmp_lua {
     X(CheckpointEnter, "onCheckpointEnter")                  \
     X(CheckpointExit, "onCheckpointExit")                    \
     X(EntityPoolChange, "onEntityPoolChange")                \
-    X(ServerPerformanceReport, "onServerPerformanceReport")
+    X(ServerPerformanceReport, "onServerPerformanceReport")  \
+    X(EntityStreamingChange, "onEntityStreamingChange")
 
 enum class Event : std::uint16_t {
 #define VCMP_LUA_EVENT_ENUM(id, name) id,

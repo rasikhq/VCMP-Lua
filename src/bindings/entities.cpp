@@ -91,7 +91,8 @@ void RegisterEntities(sol::state& lua) {
     RegisterPickup(lua, pickup);
     CheckpointType checkpoint = RegisterKind<EntityKind::Checkpoint>(lua);
     RegisterCheckpoint(lua, checkpoint);
-    RegisterKind<EntityKind::Blip>(lua);
+    BlipType blip = RegisterKind<EntityKind::Blip>(lua);
+    RegisterBlip(lua, blip);
     BindType bind = RegisterKind<EntityKind::Bind>(lua);
     RegisterBind(lua, bind);
 }

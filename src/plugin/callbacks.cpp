@@ -595,6 +595,39 @@ void OnClientScriptData(int32_t player_id, const uint8_t* data, size_t size) noe
     });
 }
 
+uint8_t OnPluginCommand(uint32_t command, const char* message) noexcept {
+    return OnEvent("OnPluginCommand", [&](Runtime& runtime) {
+        return Emit(runtime, Event::PluginCommand, command, message);
+    });
+}
+
+// onServerPerformanceReport(count, descriptions, times): two arrays of
+// count entries. v1 passed the raw C pointers.
+void OnServerPerformanceReport(size_t count, const char** descriptions, uint64_t* times) noexcept {
+    OnEvent("OnServerPerformanceReport", [&](Runtime& runtime) {
+        if (!runtime.Events().HasHandlers(EventBus::Index(Event::ServerPerformanceReport))) {
+            return false;
+        }
+        sol::main_table names(runtime.state(), sol::create);
+        sol::main_table durations(runtime.state(), sol::create);
+        for (size_t i = 0; descriptions != nullptr && times != nullptr && i < count; ++i) {
+            names.raw_set(i + 1, descriptions[i] != nullptr ? descriptions[i] : "");
+            durations.raw_set(i + 1, static_cast<lua_Integer>(times[i]));
+        }
+        return Emit(runtime, Event::ServerPerformanceReport, count, names, durations);
+    });
+}
+
+// onEntityStreamingChange(player, entityType, entityId, deleted): new in
+// plugin API 2.1; deleted is true when the entity streamed out.
+void OnEntityStreamingChange(int32_t player_id, int32_t entity_id, vcmpEntityPool type,
+                             uint8_t deleted) noexcept {
+    OnEvent("OnEntityStreamingChange", [&](Runtime& runtime) {
+        return Emit(runtime, Event::EntityStreamingChange, SeenPlayer(runtime, player_id),
+                    static_cast<int32_t>(type), entity_id, deleted != 0);
+    });
+}
+
 void SetPluginName(PluginInfo* info) noexcept {
     const std::size_t length = std::min(std::strlen(kPluginName), sizeof(info->name) - 1);
     std::memcpy(info->name, kPluginName, length);
@@ -709,6 +742,9 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
         VCMP_LUA_SET_CALLBACK(calls, OnPickupRespawn, &OnPickupRespawn);
         VCMP_LUA_SET_CALLBACK(calls, OnCheckpointEntered, &OnCheckpointEntered);
         VCMP_LUA_SET_CALLBACK(calls, OnCheckpointExited, &OnCheckpointExited);
+        VCMP_LUA_SET_CALLBACK(calls, OnPluginCommand, &OnPluginCommand);
+        VCMP_LUA_SET_CALLBACK(calls, OnServerPerformanceReport, &OnServerPerformanceReport);
+        VCMP_LUA_SET_CALLBACK(calls, OnEntityStreamingChange, &OnEntityStreamingChange);
         plugin.runtime = runtime.release();
         return 1;
     } catch (...) {

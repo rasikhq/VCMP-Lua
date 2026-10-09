@@ -172,6 +172,39 @@ In v2 the server owns them, as in Squirrel:
   stack.
 - New: `stream.size` and `stream.remaining`.
 
+## Server, Map, Radio, Weapon, Blip, Sound
+
+- `Server` keeps v1's functions and properties (`Server.name`,
+  `Server.hour = 12`, ...).
+- `Server.addClass` reads the optional weapons from the right arguments
+  (v1 was off by one) and accepts all three forms:
+  `(team, colour, skin, x, y, z, angle, ...)`,
+  `(team, colour, skin, {x, y, z}, angle, ...)` and
+  `(team, colour, skin, {x, y, z, angle}, ...)`. It returns the class id.
+- `Server.banIP`, `unbanIP` and `isIPBanned` accept strings (v1 refused
+  them).
+- `Server.getSkinName(id)` returns `nil` for an unknown id (v1 crashed).
+- `Server.createExplosion(world, type, position[, creator[, atGroundLevel]])`:
+  the last two arguments are optional.
+- `Server.wastedSettings = {...}` keeps the fields the table leaves out.
+- `Map.hideObject`/`showMapObject` round coordinates to the nearest tenth;
+  v1 got negative coordinates wrong by one tenth (-2.0 became -1.9).
+  `Map.showObject` is a new alias of `showMapObject`.
+- `Radio.createStream([id,] name, url[, listed])` returns `true` or
+  `false` in both forms (v1 returned an error code number when an id was
+  given); `listed` defaults to `true`.
+- `Weapon.resetAll()` takes no argument.
+- `Blip.create(...)` returns a `Blip` handle instead of a number, with the
+  same arguments as v1. `Blip.destroy` and `Blip.getInfo` accept the handle
+  or a blip id, and the handle has `blip:destroy()`, `blip:getInfo()`,
+  `blip.id` and `blip.valid`.
+- `Sound.play` accepts every v1 form; the position may be a table or three
+  numbers.
+- `onServerPerformanceReport(count, descriptions, times)` passes two
+  arrays (v1 passed raw C pointers).
+- New event: `onEntityStreamingChange(player, entityType, entityId,
+  deleted)` (plugin API 2.1).
+
 ## New
 
 - `Server.reload()` reloads `luaconfig.lua` and every script.

@@ -318,3 +318,32 @@ TEST_CASE("onClientData: any size is copied into a Stream of that size") {
 }
 
 }  // namespace vcmp_lua::test
+
+namespace vcmp_lua::test {
+
+TEST_CASE("server events: plugin commands, performance reports, streaming") {
+    FakeServer server;
+    Start(server);
+    Record(server, "onPluginCommand");
+    Record(server, "onServerPerformanceReport");
+    Record(server, "onEntityStreamingChange");
+    REQUIRE(server.Run(R"(
+        Event.bind("onPluginCommand", function(id) if id == 2 then Event.cancel() end end)
+    )") == "");
+    const int32_t player = server.Connect();
+    CHECK(server.plugin.OnPluginCommand(1, "hello") == 1);
+    CHECK(server.plugin.OnPluginCommand(2, "refused") == 0);
+    const char* names[] = {"frame", "net"};
+    uint64_t times[] = {15, 7};
+    server.plugin.OnServerPerformanceReport(2, names, times);
+    server.plugin.OnEntityStreamingChange(player, 3, vcmpEntityPoolVehicle, 1);
+    const std::vector<std::string> expected = {
+        "onPluginCommand number:1 string:hello",
+        "onPluginCommand number:2 string:refused",
+        "onServerPerformanceReport number:2 {frame,net} {15,7}",
+        "onEntityStreamingChange Player(0) number:1 number:3 boolean:true",
+    };
+    CHECK(server.records == expected);
+}
+
+}  // namespace vcmp_lua::test

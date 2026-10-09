@@ -34,6 +34,7 @@ void RegisterObject(sol::state& lua, ObjectType& type);
 void RegisterPickup(sol::state& lua, PickupType& type);
 void RegisterCheckpoint(sol::state& lua, CheckpointType& type);
 void RegisterBind(sol::state& lua, BindType& type);
+void RegisterBlip(sol::state& lua, BlipType& type);
 
 namespace detail {
 
