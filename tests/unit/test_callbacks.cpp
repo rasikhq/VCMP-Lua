@@ -114,6 +114,22 @@ TEST_CASE("vehicle events") {
     CHECK(server.records == expected);
 }
 
+TEST_CASE("object events") {
+    FakeServer server;
+    Start(server);
+    Record(server, "onObjectShot");
+    Record(server, "onObjectTouch");
+    const int32_t player = server.Connect();
+    const int32_t object = server.CreateEntity(vcmpEntityPoolObject);
+    server.plugin.OnObjectShot(object, player, 26);
+    server.plugin.OnObjectTouched(object, player);
+    const std::vector<std::string> expected = {
+        "onObjectShot Object(0) Player(0) number:26",
+        "onObjectTouch Object(0) Player(0)",
+    };
+    CHECK(server.records == expected);
+}
+
 TEST_CASE("Event.cancel() makes a cancellable callback refuse") {
     FakeServer server;
     Start(server);

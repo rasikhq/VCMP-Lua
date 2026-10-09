@@ -29,6 +29,7 @@ using BlipType = EntityType<EntityKind::Blip>;
 
 void RegisterPlayer(sol::state& lua, PlayerType& type);
 void RegisterVehicle(sol::state& lua, VehicleType& type);
+void RegisterObject(sol::state& lua, ObjectType& type);
 
 namespace detail {
 

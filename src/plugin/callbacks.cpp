@@ -511,6 +511,20 @@ void OnVehicleRespawn(int32_t vehicle_id) noexcept {
     });
 }
 
+void OnObjectShot(int32_t object_id, int32_t player_id, int32_t weapon) noexcept {
+    OnEvent("OnObjectShot", [&](Runtime& runtime) {
+        return Emit(runtime, Event::ObjectShot, Seen<EntityKind::Object>(runtime, object_id),
+                    SeenPlayer(runtime, player_id), weapon);
+    });
+}
+
+void OnObjectTouched(int32_t object_id, int32_t player_id) noexcept {
+    OnEvent("OnObjectTouched", [&](Runtime& runtime) {
+        return Emit(runtime, Event::ObjectTouch, Seen<EntityKind::Object>(runtime, object_id),
+                    SeenPlayer(runtime, player_id));
+    });
+}
+
 void SetPluginName(PluginInfo* info) noexcept {
     const std::size_t length = std::min(std::strlen(kPluginName), sizeof(info->name) - 1);
     std::memcpy(info->name, kPluginName, length);
@@ -615,6 +629,8 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
         VCMP_LUA_SET_CALLBACK(calls, OnVehicleUpdate, &OnVehicleUpdate);
         VCMP_LUA_SET_CALLBACK(calls, OnVehicleExplode, &OnVehicleExplode);
         VCMP_LUA_SET_CALLBACK(calls, OnVehicleRespawn, &OnVehicleRespawn);
+        VCMP_LUA_SET_CALLBACK(calls, OnObjectShot, &OnObjectShot);
+        VCMP_LUA_SET_CALLBACK(calls, OnObjectTouched, &OnObjectTouched);
         plugin.runtime = runtime.release();
         return 1;
     } catch (...) {

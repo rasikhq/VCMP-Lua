@@ -15,6 +15,7 @@ add_library(vcmp_lua_core STATIC
     bindings/entities.cpp
     bindings/enums.cpp
     bindings/event.cpp
+    bindings/object.cpp
     bindings/player.cpp
     bindings/server.cpp
     bindings/timer.cpp

@@ -114,6 +114,16 @@ In v2 the server owns them, as in Squirrel:
 - `setSpeed`: the final `add` argument is optional (default `false`).
 - New: `model`, `wrecked`, `lightsData`, `explode()`.
 
+## Object
+
+- Creation: see "Lifetime" above; v1's arguments
+  `(model, world, x, y, z[, alpha])` or `(model, world, {x, y, z[, alpha]})`.
+- `object.angle = {x, y, z}` rotates the object to that angle (v1 rotated
+  it by that angle).
+- `rotateTo`/`rotateBy` use a quaternion when the table has four elements.
+  v1 used Euler angles when the fourth element was -1.
+- New: `model` and `alpha` properties.
+
 ## New
 
 - `Server.reload()` reloads `luaconfig.lua` and every script.
