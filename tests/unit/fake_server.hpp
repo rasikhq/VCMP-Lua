@@ -6,16 +6,20 @@
 //
 // - Create*/Delete* report OnEntityPoolChange synchronously, before they
 //   return; ids are reused at once, the first vehicle id is 1.
-// - KickPlayer reports OnPlayerDisconnect synchronously.
+// - KickPlayer and BanPlayer report OnPlayerDisconnect synchronously.
 // - Shutdown() sends OnServerShutdown, then the pool "deleted" events, then
 //   the disconnects of the players still online (reason 0).
 //
-// Functions it does not implement are null, so a binding that needs one
-// raises "not supported by this server version".
+// Every other server function is a recorder: it appends "Name(arg, ...)" to
+// calls (strings quoted, out-parameters and buffers as *), writes the values
+// a test configured into its out-parameters and buffers, and returns the
+// configured value (0, vcmpErrorNone or "" by default). A field can be
+// cleared to test "not supported by this server version".
 
 #include <vcmp.h>
 
 #include <cstdint>
+#include <map>
 #include <optional>
 #include <set>
 #include <sstream>
@@ -44,8 +48,8 @@ public:
     FakeServer& operator=(const FakeServer&) = delete;
 
     // VcmpPluginInit with config (no file) and this server's clock. The test
-    // hooks (test_* functions and record(); see fake_server.cpp) are installed
-    // in every runtime.
+    // hooks (the fake table, test_* functions and record(); see
+    // fake_server.cpp) are installed in every runtime.
     bool Load(Config config = {});
     // The same, reading the config from a luaconfig.lua file (also on reload).
     bool LoadConfigFile(const std::string& path);
@@ -56,7 +60,7 @@ public:
     [[nodiscard]] bool running() const noexcept { return loaded_ && !shut_down_; }
 
     // Players. Connect returns the new id (the lowest free one).
-    std::int32_t Connect(const std::string& name = "player");
+    std::int32_t Connect(const std::string& name = "");
     void Disconnect(std::int32_t id, vcmpDisconnectReason reason = vcmpDisconnectReasonQuit);
     [[nodiscard]] bool Connected(std::int32_t id) const { return players_.contains(id); }
 
@@ -69,8 +73,8 @@ public:
     [[nodiscard]] Runtime* runtime() const noexcept;
 
     // Runs Lua source in the current runtime, as a call into Lua. Returns
-    // the error, or an empty string.
-    std::string Run(const std::string& code);
+    // the error, or an empty string. chunkname as for luaL_loadbuffer.
+    std::string Run(const std::string& code, const std::string& chunkname = "=test");
 
     // Evaluates a Lua expression and returns tostring() of its value.
     std::string Eval(const std::string& expression);
@@ -85,8 +89,24 @@ public:
     // Everything the plugin logged while this server existed.
     [[nodiscard]] std::string LogText() const { return log_.str(); }
 
+    // --- The recorder ----------------------------------------------------------
+
+    // Server calls in order, e.g. SetPlayerHealth(0, 50) or
+    // GetPlayerPosition(0, *, *, *). GetLastError is not recorded.
+    std::vector<std::string> calls;
+    // Return value of a function, by name (default 0 / vcmpErrorNone).
+    std::map<std::string, double> returns;
+    // Values for a function's numeric out-parameters, in order (default 0).
+    std::map<std::string, std::vector<double>> outs;
+    // Text for a function's char* buffer (default "").
+    std::map<std::string, std::string> texts;
+    // Error a function reports: returned by functions that return a
+    // vcmpError, and from GetLastError() after the call.
+    std::map<std::string, vcmpError> errors;
+    vcmpError last_error = vcmpErrorNone;
+
     PluginFuncs funcs{};
-    PluginCallbacks calls{};
+    PluginCallbacks plugin{};  // the callbacks the plugin installed
     PluginInfo info{};
     std::int64_t now_ms = kStartMs;
 
@@ -96,13 +116,21 @@ public:
     vcmpError DeleteEntity(vcmpEntityPool pool, std::int32_t id);
     [[nodiscard]] bool EntityExists(vcmpEntityPool pool, std::int32_t id) const;
     vcmpError Kick(std::int32_t id);
+    std::optional<std::string> PlayerName(std::int32_t id) const;
+    vcmpError SetPlayerName(std::int32_t id, const std::string& name);
+
+    struct KeyBind {
+        bool on_release = false;
+        std::int32_t keys[3] = {-1, -1, -1};
+    };
+    std::map<std::int32_t, KeyBind> key_binds;
 
 private:
     bool LoadWith(plugin::Options options);
     std::set<std::int32_t>* PoolSet(vcmpEntityPool pool);
     const std::set<std::int32_t>* PoolSet(vcmpEntityPool pool) const;
 
-    std::set<std::int32_t> players_;
+    std::map<std::int32_t, std::string> players_;
     std::set<std::int32_t> vehicles_;
     std::set<std::int32_t> objects_;
     std::set<std::int32_t> pickups_;

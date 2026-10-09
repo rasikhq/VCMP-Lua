@@ -1,13 +1,18 @@
 #include "fake_server.hpp"
 
 #include <doctest/doctest.h>
+#include <fmt/format.h>
 #include <lua.hpp>
 #include <sol/sol.hpp>
 #include <spdlog/sinks/ostream_sink.h>
 
+#include <array>
+#include <cstdarg>
 #include <cstdio>
+#include <cstring>
 #include <memory>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 
 #include "core/entity_pool.hpp"
@@ -20,60 +25,317 @@ namespace {
 
 FakeServer* g_current = nullptr;
 
-// --- PluginFuncs ---------------------------------------------------------------
+// --- The recorder --------------------------------------------------------------
 
-uint32_t GetServerVersion() { return 67710; }
-uint32_t GetMaxPlayers() { return 100; }
-uint64_t GetTime() { return static_cast<uint64_t>(FakeServer::Current().now_ms) * 1000; }
-vcmpError GetLastError() { return vcmpErrorNone; }
-vcmpError LogMessage(const char*, ...) { return vcmpErrorNone; }
+// One argument of a server call, as the recorder sees it.
+struct Slot {
+    enum class Kind {
+        Int,
+        UInt,
+        Float,
+        Double,
+        Text,     // const char*: an input string
+        MutText,  // char*: a buffer if a size follows, else an input string
+        Size,     // size_t
+        Out,      // pointer to a number: an out-parameter
+        Other,    // any other pointer
+    };
+    Kind kind = Kind::Other;
+    std::int64_t i = 0;
+    std::uint64_t u = 0;
+    double d = 0;
+    const char* text = nullptr;
+    char* buffer = nullptr;
+    void (*write)(void*, double) = nullptr;  // for Out
+    void* out = nullptr;
+};
 
-uint8_t IsPlayerConnected(int32_t id) { return FakeServer::Current().Connected(id) ? 1 : 0; }
+template <typename T>
+void WriteOut(void* target, double value) {
+    *static_cast<T*>(target) = static_cast<T>(value);
+}
 
-vcmpError GetPlayerName(int32_t id, char* buffer, size_t size) {
-    if (!FakeServer::Current().Connected(id)) {
-        return vcmpErrorNoSuchEntity;
+template <typename T>
+Slot MakeSlot(T value) {
+    Slot slot;
+    if constexpr (std::is_same_v<T, std::size_t>) {
+        slot.kind = Slot::Kind::Size;
+        slot.u = value;
+    } else if constexpr (std::is_enum_v<T>) {
+        slot.kind = Slot::Kind::Int;
+        slot.i = static_cast<std::int64_t>(value);
+    } else if constexpr (std::is_integral_v<T> && std::is_signed_v<T>) {
+        slot.kind = Slot::Kind::Int;
+        slot.i = value;
+    } else if constexpr (std::is_integral_v<T>) {
+        slot.kind = Slot::Kind::UInt;
+        slot.u = value;
+    } else if constexpr (std::is_same_v<T, float>) {
+        slot.kind = Slot::Kind::Float;
+        slot.d = value;
+    } else if constexpr (std::is_same_v<T, double>) {
+        slot.kind = Slot::Kind::Double;
+        slot.d = value;
+    } else if constexpr (std::is_same_v<T, const char*>) {
+        slot.kind = Slot::Kind::Text;
+        slot.text = value;
+    } else if constexpr (std::is_same_v<T, char*>) {
+        slot.kind = Slot::Kind::MutText;
+        slot.buffer = value;
+    } else if constexpr (std::is_pointer_v<T> && std::is_arithmetic_v<std::remove_pointer_t<T>>) {
+        slot.kind = Slot::Kind::Out;
+        slot.write = &WriteOut<std::remove_pointer_t<T>>;
+        slot.out = value;
+    } else {
+        static_assert(std::is_pointer_v<T>, "unexpected parameter type");
+        slot.kind = Slot::Kind::Other;
     }
-    std::snprintf(buffer, size, "player%d", id);
+    return slot;
+}
+
+std::string Quote(const char* text) {
+    return text == nullptr ? "null" : fmt::format("\"{}\"", text);
+}
+
+template <std::size_t N>
+std::string Describe(const char* name, const std::array<Slot, N>& slots) {
+    std::string line = fmt::format("{}(", name);
+    for (std::size_t i = 0; i < N; ++i) {
+        const Slot& slot = slots[i];
+        if (i > 0) {
+            line += ", ";
+        }
+        const bool buffer = slot.kind == Slot::Kind::MutText && i + 1 < N &&
+                            slots[i + 1].kind == Slot::Kind::Size;
+        switch (slot.kind) {
+            case Slot::Kind::Int:
+                line += fmt::format("{}", slot.i);
+                break;
+            case Slot::Kind::UInt:
+            case Slot::Kind::Size:
+                line += fmt::format("{}", slot.u);
+                break;
+            case Slot::Kind::Float:
+                line += fmt::format("{}", static_cast<float>(slot.d));
+                break;
+            case Slot::Kind::Double:
+                line += fmt::format("{}", slot.d);
+                break;
+            case Slot::Kind::Text:
+                line += Quote(slot.text);
+                break;
+            case Slot::Kind::MutText:
+                line += buffer ? "*" : Quote(slot.buffer);
+                break;
+            case Slot::Kind::Out:
+            case Slot::Kind::Other:
+                line += "*";
+                break;
+        }
+    }
+    return line + ")";
+}
+
+// Records the call, fills its out-parameters and buffers, sets the last
+// error, and returns the configured value.
+template <typename R, std::size_t N>
+R Respond(const char* name, std::array<Slot, N>& slots) {
+    FakeServer& server = FakeServer::Current();
+    server.calls.push_back(Describe(name, slots));
+    const auto error_it = server.errors.find(name);
+    const vcmpError error = error_it != server.errors.end() ? error_it->second : vcmpErrorNone;
+    server.last_error = error;
+
+    const auto outs_it = server.outs.find(name);
+    std::size_t next_out = 0;
+    for (std::size_t i = 0; i < N; ++i) {
+        Slot& slot = slots[i];
+        if (slot.kind == Slot::Kind::Out && slot.out != nullptr) {
+            double value = 0;
+            if (outs_it != server.outs.end() && next_out < outs_it->second.size()) {
+                value = outs_it->second[next_out];
+            }
+            ++next_out;
+            slot.write(slot.out, value);
+        } else if (slot.kind == Slot::Kind::MutText && i + 1 < N &&
+                   slots[i + 1].kind == Slot::Kind::Size && slot.buffer != nullptr &&
+                   slots[i + 1].u > 0) {
+            const auto text_it = server.texts.find(name);
+            const std::string text = text_it != server.texts.end() ? text_it->second : "";
+            std::snprintf(slot.buffer, slots[i + 1].u, "%s", text.c_str());
+        }
+    }
+
+    if constexpr (std::is_void_v<R>) {
+        return;
+    } else if constexpr (std::is_pointer_v<R>) {
+        return nullptr;
+    } else if constexpr (std::is_same_v<R, vcmpError>) {
+        const auto it = server.returns.find(name);
+        return it != server.returns.end() ? static_cast<vcmpError>(static_cast<int>(it->second))
+                                          : error;
+    } else {
+        const auto it = server.returns.find(name);
+        const double value = it != server.returns.end() ? it->second : 0;
+        if constexpr (std::is_floating_point_v<R>) {
+            return static_cast<R>(value);
+        } else {
+            return static_cast<R>(static_cast<std::int64_t>(value));
+        }
+    }
+}
+
+template <auto Field>
+struct Stub;
+
+// The recorder for PluginFuncs::*Field, or the override installed for it.
+template <typename R, typename... A, R (*PluginFuncs::*Field)(A...)>
+struct Stub<Field> {
+    static inline const char* name = "";
+    static inline R (*override)(A...) = nullptr;
+
+    static R Call(A... args) {
+        if (override != nullptr) {
+            FakeServer& server = FakeServer::Current();
+            std::array<Slot, sizeof...(A)> slots = {MakeSlot(args)...};
+            server.calls.push_back(Describe(name, slots));
+            server.last_error = vcmpErrorNone;
+            return override(args...);
+        }
+        std::array<Slot, sizeof...(A)> slots = {MakeSlot(args)...};
+        return Respond<R>(name, slots);
+    }
+};
+
+template <auto Field>
+void Install(PluginFuncs& funcs, const char* name) {
+    Stub<Field>::name = name;
+    Stub<Field>::override = nullptr;
+    funcs.*Field = &Stub<Field>::Call;
+}
+
+// The function runs instead of the recorder; the call is still recorded.
+template <auto Field, typename Fn>
+void Override(Fn fn) {
+    Stub<Field>::override = fn;
+}
+
+// The C-variadic functions: the bindings always pass "%s" and one string.
+std::string Format(const char* format, va_list args) {
+    std::array<char, 4096> buffer{};
+    std::vsnprintf(buffer.data(), buffer.size(), format, args);
+    return buffer.data();
+}
+
+vcmpError FakeLogMessage(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    const std::string text = Format(format, args);
+    va_end(args);
+    FakeServer::Current().calls.push_back(fmt::format("LogMessage({})", Quote(text.c_str())));
     return vcmpErrorNone;
 }
 
-vcmpError KickPlayer(int32_t id) { return FakeServer::Current().Kick(id); }
-
-uint8_t CheckEntityExists(vcmpEntityPool pool, int32_t id) {
-    return FakeServer::Current().EntityExists(pool, id) ? 1 : 0;
+vcmpError FakeSendPluginCommand(uint32_t id, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    const std::string text = Format(format, args);
+    va_end(args);
+    FakeServer::Current().calls.push_back(
+        fmt::format("SendPluginCommand({}, {})", id, Quote(text.c_str())));
+    return vcmpErrorNone;
 }
 
-int32_t CreateVehicle(int32_t, int32_t, float, float, float, float, int32_t, int32_t) {
-    return FakeServer::Current().CreateEntity(vcmpEntityPoolVehicle);
+vcmpError FakeSendClientMessage(int32_t player, uint32_t colour, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    const std::string text = Format(format, args);
+    va_end(args);
+    FakeServer& server = FakeServer::Current();
+    server.calls.push_back(
+        fmt::format("SendClientMessage({}, {}, {})", player, colour, Quote(text.c_str())));
+    return server.Connected(player) ? vcmpErrorNone : vcmpErrorNoSuchEntity;
 }
-vcmpError DeleteVehicle(int32_t id) {
-    return FakeServer::Current().DeleteEntity(vcmpEntityPoolVehicle, id);
+
+vcmpError FakeSendGameMessage(int32_t player, int32_t type, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    const std::string text = Format(format, args);
+    va_end(args);
+    FakeServer& server = FakeServer::Current();
+    server.calls.push_back(
+        fmt::format("SendGameMessage({}, {}, {})", player, type, Quote(text.c_str())));
+    return server.Connected(player) || player == -1 ? vcmpErrorNone : vcmpErrorNoSuchEntity;
 }
-int32_t CreateObject(int32_t, int32_t, float, float, float, int32_t) {
-    return FakeServer::Current().CreateEntity(vcmpEntityPoolObject);
-}
-vcmpError DeleteObject(int32_t id) {
-    return FakeServer::Current().DeleteEntity(vcmpEntityPoolObject, id);
-}
-int32_t CreatePickup(int32_t, int32_t, int32_t, float, float, float, int32_t, uint8_t) {
-    return FakeServer::Current().CreateEntity(vcmpEntityPoolPickup);
-}
-vcmpError DeletePickup(int32_t id) {
-    return FakeServer::Current().DeleteEntity(vcmpEntityPoolPickup, id);
-}
-int32_t CreateCheckPoint(int32_t, int32_t, uint8_t, float, float, float, int32_t, int32_t, int32_t,
-                         int32_t, float) {
-    return FakeServer::Current().CreateEntity(vcmpEntityPoolCheckPoint);
-}
-vcmpError DeleteCheckPoint(int32_t id) {
-    return FakeServer::Current().DeleteEntity(vcmpEntityPoolCheckPoint, id);
-}
-int32_t CreateCoordBlip(int32_t, int32_t, float, float, float, int32_t, uint32_t, int32_t) {
-    return FakeServer::Current().CreateEntity(vcmpEntityPoolBlip);
-}
-vcmpError DestroyCoordBlip(int32_t id) {
-    return FakeServer::Current().DeleteEntity(vcmpEntityPoolBlip, id);
+
+// --- Stateful functions --------------------------------------------------------
+
+void InstallStateful(PluginFuncs& funcs) {
+    funcs.LogMessage = &FakeLogMessage;
+    funcs.SendPluginCommand = &FakeSendPluginCommand;
+    funcs.SendClientMessage = &FakeSendClientMessage;
+    funcs.SendGameMessage = &FakeSendGameMessage;
+
+    // GetLastError is not recorded: bindings call it after many getters.
+    funcs.GetLastError = [] { return FakeServer::Current().last_error; };
+
+    Override<&PluginFuncs::GetServerVersion>([]() -> uint32_t { return 67710; });
+    Override<&PluginFuncs::GetMaxPlayers>([]() -> uint32_t { return 100; });
+    Override<&PluginFuncs::GetTime>(
+        []() { return static_cast<uint64_t>(FakeServer::Current().now_ms) * 1000; });
+
+    Override<&PluginFuncs::IsPlayerConnected>(
+        [](int32_t id) -> uint8_t { return FakeServer::Current().Connected(id) ? 1 : 0; });
+    Override<&PluginFuncs::GetPlayerName>([](int32_t id, char* buffer, size_t size) {
+        const auto name = FakeServer::Current().PlayerName(id);
+        if (!name) {
+            return vcmpErrorNoSuchEntity;
+        }
+        if (name->size() >= size) {
+            return vcmpErrorBufferTooSmall;
+        }
+        std::snprintf(buffer, size, "%s", name->c_str());
+        return vcmpErrorNone;
+    });
+    Override<&PluginFuncs::SetPlayerName>([](int32_t id, const char* name) {
+        return FakeServer::Current().SetPlayerName(id, name);
+    });
+    Override<&PluginFuncs::KickPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
+    Override<&PluginFuncs::BanPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
+
+    Override<&PluginFuncs::CheckEntityExists>([](vcmpEntityPool pool, int32_t id) -> uint8_t {
+        return FakeServer::Current().EntityExists(pool, id) ? 1 : 0;
+    });
+    Override<&PluginFuncs::CreateVehicle>(
+        [](int32_t, int32_t, float, float, float, float, int32_t, int32_t) {
+            return FakeServer::Current().CreateEntity(vcmpEntityPoolVehicle);
+        });
+    Override<&PluginFuncs::DeleteVehicle>(
+        [](int32_t id) { return FakeServer::Current().DeleteEntity(vcmpEntityPoolVehicle, id); });
+    Override<&PluginFuncs::CreateObject>([](int32_t, int32_t, float, float, float, int32_t) {
+        return FakeServer::Current().CreateEntity(vcmpEntityPoolObject);
+    });
+    Override<&PluginFuncs::DeleteObject>(
+        [](int32_t id) { return FakeServer::Current().DeleteEntity(vcmpEntityPoolObject, id); });
+    Override<&PluginFuncs::CreatePickup>(
+        [](int32_t, int32_t, int32_t, float, float, float, int32_t, uint8_t) {
+            return FakeServer::Current().CreateEntity(vcmpEntityPoolPickup);
+        });
+    Override<&PluginFuncs::DeletePickup>(
+        [](int32_t id) { return FakeServer::Current().DeleteEntity(vcmpEntityPoolPickup, id); });
+    Override<&PluginFuncs::CreateCheckPoint>([](int32_t, int32_t, uint8_t, float, float, float,
+                                                int32_t, int32_t, int32_t, int32_t, float) {
+        return FakeServer::Current().CreateEntity(vcmpEntityPoolCheckPoint);
+    });
+    Override<&PluginFuncs::DeleteCheckPoint>([](int32_t id) {
+        return FakeServer::Current().DeleteEntity(vcmpEntityPoolCheckPoint, id);
+    });
+    Override<&PluginFuncs::CreateCoordBlip>(
+        [](int32_t, int32_t, float, float, float, int32_t, uint32_t, int32_t) {
+            return FakeServer::Current().CreateEntity(vcmpEntityPoolBlip);
+        });
+    Override<&PluginFuncs::DestroyCoordBlip>(
+        [](int32_t id) { return FakeServer::Current().DeleteEntity(vcmpEntityPoolBlip, id); });
 }
 
 // --- Test hooks installed in every runtime -------------------------------------
@@ -105,11 +367,81 @@ EntityPool& Pool(lua_State* L) {
     return Runtime::Require(L).Entities().Get(K);
 }
 
+// fake.*: the recorder and the fake world, for the Lua tests.
+void InstallFakeTable(sol::state_view lua) {
+    sol::table fake = lua.create_named_table("fake");
+
+    // fake.calls(): every recorded server call since the last fake.clear().
+    fake["calls"] = [] { return sol::as_table(FakeServer::Current().calls); };
+    fake["clear"] = [] { FakeServer::Current().calls.clear(); };
+    // fake.last(): the last recorded call, or nil.
+    fake["last"] = []() -> std::optional<std::string> {
+        const auto& calls = FakeServer::Current().calls;
+        if (calls.empty()) {
+            return std::nullopt;
+        }
+        return calls.back();
+    };
+    // fake.ret(name, value): what the function returns from now on.
+    fake["ret"] = [](const std::string& name, double value) {
+        FakeServer::Current().returns[name] = value;
+    };
+    // fake.out(name, {values}): the function's out-parameters, in order.
+    fake["out"] = [](const std::string& name, std::vector<double> values) {
+        FakeServer::Current().outs[name] = std::move(values);
+    };
+    // fake.text(name, text): what the function writes into its buffer.
+    fake["text"] = [](const std::string& name, const std::string& text) {
+        FakeServer::Current().texts[name] = text;
+    };
+    // fake.error(name, code): the error the function reports (0 clears it).
+    fake["error"] = [](const std::string& name, int code) {
+        FakeServer::Current().errors[name] = static_cast<vcmpError>(code);
+    };
+    // fake.remove(name): the server lacks this function.
+    fake["remove"] = [](const std::string& name) {
+        FakeServer& server = FakeServer::Current();
+#define VCMP_LUA_FUNC(field)        \
+    if (name == #field) {           \
+        server.funcs.field = nullptr; \
+        return;                     \
+    }
+#include "plugin_funcs.inc"
+#undef VCMP_LUA_FUNC
+        throw std::invalid_argument("unknown server function " + name);
+    };
+
+    // fake.connect([name]): a player joins; returns the handle.
+    fake["connect"] = [](sol::this_state L, std::optional<std::string> name) {
+        const int32_t id = FakeServer::Current().Connect(name.value_or(""));
+        return Pool<EntityKind::Player>(L).Ref<EntityKind::Player>(id);
+    };
+    // fake.disconnect(id[, reason]): the player leaves.
+    fake["disconnect"] = [](int32_t id, std::optional<int> reason) {
+        FakeServer::Current().Disconnect(id,
+                                         static_cast<vcmpDisconnectReason>(reason.value_or(1)));
+    };
+    // fake.exists(pool, id): whether the server has the entity.
+    fake["exists"] = [](int pool, int32_t id) {
+        return FakeServer::Current().EntityExists(static_cast<vcmpEntityPool>(pool), id);
+    };
+    // fake.create(pool): another plugin creates an entity; returns its id.
+    fake["create"] = [](int pool) {
+        return FakeServer::Current().CreateEntity(static_cast<vcmpEntityPool>(pool));
+    };
+    // fake.delete(pool, id): the server or another plugin deletes it.
+    fake["delete"] = [](int pool, int32_t id) {
+        return FakeServer::Current().DeleteEntity(static_cast<vcmpEntityPool>(pool), id) ==
+               vcmpErrorNone;
+    };
+}
+
 void InstallHooks(Runtime& runtime) {
     if (std::exchange(FakeServer::Current().fail_next_runtime, false)) {
         throw std::runtime_error("this runtime fails to start (test)");
     }
     sol::state_view lua(runtime.state());
+    InstallFakeTable(lua);
 
     // record(...): appends the arguments, joined with spaces, to records.
     lua["record"] = [](sol::this_state L, sol::variadic_args args) {
@@ -160,7 +492,7 @@ void InstallHooks(Runtime& runtime) {
     };
 
     // The server shutting down while Lua runs (the runtime must defer it).
-    lua["test_server_shutdown"] = [] { FakeServer::Current().calls.OnServerShutdown(); };
+    lua["test_server_shutdown"] = [] { FakeServer::Current().plugin.OnServerShutdown(); };
 }
 
 }  // namespace
@@ -182,27 +514,12 @@ FakeServer::FakeServer() {
     log_sink_ = sink.get();
 
     funcs.structSize = sizeof(funcs);
-    calls.structSize = sizeof(calls);
+    plugin.structSize = sizeof(plugin);
     info.structSize = sizeof(info);
-    funcs.GetServerVersion = &GetServerVersion;
-    funcs.GetMaxPlayers = &GetMaxPlayers;
-    funcs.GetTime = &GetTime;
-    funcs.GetLastError = &GetLastError;
-    funcs.LogMessage = &LogMessage;
-    funcs.IsPlayerConnected = &IsPlayerConnected;
-    funcs.GetPlayerName = &GetPlayerName;
-    funcs.KickPlayer = &KickPlayer;
-    funcs.CheckEntityExists = &CheckEntityExists;
-    funcs.CreateVehicle = &vcmp_lua::test::CreateVehicle;
-    funcs.DeleteVehicle = &vcmp_lua::test::DeleteVehicle;
-    funcs.CreateObject = &CreateObject;
-    funcs.DeleteObject = &DeleteObject;
-    funcs.CreatePickup = &CreatePickup;
-    funcs.DeletePickup = &DeletePickup;
-    funcs.CreateCheckPoint = &CreateCheckPoint;
-    funcs.DeleteCheckPoint = &DeleteCheckPoint;
-    funcs.CreateCoordBlip = &CreateCoordBlip;
-    funcs.DestroyCoordBlip = &DestroyCoordBlip;
+#define VCMP_LUA_FUNC(field) Install<&PluginFuncs::field>(funcs, #field);
+#include "plugin_funcs.inc"
+#undef VCMP_LUA_FUNC
+    InstallStateful(funcs);
 }
 
 FakeServer::~FakeServer() {
@@ -231,22 +548,22 @@ bool FakeServer::LoadWith(plugin::Options options) {
     options.clock = [this] { return now_ms; };
     options.manage_libraries = false;
     options.on_runtime = &InstallHooks;
-    loaded_ = plugin::Init(&funcs, &calls, &info, std::move(options)) == 1;
+    loaded_ = plugin::Init(&funcs, &plugin, &info, std::move(options)) == 1;
     return loaded_;
 }
 
 void FakeServer::Initialise() {
-    REQUIRE(calls.OnServerInitialise != nullptr);
-    calls.OnServerInitialise();
+    REQUIRE(plugin.OnServerInitialise != nullptr);
+    plugin.OnServerInitialise();
 }
 
 void FakeServer::Frame(std::int64_t advance_ms) {
     now_ms += advance_ms;
-    calls.OnServerFrame(static_cast<float>(advance_ms) / 1000.0f);
+    plugin.OnServerFrame(static_cast<float>(advance_ms) / 1000.0f);
 }
 
 void FakeServer::Shutdown() {
-    calls.OnServerShutdown();
+    plugin.OnServerShutdown();
     shut_down_ = true;
     // What the real server does next (docs/internals.md).
     for (const vcmpEntityPool pool : {vcmpEntityPoolPickup, vcmpEntityPoolObject,
@@ -257,25 +574,32 @@ void FakeServer::Shutdown() {
             DeleteEntity(pool, id);
         }
     }
-    const std::set<std::int32_t> players = players_;
+    std::vector<std::int32_t> players;
+    for (const auto& [id, name] : players_) {
+        players.push_back(id);
+    }
     for (const std::int32_t id : players) {
         Disconnect(id, vcmpDisconnectReasonTimeout);
     }
 }
 
-std::int32_t FakeServer::Connect(const std::string&) {
+std::int32_t FakeServer::Connect(const std::string& name) {
     std::int32_t id = 0;
     while (players_.contains(id)) {
         ++id;
     }
-    players_.insert(id);
-    calls.OnPlayerConnect(id);
+    players_.emplace(id, name.empty() ? fmt::format("player{}", id) : name);
+    if (plugin.OnPlayerConnect != nullptr) {
+        plugin.OnPlayerConnect(id);
+    }
     return id;
 }
 
 void FakeServer::Disconnect(std::int32_t id, vcmpDisconnectReason reason) {
     REQUIRE(players_.contains(id));
-    calls.OnPlayerDisconnect(id, reason);  // still connected during the event
+    if (plugin.OnPlayerDisconnect != nullptr) {
+        plugin.OnPlayerDisconnect(id, reason);  // still connected during the event
+    }
     players_.erase(id);
 }
 
@@ -284,6 +608,26 @@ vcmpError FakeServer::Kick(std::int32_t id) {
         return vcmpErrorNoSuchEntity;
     }
     Disconnect(id, vcmpDisconnectReasonKick);
+    return vcmpErrorNone;
+}
+
+std::optional<std::string> FakeServer::PlayerName(std::int32_t id) const {
+    const auto it = players_.find(id);
+    if (it == players_.end()) {
+        return std::nullopt;
+    }
+    return it->second;
+}
+
+vcmpError FakeServer::SetPlayerName(std::int32_t id, const std::string& name) {
+    const auto it = players_.find(id);
+    if (it == players_.end()) {
+        return vcmpErrorNoSuchEntity;
+    }
+    if (name.empty() || name.size() > 23) {
+        return vcmpErrorInvalidName;
+    }
+    it->second = name;
     return vcmpErrorNone;
 }
 
@@ -323,8 +667,8 @@ std::int32_t FakeServer::CreateEntity(vcmpEntityPool pool) {
         ++id;
     }
     ids.insert(id);
-    if (calls.OnEntityPoolChange != nullptr) {
-        calls.OnEntityPoolChange(pool, id, 0);
+    if (plugin.OnEntityPoolChange != nullptr) {
+        plugin.OnEntityPoolChange(pool, id, 0);
     }
     return id;
 }
@@ -334,8 +678,8 @@ vcmpError FakeServer::DeleteEntity(vcmpEntityPool pool, std::int32_t id) {
     if (!ids.contains(id)) {
         return vcmpErrorNoSuchEntity;
     }
-    if (calls.OnEntityPoolChange != nullptr) {
-        calls.OnEntityPoolChange(pool, id, 1);  // still exists during the event
+    if (plugin.OnEntityPoolChange != nullptr) {
+        plugin.OnEntityPoolChange(pool, id, 1);  // still exists during the event
     }
     ids.erase(id);
     return vcmpErrorNone;
@@ -350,14 +694,14 @@ Runtime* FakeServer::runtime() const noexcept {
     return plugin::CurrentRuntime();
 }
 
-std::string FakeServer::Run(const std::string& code) {
+std::string FakeServer::Run(const std::string& code, const std::string& chunkname) {
     Runtime* rt = runtime();
     if (rt == nullptr || !rt->Usable()) {
         return "no usable runtime";
     }
     lua_State* L = rt->state();
     Invoker::Scope scope(rt->invoker());
-    if (luaL_loadbufferx(L, code.data(), code.size(), "=test", "t") != LUA_OK) {
+    if (luaL_loadbufferx(L, code.data(), code.size(), chunkname.c_str(), "t") != LUA_OK) {
         std::string error = ErrorText(L, -1);
         lua_pop(L, 1);
         return error;

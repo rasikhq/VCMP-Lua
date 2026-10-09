@@ -92,10 +92,10 @@ TEST_CASE("shutdown: onServerShutdown, disconnects of online players, then final
         "shutdown event",
         "disconnect " + std::to_string(id) + " 0",
         "finalizer runs",
-        "Timer.create false runtime shutting down",
-        "Event.bind false runtime shutting down",
-        "Server.reload false runtime shutting down",
-        "player.id false runtime shutting down",
+        "Timer.create false test:13: runtime shutting down",
+        "Event.bind false test:14: runtime shutting down",
+        "Server.reload false test:15: runtime shutting down",
+        "player.id false test:16: runtime shutting down",
         "tostring Player(0, no longer exists)",
     };
     CHECK(server.records == expected);
@@ -104,9 +104,9 @@ TEST_CASE("shutdown: onServerShutdown, disconnects of online players, then final
 
     // More events after shutdown are no-ops.
     server.Frame(100);
-    server.calls.OnServerShutdown();
-    server.calls.OnPlayerConnect(3);
-    server.calls.OnEntityPoolChange(vcmpEntityPoolVehicle, 1, 0);
+    server.plugin.OnServerShutdown();
+    server.plugin.OnPlayerConnect(3);
+    server.plugin.OnEntityPoolChange(vcmpEntityPoolVehicle, 1, 0);
     CHECK(server.records == expected);
 }
 
@@ -291,7 +291,7 @@ TEST_CASE("a Lua panic marks the runtime dead and every callback becomes a no-op
     server.Frame(100);
     const int32_t id = server.Connect();
     server.CreateVehicle();
-    server.calls.OnServerInitialise();
+    server.plugin.OnServerInitialise();
     server.Disconnect(id);
     CHECK(server.records.empty());
     server.Shutdown();  // the dead state is leaked, not closed
@@ -334,7 +334,7 @@ TEST_CASE("init refuses a second plugin instance and a server without OnServerFr
     }
     {
         FakeServer server;
-        server.calls.structSize = static_cast<uint32_t>(offsetof(PluginCallbacks, OnServerFrame));
+        server.plugin.structSize = static_cast<uint32_t>(offsetof(PluginCallbacks, OnServerFrame));
         CHECK_FALSE(server.Load());
         CHECK(server.runtime() == nullptr);
     }
