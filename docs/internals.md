@@ -25,14 +25,16 @@ phase 1. They settle the entity design (plan B4) and the shutdown order
 
 | Struct | Size reported by the server | Size in `third_party/vcmp/vcmp.h` |
 |---|---|---|
-| `PluginFuncs` | 2360 bytes | 2352 bytes |
-| `PluginCallbacks` | 376 bytes | 368 bytes |
+| `PluginFuncs` | 2360 bytes | 2360 bytes |
+| `PluginCallbacks` | 376 bytes | 376 bytes |
 | `PluginInfo` | 48 bytes | 48 bytes |
 
-The server has one more function and one more callback than our SDK header.
-Fields are only appended, so the header still matches as far as it goes, and
-the `structSize` checks (plan B3.5) handle both directions. Finding the newer
-header is a phase 3 task.
+The server had one more function and one more callback than the phase 1
+SDK header (API 2.0). Phase 3 replaced it with the API 2.1 header that SqMod
+ships (`module/VCMP/vcmp21.h`), whose structs are exactly the server's size:
+it appends `GetNetworkStatistics` and `OnEntityStreamingChange`, and adds
+`vcmpEntityPoolPlayer`. Fields are only ever appended, and the `structSize`
+checks (plan B3.5) handle older and newer servers in both directions.
 
 ## Entities
 
