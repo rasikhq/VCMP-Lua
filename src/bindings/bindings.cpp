@@ -23,6 +23,7 @@ int ExceptionHandler(lua_State* L, sol::optional<const std::exception&>, sol::st
 
 void Register(sol::state& lua) {
     lua.set_exception_handler(&ExceptionHandler);
+    RegisterEnums(lua);
     RegisterEvent(lua);
     RegisterTimer(lua);
     RegisterEntities(lua);

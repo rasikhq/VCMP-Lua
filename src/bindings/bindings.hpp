@@ -8,6 +8,7 @@ namespace vcmp_lua::bindings {
 void Register(sol::state& lua);
 
 // The pieces of Register, one per file.
+void RegisterEnums(sol::state& lua);
 void RegisterEvent(sol::state& lua);
 void RegisterTimer(sol::state& lua);
 void RegisterEntities(sol::state& lua);

@@ -13,6 +13,7 @@ add_library(vcmp_lua_core STATIC
     bindings/bindings.cpp
     bindings/convert.cpp
     bindings/entities.cpp
+    bindings/enums.cpp
     bindings/event.cpp
     bindings/server.cpp
     bindings/timer.cpp
