@@ -14,7 +14,9 @@ phase 1. They settle the entity design (plan B4) and the shutdown order
   sees of another plugin's entities. Every line says whether the callback
   arrived *inside* a server function the probe was calling.
 - **Real plugin:** `LuaPlugin_x64.so` was loaded next to `probe_a` with
-  `tests/host/smoke.lua` as its script.
+  `tests/host/smoke.lua` as its script. Phase 3 adds
+  `tests/integration/bindings/run.sh`, which runs every class against the
+  server without players.
 - **To run it again:** build `tests/probe` (see its CMakeLists.txt), put
   `mpsvrrel64`, `server.cfg` (`port 5192`, `plugins probe_a probe_b`) and
   `plugins/` in one directory, and start the server with
@@ -163,7 +165,43 @@ Behaviour to document for users:
 - `LIBMYSQL_PLUGINS`, an environment variable the operator controls, can
   still make the connector load plugins when it initialises.
 
-## Runtime
+## Server quirks found in phase 3
+
+Measured with `tests/integration/bindings/run.sh` (no players needed):
+
+- **API version.** The server refuses a plugin that reports API 2.1
+  ("plugin is for incompatible API version 2.1 (current is 2.0)") and
+  never calls it, although its structs already have the 2.1 fields. The
+  plugin reports 2.0 and uses every later field only when `structSize`
+  has room for it.
+- **Text getters.** `GetServerName` and `GetGameModeText` return
+  `vcmpErrorBufferTooSmall` for any buffer size, also when the text fits
+  (it is written correctly). `GetServerPassword` returns
+  `vcmpErrorNone`. The bindings read these texts into buffers far larger
+  than the server's limits and take that error for success.
+- **Key binds.** The server has 50 key bind slots (with `maxplayers` 50
+  and 100 alike). `GetKeyBindData` succeeds for every slot below 50, used
+  or not; a free slot reads keys 0, 0, 0. `RemoveKeyBind` zeroes the slot.
+  A slot holds a bind when one of its keys is not 0.
+- `GetLastError` reflects the last call: the getters that check it
+  (options, handling rules, occupants, ...) work as expected.
+
+## Bindings
+
+How the phase 3 classes (`src/bindings`) use the server:
+
+- Every member of an entity class takes its handle as `Live<K>`, which
+  raises "<kind> no longer exists" for a dead handle; arguments convert
+  with range checks (`bindings/args.hpp`).
+- Server calls go through `Check()`: `vcmpErrorRequestDenied` makes the
+  method return `false`, any other error raises
+  "'<function>' failed: <error>".
+- Messages are sent with a `"%s"` format: the server's message functions
+  are printf-style.
+- `Create*` adopts the new entity (the pool event has already adopted it)
+  and marks it created by this runtime; `destroy()` releases it after
+  `Delete*` returns.
+
 
 How the phase 2 core (`src/core`, `src/runtime`, `src/plugin`) behaves. The
 unit tests in `tests/unit` check each point against `FakeServer`, an

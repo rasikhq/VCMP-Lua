@@ -1,6 +1,7 @@
 // Bind (key binds): v1's members, ported with fixes:
 // - Key binds are shared by every plugin and raise no pool events, so a
-//   handle is checked against the server (GetKeyBindData) on every use.
+//   handle is checked against the server (GetKeyBindData) on every use; a
+//   slot whose keys are all 0 is free (docs/internals.md).
 // - The server owns binds: Bind.create (also Bind.new and Bind(...))
 //   returns a handle; the bind stays until bind:destroy(). v1 removed it
 //   when the Lua object was collected (A2).
@@ -53,8 +54,7 @@ void Remove(const Self& self) {
 }  // namespace
 
 void RequireBindExists(Runtime& runtime, std::int32_t id) {
-    BindData data;
-    if (!ReadBind(runtime.api(), id, data)) {
+    if (!KeyBindExists(runtime.api(), id)) {
         runtime.Entities().Get(kBind).Release(id);
         throw std::runtime_error("bind no longer exists");
     }

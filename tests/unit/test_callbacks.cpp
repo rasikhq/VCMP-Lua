@@ -259,8 +259,10 @@ namespace vcmp_lua::test {
 TEST_CASE("key bind events; a reload removes our binds only") {
     FakeServer server;
     REQUIRE(server.Load());
-    server.key_binds[100] = {};  // another plugin's, before we start
+    server.key_binds[30] = {false, {5, 0, 0}};  // another plugin's, before we start
     server.Initialise();
+    // Free slots answer GetKeyBindData too (keys 0): only the bind is adopted.
+    CHECK(server.Eval("Bind.count()") == "1");
     REQUIRE(server.Run(R"(
         mine = Bind.create(false, 1)
         Event.bind("onPlayerKeyDown", function(player, bind)
@@ -272,10 +274,10 @@ TEST_CASE("key bind events; a reload removes our binds only") {
     )") == "");
     const int32_t player = server.Connect();
     server.plugin.OnPlayerKeyBindDown(player, 0);
-    server.plugin.OnPlayerKeyBindUp(player, 100);
+    server.plugin.OnPlayerKeyBindUp(player, 30);
     const std::vector<std::string> expected = {
         "down Player(0) Bind(0) true",
-        "up Player(0) Bind(100)",
+        "up Player(0) Bind(30)",
     };
     CHECK(server.records == expected);
     CHECK(server.key_binds.size() == 2);
@@ -283,7 +285,7 @@ TEST_CASE("key bind events; a reload removes our binds only") {
     REQUIRE(server.Run("Server.reload()") == "");
     server.Frame();
     CHECK(server.key_binds.size() == 1);
-    CHECK(server.key_binds.contains(100));
+    CHECK(server.key_binds.contains(30));
 }
 
 }  // namespace vcmp_lua::test

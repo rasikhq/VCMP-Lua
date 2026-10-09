@@ -303,6 +303,21 @@ void InstallStateful(PluginFuncs& funcs) {
     Override<&PluginFuncs::KickPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
     Override<&PluginFuncs::BanPlayer>([](int32_t id) { return FakeServer::Current().Kick(id); });
 
+    // The 0.4 server's quirk: these report vcmpErrorBufferTooSmall even when
+    // the text fits (docs/internals.md).
+    Override<&PluginFuncs::GetServerName>([](char* buffer, size_t size) {
+        const auto& texts = FakeServer::Current().texts;
+        const auto it = texts.find("GetServerName");
+        std::snprintf(buffer, size, "%s", it != texts.end() ? it->second.c_str() : "");
+        return vcmpErrorBufferTooSmall;
+    });
+    Override<&PluginFuncs::GetGameModeText>([](char* buffer, size_t size) {
+        const auto& texts = FakeServer::Current().texts;
+        const auto it = texts.find("GetGameModeText");
+        std::snprintf(buffer, size, "%s", it != texts.end() ? it->second.c_str() : "");
+        return vcmpErrorBufferTooSmall;
+    });
+
     // Records the bytes, in hex: SendClientScriptData(0, 01ff, 2).
     Override<&PluginFuncs::SendClientScriptData>([](int32_t id, const void* data, size_t size) {
         FakeServer& server = FakeServer::Current();
@@ -314,10 +329,11 @@ void InstallStateful(PluginFuncs& funcs) {
         return server.Connected(id) ? vcmpErrorNone : vcmpErrorNoSuchEntity;
     });
 
-    // Key binds: slots 0-255, shared by every plugin, no pool events.
+    // Key binds as in the 0.4 server: 50 slots shared by every plugin, no
+    // pool events, and GetKeyBindData answers for a free slot too (keys 0).
     Override<&PluginFuncs::GetKeyBindUnusedSlot>([]() -> int32_t {
         const auto& binds = FakeServer::Current().key_binds;
-        for (int32_t id = 0; id < 256; ++id) {
+        for (int32_t id = 0; id < 50; ++id) {
             if (!binds.contains(id)) {
                 return id;
             }
@@ -326,23 +342,31 @@ void InstallStateful(PluginFuncs& funcs) {
     });
     Override<&PluginFuncs::RegisterKeyBind>(
         [](int32_t id, uint8_t on_release, int32_t key1, int32_t key2, int32_t key3) {
-            if (id < 0 || id >= 256) {
+            if (id < 0 || id >= 50) {
                 return vcmpErrorArgumentOutOfBounds;
             }
             FakeServer::Current().key_binds[id] = {on_release != 0, {key1, key2, key3}};
             return vcmpErrorNone;
         });
     Override<&PluginFuncs::RemoveKeyBind>([](int32_t id) {
-        return FakeServer::Current().key_binds.erase(id) == 1 ? vcmpErrorNone
-                                                              : vcmpErrorNoSuchEntity;
+        if (id < 0 || id >= 50) {
+            return vcmpErrorArgumentOutOfBounds;
+        }
+        FakeServer::Current().key_binds.erase(id);
+        return vcmpErrorNone;
     });
     Override<&PluginFuncs::RemoveAllKeyBinds>([] { FakeServer::Current().key_binds.clear(); });
     Override<&PluginFuncs::GetKeyBindData>([](int32_t id, uint8_t* on_release, int32_t* key1,
                                               int32_t* key2, int32_t* key3) {
+        if (id < 0 || id >= 50) {
+            return vcmpErrorArgumentOutOfBounds;
+        }
         const auto& binds = FakeServer::Current().key_binds;
         const auto it = binds.find(id);
         if (it == binds.end()) {
-            return vcmpErrorNoSuchEntity;
+            *on_release = 0;
+            *key1 = *key2 = *key3 = 0;
+            return vcmpErrorNone;
         }
         *on_release = it->second.on_release ? 1 : 0;
         *key1 = it->second.keys[0];

@@ -331,6 +331,13 @@ int main(int argc, char** argv) {
                 Step(std::string("plugin name: ") + name);
             }
         }
+        // The 0.4 server refuses a plugin whose API version is above its own,
+        // which is 2.0 (docs/internals.md).
+        if (info_size >= offsetof(PluginInfo, apiMinorVersion) + sizeof(uint16_t) &&
+            (info.get()->apiMajorVersion != 2 || info.get()->apiMinorVersion != 0)) {
+            Fail("PluginInfo reports API " + std::to_string(info.get()->apiMajorVersion) + "." +
+                 std::to_string(info.get()->apiMinorVersion) + ", expected 2.0");
+        }
         PluginCallbacks* callbacks = calls.get();
         if (callbacks->OnServerInitialise == nullptr || callbacks->OnServerFrame == nullptr ||
             callbacks->OnServerShutdown == nullptr) {

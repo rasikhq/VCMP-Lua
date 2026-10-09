@@ -50,10 +50,7 @@ auto ServerProperty(Get get, Set set) {
 }
 
 std::string ReadServerText(const Ctx& ctx, vcmpError (*fn)(char*, size_t)) {
-    char buffer[512] = {};
-    Check(ctx.L, fn(buffer, sizeof(buffer)));
-    buffer[sizeof(buffer) - 1] = '\0';
-    return buffer;
+    return ReadText<512>(ctx.L, fn);
 }
 
 // The server's IP functions take a mutable char*.

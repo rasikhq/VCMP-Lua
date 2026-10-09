@@ -45,13 +45,13 @@ test("a bind removed by someone else is noticed on use", function()
 end)
 
 test("clearAllBinds removes only this plugin's binds", function()
-    fake.bind(200, false, 1, 0, 0)  -- another plugin's
+    fake.bind(40, false, 1, 0, 0)  -- another plugin's
     Bind.create(false, 1)
     Bind.create(false, 2)
     fake.clear()
     Bind.clearAllBinds()
     for _, call in ipairs(fake.calls()) do
-        if call:find("RemoveAllKeyBinds", 1, true) or call:find("RemoveKeyBind(200)", 1, true) then
+        if call:find("RemoveAllKeyBinds", 1, true) or call:find("RemoveKeyBind(40)", 1, true) then
             error("removed another plugin's bind: " .. call)
         end
     end
@@ -60,7 +60,7 @@ test("clearAllBinds removes only this plugin's binds", function()
 end)
 
 test("no free slot", function()
-    for id = 0, 255 do fake.bind(id, false, 1, 0, 0) end
+    for id = 0, 49 do fake.bind(id, false, 1, 0, 0) end
     expect_error("'create' failed: no free key bind slot", function() Bind.create(false, 1) end)
-    for id = 0, 255 do fake.unbind(id) end
+    for id = 0, 49 do fake.unbind(id) end
 end)

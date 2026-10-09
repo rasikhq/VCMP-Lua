@@ -26,6 +26,11 @@ struct EntityTraits {
     std::int32_t capacity;  // valid ids are [first_id, capacity)
 };
 
+// Whether key bind slot id holds a bind. The 0.4 server answers
+// GetKeyBindData for every one of its 50 slots, with keys 0, 0, 0 for an
+// unused one (docs/internals.md).
+bool KeyBindExists(const ServerApi& api, std::int32_t id);
+
 // Pool limits of the VC:MP 0.4 server. CheckEntityExists never reports an
 // index out of bounds (docs/internals.md), so these bound the enumeration.
 const EntityTraits& Traits(EntityKind kind) noexcept;

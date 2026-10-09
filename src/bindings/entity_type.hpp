@@ -6,6 +6,7 @@
 
 #include <sol/sol.hpp>
 
+#include <cstddef>
 #include <cstdint>
 #include <stdexcept>
 #include <string>
@@ -95,10 +96,16 @@ EntityRef<K> Created(lua_State* L, Runtime& runtime, std::int32_t id) {
 }
 
 // Reads a string the server writes into a buffer (names, IPs, UIDs).
-template <typename Fn, typename... Args>
+// GetServerName and GetGameModeText return vcmpErrorBufferTooSmall even
+// when the text fits (docs/internals.md); the buffers here are far larger
+// than any of these texts, so that error is taken for success.
+template <std::size_t Size = 256, typename Fn, typename... Args>
 std::string ReadText(lua_State* L, Fn fn, Args... args) {
-    char buffer[256] = {};
-    Check(L, fn(args..., buffer, sizeof(buffer)));
+    char buffer[Size] = {};
+    const vcmpError error = fn(args..., buffer, sizeof(buffer));
+    if (error != vcmpErrorBufferTooSmall) {
+        Check(L, error);
+    }
     buffer[sizeof(buffer) - 1] = '\0';
     return buffer;
 }

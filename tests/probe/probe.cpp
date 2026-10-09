@@ -285,7 +285,7 @@ PROBE_EXPORT unsigned int VcmpPluginInit(PluginFuncs* funcs, PluginCallbacks* ca
     std::snprintf(info->name, sizeof(info->name), "%s", PROBE_NAME);
     info->pluginVersion = 1;
     info->apiMajorVersion = PLUGIN_API_MAJOR;
-    info->apiMinorVersion = PLUGIN_API_MINOR;
+    info->apiMinorVersion = 0;  // the server refuses 2.1 (docs/internals.md)
     if (const char* at = std::getenv("PROBE_SHUTDOWN_AT")) {
         g_shutdown_at = std::atof(at);
     }

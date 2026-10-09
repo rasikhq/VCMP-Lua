@@ -13,8 +13,8 @@ namespace vcmp_lua {
 namespace {
 
 // Pool sizes of the VC:MP 0.4 server (the same limits SqMod uses). Vehicle
-// ids start at 1 (docs/internals.md), so that pool has one extra slot. Key
-// bind slots are those of GetKeyBindUnusedSlot.
+// ids start at 1 (docs/internals.md), so that pool has one extra slot. The
+// server has 50 key bind slots; 256 leaves room for a server with more.
 constexpr std::array<EntityTraits, kEntityKindCount> kTraits = {{
     {"player", "Player", 0, 100},
     {"vehicle", "Vehicle", 1, 1001},
@@ -40,6 +40,17 @@ constexpr std::array<MakeHandleFn, kEntityKindCount> kMakeHandle = {
 };
 
 }  // namespace
+
+bool KeyBindExists(const ServerApi& api, std::int32_t id) {
+    const auto bind_data = VCMP_LUA_FIND(api, GetKeyBindData);
+    if (bind_data == nullptr) {
+        return false;
+    }
+    std::uint8_t on_release = 0;
+    std::int32_t keys[3] = {};
+    return bind_data(id, &on_release, &keys[0], &keys[1], &keys[2]) == vcmpErrorNone &&
+           (keys[0] != 0 || keys[1] != 0 || keys[2] != 0);
+}
 
 const EntityTraits& Traits(EntityKind kind) noexcept {
     return kTraits[static_cast<std::size_t>(kind)];
@@ -237,12 +248,10 @@ void EntityPools::Enumerate(const ServerApi& api) {
             }
         }
     }
-    if (const auto bind_data = VCMP_LUA_FIND(api, GetKeyBindData)) {
+    if (VCMP_LUA_FIND(api, GetKeyBindData) != nullptr) {
         EntityPool& binds = Get(EntityKind::Bind);
         for (std::int32_t id = 0; id < Traits(EntityKind::Bind).capacity; ++id) {
-            uint8_t on_release = 0;
-            int32_t keys[3] = {};
-            if (bind_data(id, &on_release, &keys[0], &keys[1], &keys[2]) == vcmpErrorNone) {
+            if (KeyBindExists(api, id)) {
                 binds.Adopt(id);
             }
         }

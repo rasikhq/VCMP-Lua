@@ -26,6 +26,7 @@ namespace vcmp_lua::plugin {
 namespace {
 
 constexpr const char* kPluginName = "VCMP-Lua";
+constexpr uint16_t kApiMinorVersion = 0;
 
 struct State {
     ServerApi api;
@@ -674,7 +675,12 @@ unsigned int Init(PluginFuncs* funcs, PluginCallbacks* calls, PluginInfo* info,
             info->apiMajorVersion = PLUGIN_API_MAJOR;
         }
         if (VCMP_LUA_HAS_FIELD(info, PluginInfo, apiMinorVersion)) {
-            info->apiMinorVersion = PLUGIN_API_MINOR;
+            // Not PLUGIN_API_MINOR (1 in the 2.1 header): the 0.4 server
+            // refuses a plugin whose minor version is above its own, and the
+            // current one reports 2.0 although its structs already have the
+            // 2.1 fields (docs/internals.md). Every field past 2.0 is used
+            // only when structSize has room for it.
+            info->apiMinorVersion = kApiMinorVersion;
         }
         if (!VCMP_LUA_HAS_FIELD(calls, PluginCallbacks, OnServerInitialise) ||
             !VCMP_LUA_HAS_FIELD(calls, PluginCallbacks, OnServerShutdown) ||
