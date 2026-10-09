@@ -86,8 +86,14 @@ local function automatic(p)
         expect(p.state, PlayerState.normal, "state")
     end)
     check(p, "ping, fps, network statistics", function()
+        -- GetNetworkStatistics is plugin API 2.1: older servers lack it, and
+        -- the binding then raises "not supported by this server version".
+        local ok, loss = pcall(p.getNetworkStatistics, p, NetworkStatistics.packetLossTotal)
+        if not ok and not tostring(loss):find("not supported by this server version", 1, true) then
+            error(loss, 0)
+        end
         print(("[client] ping=%d fps=%.1f loss=%s"):format(p.ping, p.fps,
-            tostring(p:getNetworkStatistics(NetworkStatistics.packetLossTotal))))
+            ok and tostring(loss) or "(not supported by this server)"))
         return p.ping >= 0
     end)
     check(p, "health and armour", function()
@@ -127,15 +133,21 @@ local function automatic(p)
         p.angle = 1.5
         expect(near(p.angle, 1.5), true, "angle")
     end)
-    check(p, "weapons and ammo", function()
+    check(p, "giveWeapon, setWeapon", function()
         p:disarm()
         p:giveWeapon(26, 150)
-        p:setWeapon(26, 150)
-        expect(p.weapon, 26, "weapon")
-        expect(p.ammo, 150, "ammo")
-        print(("[client] slot=%d weaponAtSlot=%d ammoAtSlot=%d"):format(p.weaponSlot,
-            p:getWeaponAtSlot(p.weaponSlot), p:getAmmoAtSlot(p.weaponSlot)))
+        return p:setWeapon(26, 150)
     end)
+    -- The server reports the weapon only after the client synced it.
+    Timer.create(function()
+        if not p.valid then return end
+        check(p, "weapon and ammo, after the client synced", function()
+            expect(p.weapon, 26, "weapon")
+            print(("[client] ammo=%d slot=%d weaponAtSlot=%d ammoAtSlot=%d"):format(p.ammo,
+                p.weaponSlot, p:getWeaponAtSlot(p.weaponSlot), p:getAmmoAtSlot(p.weaponSlot)))
+            return p.ammo > 0
+        end)
+    end, 2000, 1)
     check(p, "options, admin, immunity, alpha", function()
         p:setOption(PlayerOption.widescreen, true)
         expect(p:getOption(PlayerOption.widescreen), true, "widescreen on")

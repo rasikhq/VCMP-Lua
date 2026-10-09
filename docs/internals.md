@@ -186,6 +186,29 @@ Measured with `tests/integration/bindings/run.sh` (no players needed):
 - `GetLastError` reflects the last call: the getters that check it
   (options, handling rules, occupants, ...) work as expected.
 
+## A real client on a Windows server (phase 3)
+
+The owner ran `tests/integration/client/client.lua` on a Windows VC:MP 0.4
+server and joined with a real client:
+
+- Every player event arrived with the expected arguments: connection,
+  connect, class and spawn requests, spawn, state and action changes,
+  typing, away, commands (arguments and text), name change, vehicle
+  enter/exit, checkpoint enter/exit, pickup attempt/picked, object shot and
+  touch, key bind down/up, death, disconnect (kick: reason 2).
+- The Player members read back what was written (health, armour, cash,
+  score, world, team, skin, colour, position, angle, options, admin,
+  immunity, alpha, drunk effects); name, IP, UID and UID2 read correctly.
+- `Server.reload()` with a player online kept the player's handle working
+  in the new scripts; the server shut down cleanly.
+- That server's `PluginFuncs` ends before `GetNetworkStatistics` (plugin
+  API 2.1): `getNetworkStatistics` raised "not supported by this server
+  version", as designed.
+- A weapon given with `setWeapon` reads back as 0 (`player.weapon`) until
+  the client has synced it; read it later, e.g. from a timer.
+- Aiming toggles `onPlayerStateChange` between 1 and 2 many times a
+  second.
+
 ## Bindings
 
 How the phase 3 classes (`src/bindings`) use the server:
